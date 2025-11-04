@@ -706,6 +706,22 @@
 "expert_chat.message_placeholder" = "Message...";
 "expert_chat.yesterday" = "Yesterday";
 "expert_chat.welcome_message" = "Welcome! Your tax expert Maria Schmidt has been assigned. She speaks German and English and specializes in expats and cross-border taxes.";
+"expert_chat.expert_avatar" = "Expert avatar";
+"expert_chat.online_status" = "Online";
+"expert_chat.read" = "Read";
+"expert_chat.sent" = "Sent";
+"expert_chat.image_message" = "Image message";
+"expert_chat.document_message" = "Document attachment";
+"expert_chat.document_hint" = "Double tap to download";
+"expert_chat.system_message" = "System notification";
+"expert_chat.attach_photo" = "Attach photo";
+"expert_chat.photo_hint" = "Double tap to select a photo";
+"expert_chat.voice_input" = "Voice input";
+"expert_chat.voice_hint" = "Double tap to record a voice message";
+"expert_chat.message_field" = "Message text field";
+"expert_chat.send_message" = "Send message";
+"expert_chat.send_disabled" = "Message field is empty";
+"expert_chat.send_enabled" = "Double tap to send message";
 
 // MARK: - Settings (General App Settings)
 "settings.appearance.header" = "Appearance";

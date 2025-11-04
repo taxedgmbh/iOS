@@ -10,35 +10,56 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            // Profile Section
+            // Profile Section (HIG Compliant with LabeledContent)
             Section {
                 if let user = authService.user {
-                    ProfileRow(icon: "person.fill", title: "settings.profile.name".localized, value: user.name)
-                    ProfileRow(icon: "envelope.fill", title: "settings.profile.email".localized, value: user.email)
+                    LabeledContent {
+                        Text(user.name)
+                            .foregroundStyle(.secondary)
+                    } label: {
+                        Label("settings.profile.name".localized, systemImage: "person.fill")
+                    }
+
+                    LabeledContent {
+                        Text(user.email)
+                            .foregroundStyle(.secondary)
+                    } label: {
+                        Label("settings.profile.email".localized, systemImage: "envelope.fill")
+                    }
 
                     if let phone = user.phone {
-                        ProfileRow(icon: "phone.fill", title: "settings.profile.phone".localized, value: phone)
+                        LabeledContent {
+                            Text(phone)
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("settings.profile.phone".localized, systemImage: "phone.fill")
+                        }
                     }
 
                     if let canton = user.canton {
-                        ProfileRow(icon: "map.fill", title: "settings.profile.canton".localized, value: canton)
+                        LabeledContent {
+                            Text(canton)
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("settings.profile.canton".localized, systemImage: "map.fill")
+                        }
                     }
 
-                    ProfileRow(icon: "briefcase.fill", title: "settings.profile.role".localized, value: user.role.rawValue.capitalized)
+                    LabeledContent {
+                        Text(user.role.rawValue.capitalized)
+                            .foregroundStyle(.secondary)
+                    } label: {
+                        Label("settings.profile.role".localized, systemImage: "briefcase.fill")
+                    }
                 }
             } header: {
                 Text("settings.profile.title".localized)
             }
 
-            // Notifications Section
+            // Notifications Section (HIG Compliant)
             Section {
                 Toggle(isOn: $notificationService.isNotificationEnabled) {
-                    HStack {
-                        Image(systemName: "bell.fill")
-                            .foregroundColor(.taxedPrimary)
-                            .frame(width: 24)
-                        Text("settings.notifications.push".localized)
-                    }
+                    Label("settings.notifications.push".localized, systemImage: "bell.fill")
                 }
                 .onChange(of: notificationService.isNotificationEnabled) { _, newValue in
                     if newValue {
@@ -51,12 +72,7 @@ struct SettingsView: View {
                 NavigationLink {
                     DetailedNotificationSettingsView()
                 } label: {
-                    HStack {
-                        Image(systemName: "bell.badge.fill")
-                            .foregroundColor(.taxedPrimary)
-                            .frame(width: 24)
-                        Text("settings.notifications.settings".localized)
-                    }
+                    Label("settings.notifications.settings".localized, systemImage: "bell.badge.fill")
                 }
             } header: {
                 Text("settings.notifications.title".localized)
@@ -117,14 +133,9 @@ struct SettingsView: View {
             // App Information Section
             Section {
                 NavigationLink {
-                    AboutView()
+                    AboutView_HIGCompliant()
                 } label: {
-                    HStack {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundColor(.taxedPrimary)
-                            .frame(width: 24)
-                        Text("settings.app_info.about".localized)
-                    }
+                    Label("settings.app_info.about".localized, systemImage: "info.circle.fill")
                 }
 
                 NavigationLink {
