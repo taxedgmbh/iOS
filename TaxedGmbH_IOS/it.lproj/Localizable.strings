@@ -518,6 +518,64 @@
 "more.about.bullet4" = "Disponibile in tedesco, francese, italiano e inglese";
 "more.about.logo_label" = "Logo aziendale Taxed";
 "more.about.description" = "Taxed semplifica la tua dichiarazione fiscale in Svizzera. Il nostro team di esperti fiscali ti accompagna durante l'intero processo e si assicura che tu benefici di tutte le deduzioni a cui hai diritto.";
+
+// Company Details
+"more.company_details.header" = "Dettagli Azienda";
+"more.company_details.name" = "Nome Azienda";
+"more.company_details.uid" = "UID";
+"more.company_details.address" = "Indirizzo";
+"more.company_details.location" = "Sede";
+"more.company_details.country" = "Paese";
+"more.company_details.phone" = "Telefono";
+"more.company_details.email" = "Email";
+"more.company_details.website" = "Sito Web";
+
+// Business Information
+"more.business_info.header" = "La Nostra Azienda";
+"more.business_info.founded" = "Fondata";
+"more.business_info.employees" = "Dimensione Team";
+"more.business_info.mission" = "Missione";
+"more.business_info.mission_text" = "Rendere le tasse semplici per tutti";
+"more.business_info.vision" = "Visione";
+"more.business_info.vision_text" = "La piattaforma fiscale digitale leader in Svizzera";
+"more.business_info.uid" = "UID: CHE-123.456.789";
+"more.business_info.zefix_entry" = "Registrazione Zefix";
+"more.business_info.zefix_subtitle" = "Registro ufficiale delle imprese svizzere";
+
+// Services
+"more.services.header" = "I Nostri Servizi";
+"more.services.tax_returns.title" = "Dichiarazioni Fiscali";
+"more.services.tax_returns.description" = "Dichiarazioni fiscali complete per privati e aziende";
+"more.services.expat.title" = "Servizi Expat";
+"more.services.expat.description" = "Supporto specializzato per expat con redditi e patrimoni esteri";
+"more.services.expat_advice.title" = "Consulenza Expat";
+"more.services.expat_advice.description" = "Consulenza fiscale specializzata per expat con redditi esteri";
+"more.services.ai_processing.title" = "Elaborazione IA";
+"more.services.ai_processing.description" = "Analisi e categorizzazione intelligente dei documenti";
+"more.services.data_protection.title" = "Protezione Dati";
+"more.services.data_protection.description" = "Sicurezza dati svizzera e conformità GDPR";
+"more.services.consultation.title" = "Consulenza Fiscale";
+"more.services.consultation.description" = "Consulenza personale su tutte le questioni fiscali";
+"more.services.support.title" = "Supporto Annuale";
+"more.services.support.description" = "Disponibile anche fuori stagione fiscale";
+
+// Trust & Certifications
+"more.trust.header" = "Fiducia e Sicurezza";
+"more.trust.gdpr.title" = "Conforme GDPR";
+"more.trust.gdpr.subtitle" = "Protezione dati secondo standard UE";
+"more.trust.swiss.title" = "Qualità Svizzera";
+"more.trust.swiss.subtitle" = "Registrata in Svizzera";
+"more.trust.secure.title" = "Dati Sicuri";
+"more.trust.secure.subtitle" = "Crittografia di livello bancario";
+"more.trust.encryption.title" = "Crittografia End-to-End";
+"more.trust.encryption.subtitle" = "I tuoi dati sono protetti con crittografia AES-256";
+"more.trust.professional.title" = "Team Esperto";
+"more.trust.professional.subtitle" = "Professionisti fiscali certificati";
+"more.trust.experts.title" = "Esperti Certificati";
+"more.trust.experts.subtitle" = "Professionisti fiscali certificati svizzeri";
+"more.trust.cloud.title" = "Archiviazione Cloud Sicura";
+"more.trust.cloud.subtitle" = "Infrastruttura cloud ospitata in Svizzera";
+
 "more.company.title" = "Azienda";
 "more.company.name" = "Taxed GmbH";
 "more.company.address" = "Bahnhofstrasse 123";
