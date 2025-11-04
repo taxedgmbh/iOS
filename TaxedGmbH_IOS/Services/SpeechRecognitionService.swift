@@ -73,7 +73,8 @@ class SpeechRecognitionService: NSObject, ObservableObject {
     }
 
     private func requestMicrophonePermission() {
-        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
+        // Use iOS 17.0+ API for requesting record permission
+        AVAudioApplication.requestRecordPermission { [weak self] granted in
             DispatchQueue.main.async {
                 if !granted {
                     self?.hasPermission = false

@@ -258,7 +258,14 @@ class NotificationService: NSObject, ObservableObject {
             pendingNotificationCount -= 1
         }
 
-        UIApplication.shared.applicationIconBadgeNumber = pendingNotificationCount
+        // Use iOS 17.0+ API for setting badge count
+        Task {
+            do {
+                try await UNUserNotificationCenter.current().setBadgeCount(pendingNotificationCount)
+            } catch {
+                print("Failed to set badge count: \(error)")
+            }
+        }
     }
 
     // MARK: - Test Notifications

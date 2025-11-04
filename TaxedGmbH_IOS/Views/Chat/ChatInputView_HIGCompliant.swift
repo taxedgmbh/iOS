@@ -25,66 +25,80 @@ struct ChatInputView_HIGCompliant: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-
-            HStack(alignment: .bottom, spacing: 12) {
-                // Image picker button with semantic colors
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    Image(systemName: "photo")
-                        .font(.title3)
-                        .foregroundStyle(.accentColor)
-                        .frame(width: 36, height: 36)
-                        .background(Color(uiColor: .systemGray6))
-                        .cornerRadius(18)
-                }
-                .onChange(of: selectedItem) { _, newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                            onImageSelected(data)
-                            selectedItem = nil
-                        }
-                    }
-                }
-                .accessibilityLabel("expert_chat.attach_photo".localized)
-                .accessibilityHint("expert_chat.photo_hint".localized)
-
-                // Voice input button with semantic colors
-                Button(action: { showingVoiceInput = true }) {
-                    Image(systemName: "mic.fill")
-                        .font(.title3)
-                        .foregroundStyle(.accentColor)
-                        .frame(width: 36, height: 36)
-                        .background(Color.accentColor.opacity(0.1))
-                        .cornerRadius(18)
-                }
-                .sheet(isPresented: $showingVoiceInput) {
-                    VoiceInputSheet(text: $messageText, isPresented: $showingVoiceInput)
-                }
-                .accessibilityLabel("expert_chat.voice_input".localized)
-                .accessibilityHint("expert_chat.voice_hint".localized)
-
-                // Text input with proper accessibility
-                TextField("expert_chat.message_placeholder".localized, text: $messageText, axis: .vertical)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Color(uiColor: .systemGray6))
-                    .cornerRadius(20)
-                    .lineLimit(1...5)
-                    .accessibilityLabel("expert_chat.message_field".localized)
-
-                // Send button with semantic colors
-                Button(action: onSend) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(messageText.isEmpty ? .secondary : .accentColor)
-                }
-                .disabled(messageText.isEmpty)
-                .accessibilityLabel("expert_chat.send_message".localized)
-                .accessibilityHint(messageText.isEmpty ? "expert_chat.send_disabled".localized : "expert_chat.send_enabled".localized)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(uiColor: .systemBackground))
+            inputBar
         }
+    }
+
+    // MARK: - Input Bar Components
+
+    private var inputBar: some View {
+        HStack(alignment: .bottom, spacing: 12) {
+            photoPickerButton
+            voiceInputButton
+            messageTextField
+            sendButton
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(uiColor: .systemBackground))
+    }
+
+    private var photoPickerButton: some View {
+        PhotosPicker(selection: $selectedItem, matching: .images) {
+            Image(systemName: "photo")
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 36, height: 36)
+                .background(Color(uiColor: .systemGray6))
+                .cornerRadius(18)
+        }
+        .onChange(of: selectedItem) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                    onImageSelected(data)
+                    selectedItem = nil
+                }
+            }
+        }
+        .accessibilityLabel("expert_chat.attach_photo".localized)
+        .accessibilityHint("expert_chat.photo_hint".localized)
+    }
+
+    private var voiceInputButton: some View {
+        Button(action: { showingVoiceInput = true }) {
+            Image(systemName: "mic.fill")
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 36, height: 36)
+                .background(Color.accentColor.opacity(0.1))
+                .cornerRadius(18)
+        }
+        .sheet(isPresented: $showingVoiceInput) {
+            VoiceInputSheet(text: $messageText, isPresented: $showingVoiceInput)
+        }
+        .accessibilityLabel("expert_chat.voice_input".localized)
+        .accessibilityHint("expert_chat.voice_hint".localized)
+    }
+
+    private var messageTextField: some View {
+        TextField("expert_chat.message_placeholder".localized, text: $messageText, axis: .vertical)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Color(uiColor: .systemGray6))
+            .cornerRadius(20)
+            .lineLimit(1...5)
+            .accessibilityLabel("expert_chat.message_field".localized)
+    }
+
+    private var sendButton: some View {
+        Button(action: onSend) {
+            Image(systemName: "arrow.up.circle.fill")
+                .font(.title2)
+                .foregroundStyle(messageText.isEmpty ? Color.secondary : Color.accentColor)
+        }
+        .disabled(messageText.isEmpty)
+        .accessibilityLabel("expert_chat.send_message".localized)
+        .accessibilityHint(messageText.isEmpty ? "expert_chat.send_disabled".localized : "expert_chat.send_enabled".localized)
     }
 }
 

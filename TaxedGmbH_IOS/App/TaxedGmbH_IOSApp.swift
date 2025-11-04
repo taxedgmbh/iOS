@@ -141,16 +141,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private func performBackgroundFetch(userInfo: [AnyHashable: Any], completion: @escaping (UIBackgroundFetchResult) -> Void) {
         // Perform background tasks like syncing data
         Task {
-            do {
-                // Note: In a real implementation, you would need to get the user ID from stored credentials
-                // or use a shared instance of AuthenticationService
-                print("📦 Background fetch initiated")
-                // For now, just return newData to indicate we processed the notification
-                completion(.newData)
-            } catch {
-                print("❌ Background fetch error: \(error)")
-                completion(.failed)
-            }
+            // Note: In a real implementation, you would need to get the user ID from stored credentials
+            // or use a shared instance of AuthenticationService
+            print("📦 Background fetch initiated")
+            // For now, just return newData to indicate we processed the notification
+            completion(.newData)
         }
     }
 }
