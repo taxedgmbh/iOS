@@ -550,6 +550,10 @@
 "more.company_details.uid" = "UID";
 "more.company_details.address" = "Address";
 "more.company_details.location" = "Location";
+"more.company_details.country" = "Country";
+"more.company_details.phone" = "Phone";
+"more.company_details.email" = "Email";
+"more.company_details.website" = "Website";
 
 // Business Information
 "more.business_info.header" = "Our Business";
@@ -559,6 +563,9 @@
 "more.business_info.mission_text" = "Making taxes simple for everyone";
 "more.business_info.vision" = "Vision";
 "more.business_info.vision_text" = "The leading digital tax platform in Switzerland";
+"more.business_info.uid" = "UID: CHE-123.456.789";
+"more.business_info.zefix_entry" = "Zefix Entry";
+"more.business_info.zefix_subtitle" = "Official Swiss company register";
 
 // Services
 "more.services.header" = "Our Services";
@@ -566,6 +573,12 @@
 "more.services.tax_returns.description" = "Complete tax declarations for private individuals and companies";
 "more.services.expat.title" = "Expat Services";
 "more.services.expat.description" = "Specialized support for expats with foreign income and assets";
+"more.services.expat_advice.title" = "Expat Advisory";
+"more.services.expat_advice.description" = "Specialized tax advice for expats with foreign income";
+"more.services.ai_processing.title" = "AI Processing";
+"more.services.ai_processing.description" = "Intelligent document analysis and categorization";
+"more.services.data_protection.title" = "Data Protection";
+"more.services.data_protection.description" = "Swiss data security and GDPR compliance";
 "more.services.consultation.title" = "Tax Consultation";
 "more.services.consultation.description" = "Personal advice on all tax questions";
 "more.services.support.title" = "Year-round Support";
@@ -579,8 +592,14 @@
 "more.trust.swiss.subtitle" = "Registered in Switzerland";
 "more.trust.secure.title" = "Secure Data";
 "more.trust.secure.subtitle" = "Bank-level encryption";
+"more.trust.encryption.title" = "End-to-End Encryption";
+"more.trust.encryption.subtitle" = "Your data is protected with AES-256 encryption";
 "more.trust.professional.title" = "Expert Team";
 "more.trust.professional.subtitle" = "Certified tax professionals";
+"more.trust.experts.title" = "Certified Experts";
+"more.trust.experts.subtitle" = "Swiss certified tax professionals";
+"more.trust.cloud.title" = "Secure Cloud Storage";
+"more.trust.cloud.subtitle" = "Swiss-hosted cloud infrastructure";
 
 // App Information
 "more.app_info.header" = "App Information";

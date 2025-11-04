@@ -533,6 +533,10 @@
 "more.company_details.uid" = "UID";
 "more.company_details.address" = "Adresse";
 "more.company_details.location" = "Standort";
+"more.company_details.country" = "Land";
+"more.company_details.phone" = "Telefon";
+"more.company_details.email" = "E-Mail";
+"more.company_details.website" = "Website";
 
 // Business Information
 "more.business_info.header" = "Unser Unternehmen";
@@ -542,6 +546,9 @@
 "more.business_info.mission_text" = "Steuern einfach für alle machen";
 "more.business_info.vision" = "Vision";
 "more.business_info.vision_text" = "Die führende digitale Steuerplattform der Schweiz";
+"more.business_info.uid" = "UID: CHE-123.456.789";
+"more.business_info.zefix_entry" = "Zefix-Eintrag";
+"more.business_info.zefix_subtitle" = "Offizielles Schweizer Firmenregister";
 
 // Services
 "more.services.header" = "Unsere Dienstleistungen";
@@ -549,6 +556,12 @@
 "more.services.tax_returns.description" = "Komplette Steuerdeklarationen für Privatpersonen und Unternehmen";
 "more.services.expat.title" = "Expat-Services";
 "more.services.expat.description" = "Spezialisierte Unterstützung für Expats mit ausländischen Einkommen und Vermögen";
+"more.services.expat_advice.title" = "Expat-Beratung";
+"more.services.expat_advice.description" = "Spezialisierte Steuerberatung für Expats mit ausländischen Einkommen";
+"more.services.ai_processing.title" = "KI-Verarbeitung";
+"more.services.ai_processing.description" = "Intelligente Dokumentenanalyse und -kategorisierung";
+"more.services.data_protection.title" = "Datenschutz";
+"more.services.data_protection.description" = "Schweizer Datensicherheit und DSGVO-Konformität";
 "more.services.consultation.title" = "Steuerberatung";
 "more.services.consultation.description" = "Persönliche Beratung zu allen Steuerfragen";
 "more.services.support.title" = "Ganzjährige Unterstützung";
@@ -562,8 +575,14 @@
 "more.trust.swiss.subtitle" = "In der Schweiz registriert";
 "more.trust.secure.title" = "Sichere Daten";
 "more.trust.secure.subtitle" = "Verschlüsselung auf Bankniveau";
+"more.trust.encryption.title" = "End-to-End-Verschlüsselung";
+"more.trust.encryption.subtitle" = "Ihre Daten sind mit AES-256-Verschlüsselung geschützt";
 "more.trust.professional.title" = "Experten-Team";
 "more.trust.professional.subtitle" = "Zertifizierte Steuerfachleute";
+"more.trust.experts.title" = "Zertifizierte Experten";
+"more.trust.experts.subtitle" = "Schweizer zertifizierte Steuerfachleute";
+"more.trust.cloud.title" = "Sichere Cloud-Speicherung";
+"more.trust.cloud.subtitle" = "In der Schweiz gehostete Cloud-Infrastruktur";
 
 // App Information
 "more.app_info.header" = "App-Informationen";
