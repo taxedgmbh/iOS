@@ -1,0 +1,900 @@
+/*
+  Localizable.strings (English)
+  TaxedGmbH_IOS
+
+  Swiss Tax App - English Localization
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.done" = "Done";
+"common.loading" = "Loading...";
+
+// MARK: - Authentication
+"auth.login.title" = "Sign In";
+"auth.login.subtitle" = "Welcome back";
+"auth.signup.title" = "Create Account";
+"auth.signup.subtitle" = "Create a new account";
+"auth.email.placeholder" = "Email Address";
+"auth.password.placeholder" = "Password";
+"auth.name.placeholder" = "Full Name";
+"auth.phone.placeholder" = "Mobile Number (required)";
+"auth.login.button" = "Sign In";
+"auth.signup.button" = "Create Account";
+"auth.apple.signin" = "Sign in with Apple";
+"auth.faceid.signin" = "Sign in with Face ID";
+"auth.touchid.signin" = "Sign in with Touch ID";
+"auth.biometric.enable" = "Enable Quick Sign-In";
+"auth.biometric.description" = "Sign in with %@ in the future";
+"auth.biometric.setup.title" = "Set up Quick Sign-In";
+"auth.biometric.setup.message" = "Would you like to enable %@ for quick sign-in?";
+"auth.biometric.setup.enable" = "Yes, enable";
+"auth.biometric.setup.later" = "Later";
+"auth.divider.or" = "or";
+"auth.toggle.login" = "Already have an account?";
+"auth.toggle.signup" = "Don't have an account yet?";
+"auth.toggle.login.button" = "Sign In";
+"auth.toggle.signup.button" = "Register";
+"auth.password.requirements" = "Password Requirements:";
+"auth.password.min_length" = "At least %d characters";
+"auth.password.letters_numbers" = "Contains letters and numbers";
+"auth.phone.title" = "Verify Phone";
+"auth.phone.send_code" = "Send Code";
+"auth.phone.verify_code" = "Verify";
+
+// MARK: - Documents
+"documents.upload.title" = "Upload Document";
+"documents.upload.subtitle" = "Take photo or choose from gallery";
+"documents.upload.camera" = "Camera";
+"documents.upload.gallery" = "Photo Gallery";
+"documents.upload.files" = "Browse Files";
+"documents.upload.change_photo" = "Choose different image";
+"documents.upload.manual_review_required" = "Manual review required";
+"documents.upload.button" = "Upload";
+"documents.upload.success" = "Successfully uploaded!";
+"documents.upload.success_desc" = "The document is being processed in the background";
+"documents.upload.uploading" = "%d%% uploaded";
+"documents.upload.saving" = "Saving document...";
+"documents.upload.done" = "Done";
+"documents.upload.cancel" = "Cancel";
+"documents.upload.error.not_logged_in" = "User not logged in";
+"documents.upload.error.upload_failed" = "Upload failed: %@";
+
+// Document Processing Errors
+"documents.processing.error.image_conversion" = "Error processing image";
+"documents.processing.error.ocr_failed" = "Text could not be recognized";
+"documents.processing.error.categorization_failed" = "Document type could not be determined";
+"documents.processing.error.no_text" = "No text found in document";
+
+"documents.ai.processing" = "AI analyzing your document...";
+"documents.ai.analyzing" = "%d%% analyzed";
+"documents.ai.recognition" = "AI Recognition";
+"documents.ai.document_type" = "Document Type";
+"documents.ai.accuracy" = "Accuracy";
+"documents.ai.low_accuracy" = "Low accuracy - Expert will review";
+
+"documents.upload" = "Upload Document";
+"documents.swipe.loading" = "Loading documents...";
+"documents.swipe.remaining" = "remaining";
+"documents.swipe.approve" = "Approve";
+"documents.swipe.reject" = "Reject";
+"documents.swipe.empty.title" = "No Documents";
+"documents.swipe.empty.message" = "Upload your first tax document to get started";
+"documents.swipe.amount" = "Amount";
+"documents.swipe.confidence" = "AI Confidence";  // Deprecated - use accuracy
+"documents.swipe.summary" = "AI Summary";  // Deprecated - use description
+"documents.swipe.accuracy" = "Accuracy";
+"documents.swipe.description" = "Description";
+"documents.swipe.tax_year" = "Tax Year";
+
+// MARK: - Dashboard
+"dashboard.title" = "Overview";
+"dashboard.welcome" = "Welcome, %@";
+"dashboard.welcome_back" = "Welcome back";
+"dashboard.tax_period" = "%@ • Tax Period 2024";
+"dashboard.progress" = "Progress";
+"dashboard.documents_count" = "%d of %d documents";
+"dashboard.completion" = "%d%%";
+"dashboard.documents_missing" = "%d documents still needed";
+"dashboard.all_uploaded" = "All documents uploaded!";
+"dashboard.categories" = "Categories";
+"dashboard.actions" = "Actions";
+"dashboard.upload_document" = "Upload Document";
+"dashboard.upload_subtitle" = "Photo or from gallery";
+"dashboard.all_documents" = "All Documents";
+"dashboard.view_documents" = "View %d documents";
+"dashboard.profile" = "Profile";
+"dashboard.profile_subtitle" = "Manage settings";
+"dashboard.recent" = "Recently uploaded";
+"dashboard.view_all" = "View all";
+"dashboard.expat_guide" = "New to Switzerland?";
+"dashboard.expat_guide_subtitle" = "Start expat tax guide";
+"dashboard.category_documents" = "%d documents";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.language.german" = "German";
+"settings.language.english" = "English";
+"settings.language.french" = "French";
+"settings.language.italian" = "Italian";
+
+// Profile Section
+"settings.profile.title" = "Profile";
+"settings.profile.name" = "Name";
+"settings.profile.email" = "Email";
+"settings.profile.phone" = "Phone";
+"settings.profile.canton" = "Canton";
+"settings.profile.role" = "Role";
+
+// Notifications Section
+"settings.notifications.title" = "Notifications";
+"settings.notifications.push" = "Push Notifications";
+"settings.notifications.settings" = "Notification Settings";
+"settings.notifications.footer" = "Receive updates about your tax return";
+"settings.notifications.document_updates" = "Document Updates";
+"settings.notifications.expert_messages" = "Expert Messages";
+"settings.notifications.status_changes" = "Status Changes";
+"settings.notifications.deadline_reminders" = "Deadline Reminders";
+"settings.notifications.detail_footer" = "Choose which notifications you want to receive";
+
+// App Information Section
+"settings.app_info.title" = "App Information";
+"settings.app_info.about" = "About Taxed";
+"settings.app_info.privacy" = "Privacy";
+"settings.app_info.terms" = "Terms of Service";
+"settings.app_info.version" = "Version";
+
+// Support Section
+"settings.support.title" = "Support";
+"settings.support.help" = "Help & Support";
+"settings.support.contact" = "Contact";
+"settings.support.footer" = "Our support team is available Mon-Fri 9AM-6PM";
+
+// Sign Out
+"settings.signout.button" = "Sign Out";
+"settings.signout.alert.title" = "Sign Out";
+"settings.signout.alert.message" = "Do you really want to sign out?";
+"settings.signout.alert.confirm" = "Sign Out";
+"settings.signout.alert.cancel" = "Cancel";
+
+// MARK: - Document Categories
+"documents.category.income" = "Income";
+"documents.category.deduction" = "Deductions";
+"documents.category.pillar" = "Pillar 2/3";
+"documents.category.wealth" = "Wealth";
+"documents.category.foreign_income" = "Foreign Income";
+"documents.category.foreign_pension" = "Foreign Pension";
+"documents.category.foreign_wealth" = "Foreign Wealth";
+"documents.category.tax_treaty" = "Tax Treaty";
+"documents.category.foreign_tax" = "Foreign Withholding Tax";
+"documents.category.uncategorized" = "Uncategorized";
+
+// MARK: - Foreign Income Types
+"foreign_income.type.employment" = "Employment Income";
+"foreign_income.type.self_employment" = "Self-Employment Income";
+"foreign_income.type.pension" = "Pension";
+"foreign_income.type.social_security" = "Social Security";
+"foreign_income.type.investment" = "Investment Income";
+"foreign_income.type.rental" = "Rental Income";
+"foreign_income.type.capital_gains" = "Capital Gains";
+"foreign_income.type.dividends" = "Dividends";
+"foreign_income.type.interest" = "Interest";
+"foreign_income.type.royalties" = "Royalties";
+"foreign_income.type.other" = "Other";
+
+// MARK: - Expat Onboarding
+"onboarding.title" = "Expat Welcome";
+"onboarding.button.back" = "Back";
+"onboarding.button.next" = "Next";
+"onboarding.button.get_started" = "Get Started";
+
+// Welcome Page
+"onboarding.welcome.title" = "Welcome to Switzerland!";
+"onboarding.welcome.subtitle" = "We'll help you file your tax return as an expat, simply and correctly.";
+
+// Tax System Page
+"onboarding.tax_system.title" = "Swiss Tax System";
+"onboarding.tax_system.federal.title" = "Federal Taxes";
+"onboarding.tax_system.federal.description" = "Switzerland levies income taxes at the federal level. These apply to all residents.";
+"onboarding.tax_system.cantonal.title" = "Cantonal Taxes";
+"onboarding.tax_system.cantonal.description" = "Each canton has its own tax rates. Your canton of residence determines this tax.";
+"onboarding.tax_system.municipal.title" = "Municipal Taxes";
+"onboarding.tax_system.municipal.description" = "Additionally, municipalities levy local taxes.";
+"onboarding.tax_system.treaties.title" = "Double Taxation Treaties";
+"onboarding.tax_system.treaties.description" = "Switzerland has treaties with 100+ countries to avoid double taxation.";
+
+// Documents Page
+"onboarding.documents.title" = "Required Documents";
+"onboarding.documents.swiss_income" = "Swiss Income";
+"onboarding.documents.swiss_income_items" = "Salary certificate, bank statements, Pillar 2/3 statements";
+"onboarding.documents.foreign_income" = "Foreign Income";
+"onboarding.documents.foreign_income_items" = "Foreign salary certificates, pensions, investment income, withholding tax certificates";
+"onboarding.documents.pension" = "Pension Fund (Pillar 2/3)";
+"onboarding.documents.pension_items" = "Annual pension fund statements, Pillar 3a certificates";
+"onboarding.documents.wealth" = "Wealth";
+"onboarding.documents.wealth_items" = "Bank accounts, securities, real estate in Switzerland and abroad";
+
+// Timeline Page
+"onboarding.timeline.title" = "Important Deadlines";
+"onboarding.timeline.jan_feb" = "January - February";
+"onboarding.timeline.jan_feb_task" = "Collect and prepare documents";
+"onboarding.timeline.mar" = "March";
+"onboarding.timeline.mar_task" = "Deadline in most cantons (can be extended)";
+"onboarding.timeline.apr_jun" = "April - June";
+"onboarding.timeline.apr_jun_task" = "Extended deadline with timely application";
+"onboarding.timeline.jul_sep" = "July - September";
+"onboarding.timeline.jul_sep_task" = "Maximum extension with tax advisor";
+"onboarding.timeline.tip.title" = "Tip for Expats";
+"onboarding.timeline.tip.description" = "As an expat, you often qualify for deadline extensions. We'll support you!";
+
+// MARK: - Expat Checklist
+"checklist.title" = "Your Expat Checklist";
+"checklist.subtitle" = "Make sure you have all important documents";
+"checklist.progress" = "Progress";
+"checklist.button.start_upload" = "Upload Documents";
+"checklist.button.close" = "Close";
+"checklist.button.reset" = "Reset";
+
+// Personal Documents
+"checklist.section.personal.title" = "Personal Documents";
+"checklist.item.residence_permit" = "Residence permit (B/C/L Permit)";
+"checklist.item.registration_cert" = "Municipal registration certificate";
+"checklist.item.passport_copy" = "Passport copy";
+
+// Swiss Income
+"checklist.section.swiss_income.title" = "Swiss Income";
+"checklist.item.swiss_salary" = "Swiss salary certificate";
+"checklist.item.swiss_bank" = "Swiss bank statements";
+"checklist.item.pillar" = "Pillar 2/3 annual statements";
+"checklist.item.swiss_investments" = "Swiss securities statements";
+
+// Foreign Income
+"checklist.section.foreign_income.title" = "Foreign Income";
+"checklist.item.foreign_salary" = "Foreign salary certificates";
+"checklist.item.foreign_pension" = "Foreign pension/social security";
+"checklist.item.foreign_bank" = "Foreign bank accounts";
+"checklist.item.foreign_investments" = "Foreign securities";
+"checklist.item.rental_income" = "Foreign rental income";
+
+// Tax Documents
+"checklist.section.tax_documents.title" = "Tax Documents";
+"checklist.item.tax_treaty_cert" = "Certificate of residence";
+"checklist.item.foreign_tax_paid" = "Proof of foreign taxes paid";
+"checklist.item.double_tax" = "Double taxation treaty forms";
+
+// Deductions
+"checklist.section.deductions.title" = "Deductions";
+"checklist.item.health_insurance" = "Health insurance receipts";
+"checklist.item.moving_costs" = "Moving costs (if relocated during tax year)";
+"checklist.item.professional_expenses" = "Professional expenses";
+"checklist.item.donations" = "Donation receipts";
+
+// MARK: - More Menu
+"more.title" = "More";
+"more.account.header" = "ACCOUNT";
+"more.resources.header" = "RESOURCES";
+"more.about.header" = "ABOUT";
+
+// Account Section
+"more.settings" = "Settings";
+"more.settings.subtitle" = "Manage app settings";
+"more.profile" = "Profile";
+"more.profile.subtitle" = "Personal information";
+"more.notifications" = "Notifications";
+"more.notifications.subtitle" = "Manage notifications";
+
+// Resources Section
+"more.expat_guide" = "Expat Tax Guide";
+"more.expat_guide.subtitle" = "Help for newcomers";
+"more.help" = "Help & Support";
+"more.help.subtitle" = "FAQs and support";
+"more.contact" = "Contact";
+"more.contact.subtitle" = "Get in touch";
+
+// About Section
+"more.about" = "About Taxed";
+"more.about.subtitle" = "About our app";
+"more.privacy" = "Privacy";
+"more.privacy.subtitle" = "Privacy policy";
+"more.terms" = "Terms of Service";
+"more.terms.subtitle" = "Terms and conditions";
+"more.version" = "Version";
+
+// Sign Out
+"more.signout" = "Sign Out";
+"more.signout.alert.title" = "Sign Out";
+"more.signout.alert.message" = "Do you really want to sign out?";
+"more.signout.alert.confirm" = "Sign Out";
+"more.signout.alert.cancel" = "Cancel";
+
+// Tab Bar
+"tab.dashboard" = "Overview";
+"tab.process" = "Process";
+"tab.documents" = "Documents";
+"tab.chat" = "Expert Chat";
+"tab.more" = "More";
+
+// MARK: - Help & Support
+"help.title" = "Help & Support";
+"help.common_questions" = "Common Questions";
+"help.support" = "Support";
+
+// Getting Started
+"help.getting_started" = "Getting Started";
+"help.getting_started.desc" = "First steps with Taxed";
+"help.getting_started.content" = "Welcome to Taxed!\n\n1. Create your account with email or Apple ID\n2. Complete your profile information\n3. Start uploading your tax documents\n4. Our AI will analyze and categorize them\n5. Review and submit your tax return\n\nNeed help? Contact us at info@taxed.ch";
+
+// Document Upload
+"help.how_upload" = "How do I upload documents?";
+"help.how_upload.desc" = "Step-by-step upload guide";
+"help.how_upload.content" = "Uploading documents is easy:\n\n1. Open the Documents tab\n2. Tap the '+' button\n3. Choose Camera or Gallery\n4. Take a photo or select an image\n5. Confirm the upload\n\nOur AI automatically:\n• Analyzes the document\n• Categorizes it correctly\n• Extracts key information\n• Validates the data\n\nSupport: info@taxed.ch";
+
+// Expat Taxes
+"help.expat_taxes" = "How do expat taxes work in Switzerland?";
+"help.expat_taxes.desc" = "Special requirements for expats";
+"help.expat_taxes.content" = "As an expat in Switzerland, you must:\n\n• Declare all Swiss income\n• Report foreign income and assets\n• Use double taxation agreements\n• Submit foreign tax certificates\n• Document pension funds (Pillar 2/3)\n• Provide residence permits\n\nWe support you with:\n• Automatic treaty applications\n• Foreign income calculations\n• Multilingual assistance\n• Expert consultation\n\nContact: info@taxed.ch\nPhone: +41 79 910 77 87";
+
+// Tax Deadlines
+"help.deadlines" = "What are the tax deadlines?";
+"help.deadlines.desc" = "Important dates and extensions";
+"help.deadlines.content" = "Swiss tax calendar:\n\n• March 31: Regular deadline\n• May-June: Extended deadline (with request)\n• September: Maximum extension (with advisor)\n\nExpat benefits:\n• Automatic deadline extensions\n• Additional time for foreign documents\n• Professional support included\n\nNeed an extension? Contact info@taxed.ch";
+
+// Account & Privacy
+"help.account_privacy" = "How is my data protected?";
+"help.account_privacy.desc" = "Security and privacy measures";
+"help.account_privacy.content" = "Your data security is our priority:\n\n• End-to-end encryption\n• Swiss data protection law compliance\n• Secure cloud storage (AWS)\n• Regular security audits\n• No data sharing with third parties\n\nYou can:\n• Export your data anytime\n• Delete your account\n• Request data corrections\n\nPrivacy questions: info@taxed.ch";
+
+// Pricing & Payment
+"help.pricing" = "How much does it cost?";
+"help.pricing.desc" = "Transparent pricing information";
+"help.pricing.content" = "Our pricing is simple and transparent:\n\n• Basic tax return: CHF 99\n• Expat services: CHF 149\n• Complex cases: CHF 199\n• Expert consultation: CHF 50/hour\n\nIncluded in all plans:\n• Unlimited document uploads\n• AI analysis\n• Email support\n• Secure storage\n\nQuestions: info@taxed.ch";
+
+// Contact Support
+"help.contact" = "How do I contact support?";
+"help.contact.desc" = "Get in touch with our team";
+"help.contact.content" = "We're here to help!\n\nEmail: info@taxed.ch\nPhone: +41 79 910 77 87\n\nOffice Hours:\nMonday - Friday: 9:00 - 18:00\nSaturday: Closed\nSunday: Closed\n\nOffice Location:\nTaxed GmbH\nAegertenstrasse 10\n2503 Biel/Bienne\nSwitzerland\n\nAverage response time: 2-4 hours";
+
+// MARK: - Contact
+"contact.company" = "Company";
+"contact.methods" = "Contact Methods";
+"contact.phone" = "Phone";
+"contact.email" = "Email";
+"contact.support_email" = "Support Email";
+"contact.website" = "Website";
+"contact.hours" = "Business Hours";
+"contact.hours.content" = "Monday - Friday: 9:00 - 18:00";
+
+// MARK: - About
+"about.tagline" = "Your Swiss Tax Return - Simple and Digital";
+"about.description" = "Taxed GmbH is your digital partner for Swiss tax returns. We combine cutting-edge technology with tax expertise to make the tax process as simple as possible for you.";
+"about.mission" = "Our Mission";
+"about.mission.content" = "We believe that filing taxes should be simple, transparent, and stress-free. Our mission is to help everyone in Switzerland - from locals to expats - navigate the tax system with confidence.";
+"about.company_name" = "Company";
+"about.location" = "Location";
+"about.contact" = "Contact";
+
+// MARK: - Privacy Policy
+"privacy.last_updated" = "Last Updated: January 2025";
+"privacy.intro.title" = "1. Introduction";
+"privacy.intro.content" = "Taxed GmbH respects your privacy and is committed to protecting your personal data. This privacy policy informs you about how we collect, use, and protect your data.";
+"privacy.data_collection.title" = "2. Data Collection";
+"privacy.data_collection.content" = "We collect the following data:\n• Personal information (name, email, phone)\n• Tax documents and receipts\n• Financial data for tax returns\n• App usage data\n\nAll data is encrypted and stored securely.";
+"privacy.data_use.title" = "3. Data Use";
+"privacy.data_use.content" = "We use your data to:\n• Prepare your tax return\n• Communicate with you\n• Improve our services\n• Comply with legal obligations\n\nWe never sell your data to third parties.";
+"privacy.data_protection.title" = "4. Data Protection";
+"privacy.data_protection.content" = "We use industry-standard security measures:\n• End-to-end encryption\n• Secure cloud storage\n• Regular security audits\n• Access control and authentication\n\nYour data is protected under Swiss data protection law.";
+"privacy.rights.title" = "5. Your Rights";
+"privacy.rights.content" = "You have the right to:\n• Access your data\n• Correct your data\n• Delete your data\n• Export your data\n• Object to data processing\n\nContact us to exercise your rights.";
+"privacy.contact.title" = "6. Contact";
+"privacy.contact.content" = "For privacy questions:\n\nTaxed GmbH\nAegertenstrasse 10\n2503 Biel/Bienne\nSwitzerland\n\nEmail: info@taxed.ch\nPhone: +41 79 910 77 87";
+
+// MARK: - Terms of Service
+"terms.last_updated" = "Last Updated: January 2025";
+"terms.acceptance.title" = "1. Acceptance of Terms";
+"terms.acceptance.content" = "By using the Taxed app, you agree to these terms of service. If you do not agree, please do not use the app.";
+"terms.services.title" = "2. Services";
+"terms.services.content" = "Taxed GmbH provides:\n• Digital tax return management\n• Document upload and management\n• AI-powered document analysis\n• Support from tax experts\n• Expat-specific tax consulting\n\nWe do not guarantee specific tax refunds.";
+"terms.user_obligations.title" = "3. User Obligations";
+"terms.user_obligations.content" = "You agree to:\n• Provide accurate information\n• Keep your account secure\n• Comply with Swiss tax law\n• Not misuse the service\n• Respect intellectual property rights";
+"terms.fees.title" = "4. Fees and Payment";
+"terms.fees.content" = "Service fees are:\n• Clearly communicated in advance\n• Based on service complexity\n• Payable before submission\n• Non-refundable after submission\n\nPrices are subject to change with notice.";
+"terms.liability.title" = "5. Limitation of Liability";
+"terms.liability.content" = "Taxed GmbH is not liable for:\n• Errors in user-provided data\n• Tax authority decisions\n• Indirect or consequential damages\n• Service interruptions\n\nOur liability is limited to the service fee paid.";
+"terms.termination.title" = "6. Termination";
+"terms.termination.content" = "We may terminate service if:\n• Terms are violated\n• Fraudulent activity is detected\n• Payment is not received\n\nYou may cancel anytime before submission for a full refund.";
+"terms.governing_law.title" = "7. Governing Law";
+"terms.governing_law.content" = "These terms are governed by Swiss law. Jurisdiction is Biel/Bienne, Switzerland.";
+
+// MARK: - Enhanced Profile Settings
+"profile.personal_info" = "Personal Information";
+"profile.account_info" = "Account Information";
+"profile.account_created" = "Account Created";
+"profile.user_id" = "User ID";
+"profile.preferences" = "Preferences";
+"profile.language" = "Language";
+"profile.data_management" = "Data Management";
+"profile.export_data" = "Export Data";
+"profile.delete_account" = "Delete Account";
+"profile.saved" = "Saved";
+"profile.saved_message" = "Your changes have been saved successfully.";
+
+// MARK: - Common Actions
+"common.save" = "Save";
+"common.edit" = "Edit";
+"common.cancel" = "Cancel";
+"common.ok" = "OK";
+"common.done" = "Done";
+"common.delete" = "Delete";
+"common.confirm" = "Confirm";
+
+// MARK: - Password Reset
+"auth.forgot_password" = "Forgot Password?";
+"auth.reset.title" = "Reset Password";
+"auth.reset.subtitle" = "Enter your email or phone number to receive a password reset link";
+"auth.reset.method" = "Reset Method";
+"auth.reset.method.email" = "Email";
+"auth.reset.method.phone" = "Phone";
+"auth.reset.email.hint" = "We'll send you an email with instructions to reset your password";
+"auth.reset.phone.hint" = "We'll send you an SMS with instructions to reset your password";
+"auth.reset.send" = "Send Reset Link";
+"auth.reset.back_to_login" = "Back to Sign In";
+"auth.reset.email.success" = "Password reset email sent to %@. Please check your inbox.";
+"auth.reset.phone.success" = "Password reset SMS sent to %@. Please check your messages.";
+
+// MARK: - Profile
+"profile.personal_info" = "Personal Information";
+"profile.account_info" = "Account Information";
+"profile.account_created" = "Account Created";
+"profile.user_id" = "User ID";
+"profile.preferences" = "Preferences";
+"profile.language" = "Language";
+"profile.data_management" = "Data Management";
+"profile.export_data" = "Export Data";
+"profile.delete_account" = "Delete Account";
+"profile.delete_account.alert.title" = "Delete Account?";
+"profile.delete_account.alert.message" = "This action cannot be undone. All your data will be permanently deleted.";
+"profile.delete_account.confirm" = "Delete";
+"profile.delete_account.warning" = "Warning: This action is permanent and cannot be undone.";
+"profile.saved" = "Profile Updated";
+"profile.saved_message" = "Your profile has been successfully updated";
+
+// Profile Completeness
+"profile.completeness" = "Profile Completeness";
+"profile.completeness.low" = "Add more information to complete your profile";
+"profile.completeness.medium" = "Almost there! A few more details needed";
+"profile.completeness.high" = "Your profile is almost complete";
+"profile.completeness.complete" = "Your profile is complete!";
+
+// MARK: - Common
+"common.save" = "Save";
+"common.edit" = "Edit";
+"common.ok" = "OK";
+
+// MARK: - Password Reset Additional
+"auth.reset.verify_phone" = "Verify Phone Number";
+"auth.reset.new_password" = "Set New Password";
+"auth.reset.new_password.placeholder" = "New Password";
+"auth.reset.confirm_password.placeholder" = "Confirm Password";
+"auth.reset.update_password" = "Update Password";
+"auth.reset.passwords_dont_match" = "Passwords don't match";
+"auth.reset.phone.verified" = "Phone verified! You can now sign in with your new password.";
+
+// MARK: - Process (Tax Declaration Process)
+"process.navigation.title" = "Process";
+"process.header.title" = "Tax Return Process";
+"process.header.tax_year" = "Tax Period %@";
+"process.current_step.label" = "Current Step";
+
+// Process Stages
+"process.stage.collecting.title" = "Collect Documents";
+"process.stage.collecting.description" = "Collect all relevant documents for your 2024 tax return.";
+"process.stage.uploading.title" = "Upload Documents";
+"process.stage.uploading.description" = "Upload your documents and categorize them correctly.";
+"process.stage.review.title" = "Expert Review";
+"process.stage.review.description" = "Your tax expert reviews your documents and will contact you if there are any questions.";
+"process.stage.approval.title" = "Approval";
+"process.stage.approval.description" = "After successful review, your tax return will be prepared for approval.";
+"process.stage.payment.title" = "Payment";
+"process.stage.payment.description" = "Complete payment for your tax preparation service.";
+"process.stage.submission.title" = "Submission";
+"process.stage.submission.description" = "Your tax return will be submitted to the responsible tax office.";
+
+// Process Actions
+"process.action.upload_document" = "Upload Document";
+"process.action.contact_expert" = "Contact Expert";
+"process.action.show_details" = "Show Details";
+"process.action.make_payment" = "Make Payment";
+"process.action.check_status" = "Check Status";
+
+// Help Section
+"process.help.title" = "Need Help?";
+"process.help.description" = "Our tax expert team is available to you at any time.";
+"process.help.button" = "Contact Expert";
+
+// MARK: - Expert Chat
+"expert_chat.title" = "Chat with Expert";
+
+// MARK: - Empty States
+"empty_state.no_documents.title" = "No Documents";
+"empty_state.no_documents.message" = "Upload your first tax document to get started with the process.";
+"empty_state.no_documents.action" = "Upload Document";
+
+"empty_state.no_messages.title" = "No Messages Yet";
+"empty_state.no_messages.message" = "Start a conversation with your tax expert to get help with your tax return.";
+
+"empty_state.welcome.title" = "Welcome to Taxed, %@!";
+"empty_state.welcome.subtitle" = "Your digital tax return made easy";
+"empty_state.welcome.step1.title" = "Upload Documents";
+"empty_state.welcome.step1.description" = "Take photos or upload your tax documents";
+"empty_state.welcome.step2.title" = "AI Analysis";
+"empty_state.welcome.step2.description" = "Our AI automatically categorizes and extracts data";
+"empty_state.welcome.step3.title" = "Expert Review";
+"empty_state.welcome.step3.description" = "A tax expert checks everything for accuracy";
+"empty_state.welcome.step4.title" = "Submit";
+"empty_state.welcome.step4.description" = "We submit your tax return directly to the authorities";
+"empty_state.welcome.action" = "Get Started";
+
+// MARK: - More Menu (About Section)
+"more.about.tagline" = "Professional Tax Advisory for Switzerland";
+"more.about.bullet1" = "Specialized in tax advisory for expats in Switzerland";
+"more.about.bullet2" = "Digital-first approach with personal support";
+"more.about.bullet3" = "Transparent pricing, no hidden fees";
+"more.about.bullet4" = "Available in German, French, Italian and English";
+
+// Company Details
+"more.company_details.header" = "Company Details";
+"more.company_details.name" = "Company Name";
+"more.company_details.uid" = "UID";
+"more.company_details.address" = "Address";
+"more.company_details.location" = "Location";
+
+// Business Information
+"more.business_info.header" = "Our Business";
+"more.business_info.founded" = "Founded";
+"more.business_info.employees" = "Team Size";
+"more.business_info.mission" = "Mission";
+"more.business_info.mission_text" = "Making taxes simple for everyone";
+"more.business_info.vision" = "Vision";
+"more.business_info.vision_text" = "The leading digital tax platform in Switzerland";
+
+// Services
+"more.services.header" = "Our Services";
+"more.services.tax_returns.title" = "Tax Returns";
+"more.services.tax_returns.description" = "Complete tax declarations for private individuals and companies";
+"more.services.expat.title" = "Expat Services";
+"more.services.expat.description" = "Specialized support for expats with foreign income and assets";
+"more.services.consultation.title" = "Tax Consultation";
+"more.services.consultation.description" = "Personal advice on all tax questions";
+"more.services.support.title" = "Year-round Support";
+"more.services.support.description" = "Available even outside tax season";
+
+// Trust & Certifications
+"more.trust.header" = "Trust & Security";
+"more.trust.gdpr.title" = "GDPR Compliant";
+"more.trust.gdpr.subtitle" = "Data protection according to EU standards";
+"more.trust.swiss.title" = "Swiss Quality";
+"more.trust.swiss.subtitle" = "Registered in Switzerland";
+"more.trust.secure.title" = "Secure Data";
+"more.trust.secure.subtitle" = "Bank-level encryption";
+"more.trust.professional.title" = "Expert Team";
+"more.trust.professional.subtitle" = "Certified tax professionals";
+
+// App Information
+"more.app_info.header" = "App Information";
+"more.app_info.made_in" = "Made with ♥ in Switzerland";
+"more.app_info.version_info" = "Version Information";
+"more.app_info.copyright" = "© 2025 Taxed GmbH. All rights reserved.";
+
+// MARK: - Privacy Policy (Settings)
+"privacy.title" = "Privacy Policy";
+"privacy.navigation_title" = "Privacy";
+"privacy.section1.title" = "1. Data Collection";
+"privacy.section1.content" = "We only collect the necessary data to provide you with our service. This includes personal information, tax documents, and communication data.";
+"privacy.section2.title" = "2. Data Storage";
+"privacy.section2.content" = "Your data is stored encrypted in secure data centers in Switzerland and complies with the highest security standards.";
+"privacy.section3.title" = "3. Data Sharing";
+"privacy.section3.content" = "We never share your data with third parties, except when required by law or with your explicit consent.";
+"privacy.section4.title" = "4. Your Rights";
+"privacy.section4.content" = "You have the right to access, correct, and delete your data at any time. Contact us at privacy@taxed.ch.";
+
+// MARK: - Terms of Service (Settings)
+"terms.title" = "Terms of Service";
+"terms.navigation_title" = "Terms of Service";
+"terms.section1.title" = "1. Acceptance of Terms";
+"terms.section1.content" = "By using the Taxed app, you accept these terms of service in full.";
+"terms.section2.title" = "2. Scope of Services";
+"terms.section2.content" = "Taxed provides support in preparing your tax return. Final responsibility lies with the user.";
+"terms.section3.title" = "3. User Responsibilities";
+"terms.section3.content" = "You are responsible for the accuracy and completeness of the information and documents you provide.";
+"terms.section4.title" = "4. Limitation of Liability";
+"terms.section4.content" = "Taxed is not liable for errors in the tax return that are due to incomplete or incorrect information.";
+
+// MARK: - Support (Settings)
+"support.faq" = "Frequently Asked Questions";
+"support.online_help" = "Online Help";
+"support.email" = "Email Support";
+"support.phone" = "Phone Support";
+"support.header" = "Contact Options";
+"support.footer" = "Our support team is available Mon-Fri from 9AM-6PM";
+"support.navigation_title" = "Help & Support";
+
+// MARK: - FAQ (Settings)
+"faq.section.general" = "General";
+"faq.section.documents" = "Documents";
+"faq.navigation_title" = "FAQ";
+
+"faq.general.how_it_works.question" = "How does Taxed work?";
+"faq.general.how_it_works.answer" = "Taxed helps you create your tax return digitally. Upload your documents, our expert team reviews them, and submits your tax return.";
+
+"faq.general.is_secure.question" = "Is my tax return secure?";
+"faq.general.is_secure.answer" = "Yes, all data is transmitted encrypted and stored in secure Swiss data centers.";
+
+"faq.documents.which_needed.question" = "Which documents do I need?";
+"faq.documents.which_needed.answer" = "You need salary certificates, bank statements, insurance receipts, and other relevant documents for your tax return.";
+
+"faq.documents.how_upload.question" = "How do I upload documents?";
+"faq.documents.how_upload.answer" = "Use the photo function in the app or select files from your gallery.";
+
+// MARK: - Document Upload
+"document.summary.from" = "from %@";
+
+// MARK: - Common (additional)
+"common.version" = "Version %@";
+"common.error" = "Error";
+
+// MARK: - Language Names
+"language.english" = "English";
+"language.german" = "German";
+"language.french" = "French";
+"language.italian" = "Italian";
+
+// MARK: - Country Picker
+"country_picker.popular_countries" = "Popular Countries";
+"country_picker.all_countries" = "All Countries";
+"country_picker.search_placeholder" = "Search country...";
+"country_picker.title" = "Select Country";
+
+// MARK: - Document Detail
+"document_detail.loading_image" = "Loading image...";
+"document_detail.image_unavailable" = "Image not available";
+"document_detail.ai_classification" = "AI Classification";
+"document_detail.category" = "Category";
+"document_detail.confidence" = "Confidence";
+"document_detail.subcategory" = "Subcategory";
+"document_detail.summary" = "Summary";
+"document_detail.amount" = "Amount";
+"document_detail.document_info" = "Document Information";
+"document_detail.filename" = "Filename";
+"document_detail.tax_year" = "Tax Year";
+"document_detail.canton" = "Canton";
+"document_detail.uploaded" = "Uploaded";
+"document_detail.processed" = "Processed";
+"document_detail.expert_notes" = "Expert Notes";
+"document_detail.title" = "Document";
+"document_detail.status" = "Status";
+
+// MARK: - Phone Verification
+"phone_verification.enter_code" = "Enter Code";
+"phone_verification.verify_phone" = "Verify Phone";
+"phone_verification.title" = "Verify Your Phone Number";
+"phone_verification.description" = "We need to verify your phone number to secure your account and enable important notifications.";
+"phone_verification.mobile_number" = "Mobile Number";
+"phone_verification.send_code" = "Send Verification Code";
+"phone_verification.info.swiss_numbers" = "Supports Swiss and international numbers";
+"phone_verification.info.privacy" = "Your number will be kept private and secure";
+"phone_verification.info.sms_code" = "You'll receive a 6-digit code via SMS";
+"phone_verification.enter_code_title" = "Enter Verification Code";
+"phone_verification.enter_code_description" = "We've sent a 6-digit code to %@";
+"phone_verification.test_mode" = "Test Mode - For Developers";
+"phone_verification.test_code" = "Test Code: %@";
+"phone_verification.verify" = "Verify Code";
+"phone_verification.resend_code" = "Resend Code";
+"phone_verification.resend_code_timer" = "Resend code in %d seconds";
+"phone_verification.change_number" = "Change Phone Number";
+
+// MARK: - Expert Chat
+"expert_chat.tax_expert" = "Tax Expert";
+"expert_chat.message_placeholder" = "Message...";
+"expert_chat.yesterday" = "Yesterday";
+"expert_chat.welcome_message" = "Welcome! Your tax expert Maria Schmidt has been assigned. She speaks German and English and specializes in expats and cross-border taxes.";
+
+// MARK: - Settings (General App Settings)
+"settings.appearance.header" = "Appearance";
+"settings.appearance.title" = "Theme";
+"settings.appearance.mode" = "Appearance Mode";
+"settings.appearance.footer" = "Choose your preferred appearance. System uses your device's settings.";
+"settings.appearance.system" = "System";
+"settings.appearance.light" = "Light";
+"settings.appearance.dark" = "Dark";
+"settings.documents.header" = "Documents";
+"settings.documents.auto_upload" = "Auto-Upload";
+"settings.documents.high_quality" = "High Quality Images";
+"settings.storage.header" = "Storage";
+"settings.storage.used" = "Storage Used";
+"settings.storage.clear_cache" = "Clear Cache";
+
+// MARK: - Accessibility
+"more.accessibility.header" = "ACCESSIBILITY";
+"more.accessibility" = "Accessibility";
+"more.accessibility.subtitle" = "Vision, motion and VoiceOver settings";
+"accessibility.vision.header" = "VISION";
+"accessibility.vision.footer" = "Adjust text size and contrast for better readability";
+"accessibility.larger_text" = "Larger Text";
+"accessibility.increase_contrast" = "Increase Contrast";
+"accessibility.motion.header" = "MOTION";
+"accessibility.motion.footer" = "Reduce animations and transitions";
+"accessibility.reduce_motion" = "Reduce Motion";
+"accessibility.voiceover.header" = "VOICEOVER";
+"accessibility.voiceover.footer" = "Enable VoiceOver screen reader";
+"accessibility.voiceover" = "VoiceOver";
+"accessibility.system_settings" = "Open System Accessibility Settings";
+
+// MARK: - Security
+"more.security.header" = "SECURITY";
+"more.security" = "Security";
+"more.security.subtitle" = "Biometric auth, passcode and encryption";
+"security.authentication.header" = "AUTHENTICATION";
+"security.authentication.footer" = "Protect your account with biometric authentication";
+"security.biometric_auth" = "Enable Biometric Authentication";
+"security.require_password" = "Require Password";
+"security.auto_lock.header" = "AUTO-LOCK";
+"security.auto_lock.footer" = "Automatically lock the app after inactivity";
+"security.auto_lock_enabled" = "Enable Auto-Lock";
+"security.auto_lock_time" = "Auto-Lock Time";
+"security.data.header" = "DATA PROTECTION";
+"security.encryption.title" = "End-to-End Encryption";
+"security.encryption.description" = "All your data is encrypted using AES-256 encryption";
+
+// MARK: - Feedback & Report Issue
+"more.feedback.header" = "FEEDBACK";
+"more.rate_app" = "Rate App";
+"more.rate_app.subtitle" = "Enjoying the app? Please rate us!";
+"more.report_issue" = "Report an Issue";
+"more.report_issue.subtitle" = "Help us improve by reporting bugs";
+"report.type.header" = "ISSUE TYPE";
+"report.type" = "Type";
+"report.type.bug" = "Bug";
+"report.type.feature" = "Feature Request";
+"report.type.improvement" = "Improvement";
+"report.type.other" = "Other";
+"report.details.header" = "DETAILS";
+"report.title" = "Title";
+"report.description.placeholder" = "Describe the issue or suggestion...";
+"report.additional.header" = "ADDITIONAL INFO";
+"report.include_device_info" = "Include Device Information";
+"report.device_info" = "Device Information:";
+"report.submit" = "Submit Report";
+"report.success.title" = "Report Sent";
+"report.success.message" = "Thank you for your feedback! We'll review your report shortly.";
+"report.error.title" = "Mail Not Available";
+"report.error.message" = "Please configure a mail account in System Settings to report issues.";
+
+// MARK: - Tax Categories
+"category.salary" = "Salary";
+"category.bonus" = "Bonus";
+"category.freelance" = "Freelance";
+"category.investment" = "Investment";
+"category.rental" = "Rental Income";
+"category.pension" = "Pension";
+"category.foreign_income" = "Foreign Income";
+"category.mortgage" = "Mortgage";
+"category.donations" = "Donations";
+"category.education" = "Education";
+"category.medical" = "Medical";
+"category.insurance" = "Insurance";
+"category.childcare" = "Childcare";
+"category.home_office" = "Home Office";
+"category.property" = "Property";
+"category.stocks" = "Stocks";
+"category.crypto" = "Cryptocurrency";
+"category.foreign_wealth" = "Foreign Wealth";
+"category.savings" = "Savings";
+"category.pillar_2" = "Pillar 2/3";
+"category.pillar_3a" = "Pillar 3a";
+"category.military_service" = "Military Service";
+"category.tax_treaty" = "Tax Treaty";
+
+// Category Groups
+"group.income" = "Income";
+"group.deductions" = "Deductions";
+"group.assets" = "Assets & Wealth";
+"group.swiss_specific" = "Swiss Specific";
+
+// MARK: - Expat Hub
+"expat.hub.title" = "Expat Tax Center";
+"expat.hub.welcome" = "Your Swiss Tax Journey";
+"expat.hub.description" = "Everything you need as an expat for Swiss taxes";
+"expat.hub.quick_access" = "Quick Access";
+"expat.hub.learn" = "Learn";
+"expat.hub.learn_subtitle" = "Tax guide";
+"expat.hub.checklist" = "Checklist";
+"expat.hub.checklist_subtitle" = "Track progress";
+"expat.hub.prepare" = "Prepare";
+"expat.hub.prepare_subtitle" = "Documents";
+"expat.hub.calculator" = "Calculator";
+"expat.hub.calculator_subtitle" = "Estimate tax";
+"expat.hub.your_progress" = "Your Progress";
+"expat.hub.items_completed" = "%d of %d items completed";
+"expat.hub.keep_going" = "Keep going! You're making great progress";
+"expat.hub.ready_to_file" = "Ready to file your taxes!";
+"expat.hub.resources" = "Resources";
+"expat.hub.important_dates" = "Important Dates";
+
+// MARK: - Expat Resources
+"expat.resource.guide" = "Complete Tax Guide";
+"expat.resource.guide_subtitle" = "Step-by-step instructions";
+"expat.resource.official" = "Official Resources";
+"expat.resource.official_subtitle" = "Swiss tax authorities";
+"expat.resource.treaties" = "Tax Treaties";
+"expat.resource.treaties_subtitle" = "Double taxation info";
+
+// MARK: - Expat Dates
+"expat.date.filing" = "Tax filing deadline";
+"expat.date.extension" = "Extension deadline";
+"expat.date.year_end" = "Tax year ends";
+
+// MARK: - Document Preparation
+"prep.title" = "Document Preparation";
+"prep.category.personal" = "Personal";
+"prep.category.income" = "Income";
+"prep.category.deductions" = "Deductions";
+"prep.category.wealth" = "Wealth";
+"prep.doc.passport" = "Passport Copy";
+"prep.doc.permit" = "Residence Permit";
+"prep.doc.registration" = "Registration Certificate";
+"prep.doc.marriage" = "Marriage Certificate";
+"prep.doc.salary_cert" = "Salary Certificate";
+"prep.doc.bank_statements" = "Bank Statements";
+"prep.doc.foreign_income" = "Foreign Income Proof";
+"prep.doc.investment_income" = "Investment Income";
+"prep.doc.health_insurance" = "Health Insurance";
+"prep.doc.pillar_3a" = "Pillar 3a Statements";
+"prep.doc.moving_expenses" = "Moving Expenses";
+"prep.doc.professional_expenses" = "Professional Expenses";
+"prep.doc.property" = "Property Documents";
+"prep.doc.stocks" = "Stock Portfolio";
+"prep.doc.crypto" = "Crypto Holdings";
+"prep.doc.foreign_assets" = "Foreign Assets";
+"prep.required" = "Required";
+"prep.optional" = "Optional";
+"prep.tips.title" = "Pro Tips";
+"prep.tips.organize" = "Keep documents organized by category";
+"prep.tips.translate" = "Translate foreign documents if needed";
+"prep.tips.copies" = "Make copies of all important documents";
+
+// MARK: - Tax Calculator
+"calc.title" = "Tax Calculator";
+"calc.pro_feature" = "Pro Feature";
+"calc.pro_description" = "Get accurate tax estimates based on your canton";
+"calc.income" = "Annual Income";
+"calc.income_placeholder" = "Enter your gross income";
+"calc.canton" = "Canton";
+"calc.marital" = "Marital Status";
+"calc.single" = "Single";
+"calc.married" = "Married";
+"calc.children" = "Have Children";
+"calc.number_children" = "Number of children";
+"calc.calculate" = "Calculate Tax";
+"calc.results" = "Tax Estimation";
+"calc.gross_income" = "Gross Income";
+"calc.estimated_tax" = "Estimated Tax";
+"calc.net_income" = "Net Income";
+"calc.effective_rate" = "Effective Tax Rate";
+"calc.canton_specific" = "Based on tax rates for";
+"calc.disclaimer_title" = "Disclaimer";
+"calc.disclaimer_text" = "This is an estimate only. Actual taxes may vary based on deductions and other factors.";
+
+// MARK: - Speech Recognition
+"speech.title" = "Voice Note";
+"speech.recording" = "Recording...";
+"speech.permission.required" = "Microphone permission required";
+"speech.permission.denied" = "Speech recognition permission denied";
+"speech.microphone.denied" = "Microphone access denied";
+"speech.error.generic" = "Speech recognition error";
+"speech.error.request" = "Failed to create recognition request";
+"speech.error.audio" = "Audio session error";
+"speech.error.unavailable" = "Speech recognition unavailable";
+"speech.unavailable" = "Speech recognition temporarily unavailable";
+"speech.save.failed" = "Failed to save note";

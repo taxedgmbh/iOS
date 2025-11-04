@@ -1,0 +1,64 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user owns the file
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Helper function to check if file size is within limit (4 MB)
+    function isValidSize() {
+      return request.resource.size <= 4 * 1024 * 1024;  // 4 MB limit
+    }
+
+    // Helper function to check if file is a valid document type
+    function isValidFileType() {
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType == 'application/pdf';
+    }
+
+    // Profile images: users/{userId}/profile_images/{fileName}
+    match /profile_images/{fileName} {
+      // Extract userId from filename (format: {userId}.jpg)
+      allow read: if isAuthenticated();
+
+      allow write: if isAuthenticated() &&
+                     isValidSize() &&
+                     request.resource.contentType.matches('image/.*');
+    }
+
+    // Tax documents: documents/{userId}/{documentId}_{documentType}.pdf
+    match /documents/{userId}/{document} {
+      // Allow read if:
+      // - Owner of the document
+      // - Expert or admin (would need to check user role from Firestore)
+      allow read: if isAuthenticated() &&
+                    isOwner(userId);
+
+      // Allow write (create/update) if:
+      // - Authenticated user
+      // - User owns the folder (userId matches auth.uid)
+      // - File size is within limit (4 MB)
+      // - File type is valid (image or PDF)
+      allow write: if isAuthenticated() &&
+                     isOwner(userId) &&
+                     isValidSize() &&
+                     isValidFileType();
+
+      // Allow delete only if owner
+      allow delete: if isAuthenticated() &&
+                      isOwner(userId);
+    }
+
+    // Deny all other paths by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

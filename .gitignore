@@ -1,0 +1,45 @@
+# Firebase credentials
+FireBaseAccessDataCredential.md
+
+# Xcode build directories
+build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+*.swiftpm/
+.build/
+Packages/
+Package.pins
+Package.resolved
+xcuserdata/
+
+# Temporary screenshots and images
+*.png
+*.jpg
+*.jpeg
+
+# But keep assets in the proper directories
+!TaxedGmbH_IOS/Resources/Assets/**/*.png
+!TaxedGmbH_IOS/Resources/Assets/**/*.jpg
+!TaxedGmbH_IOS/Assets.xcassets/**/*.png
+!TaxedGmbH_IOS/Assets.xcassets/**/*.jpg
+
+# User-specific files
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.pbxuser
+!default.pbxuser
+*.xcworkspace
+!default.xcworkspace
+
+# Documentation and markdown
+*.md
+!README.md
+!DEPLOYMENT_GUIDE.md
+!TESTING_GUIDE.md
+!PROJECT_STRUCTURE.md
