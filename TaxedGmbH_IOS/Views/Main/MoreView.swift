@@ -142,7 +142,7 @@ struct MoreView: View {
                     iconColor: .teal,
                     title: "more.about".localized,
                     subtitle: "more.about.subtitle".localized,
-                    destination: AnyView(AboutView())
+                    destination: AnyView(AboutView_HIGCompliant())
                 )
 
                 MoreMenuItem(

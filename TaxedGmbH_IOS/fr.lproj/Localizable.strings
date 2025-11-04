@@ -512,6 +512,11 @@
 // MARK: - More View (New)
 "more.about.title" = "À propos de Taxed";
 "more.about.tagline" = "Conseil fiscal professionnel pour la Suisse";
+"more.about.bullet1" = "Spécialisé dans le conseil fiscal pour les expatriés en Suisse";
+"more.about.bullet2" = "Approche numérique avec support personnel";
+"more.about.bullet3" = "Prix transparents, pas de frais cachés";
+"more.about.bullet4" = "Disponible en allemand, français, italien et anglais";
+"more.about.logo_label" = "Logo de l'entreprise Taxed";
 "more.about.description" = "Taxed facilite votre déclaration fiscale en Suisse. Notre équipe d'experts fiscaux vous accompagne tout au long du processus et s'assure que vous bénéficiez de toutes les déductions auxquelles vous avez droit.";
 "more.company.title" = "Entreprise";
 "more.company.name" = "Taxed GmbH";
@@ -538,6 +543,16 @@
 "more.trust.support.title" = "Assistance 24/7";
 "more.trust.support.desc" = "Notre équipe d'assistance est disponible à tout moment pour vous aider";
 "more.app_info.title" = "Informations sur l'application";
+"more.app_info.header" = "Informations sur l'application";
+"more.app_info.made_in" = "Fait avec ♥ en Suisse";
+"more.app_info.version_info" = "Informations sur la version";
+"more.app_info.version" = "Version";
+"more.app_info.build" = "Build";
+"more.app_info.platform" = "Plateforme";
+"more.app_info.privacy" = "Politique de confidentialité";
+"more.app_info.terms" = "Conditions d'utilisation";
+"more.app_info.imprint" = "Mentions légales";
+"more.app_info.copyright" = "© 2025 Taxed GmbH. Tous droits réservés.";
 
 // MARK: - Privacy Policy (New)
 "privacy.title" = "Politique de confidentialité";

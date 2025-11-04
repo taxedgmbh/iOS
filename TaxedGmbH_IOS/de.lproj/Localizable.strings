@@ -525,6 +525,7 @@
 "more.about.bullet2" = "Digital-first Ansatz mit persönlicher Betreuung";
 "more.about.bullet3" = "Transparente Preise, keine versteckten Kosten";
 "more.about.bullet4" = "Verfügbar in Deutsch, Französisch, Italienisch und Englisch";
+"more.about.logo_label" = "Taxed Firmenlogo";
 
 // Company Details
 "more.company_details.header" = "Firmendetails";
@@ -568,6 +569,12 @@
 "more.app_info.header" = "App-Informationen";
 "more.app_info.made_in" = "Mit ♥ in der Schweiz gemacht";
 "more.app_info.version_info" = "Versionsinformationen";
+"more.app_info.version" = "Version";
+"more.app_info.build" = "Build";
+"more.app_info.platform" = "Plattform";
+"more.app_info.privacy" = "Datenschutzerklärung";
+"more.app_info.terms" = "Nutzungsbedingungen";
+"more.app_info.imprint" = "Impressum";
 "more.app_info.copyright" = "© 2025 Taxed GmbH. Alle Rechte vorbehalten.";
 
 // MARK: - Privacy Policy (Settings)
