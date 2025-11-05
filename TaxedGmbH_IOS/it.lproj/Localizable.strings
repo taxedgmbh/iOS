@@ -744,3 +744,214 @@
 "report.success.message" = "Grazie per il feedback! Esamineremo il tuo rapporto a breve.";
 "report.error.title" = "E-mail non disponibile";
 "report.error.message" = "Configura un account e-mail nelle impostazioni di sistema per segnalare problemi.";
+
+// MARK: - Missing Translations Added
+
+// About
+"about.contact" = "Contatto";
+"about.mission" = "La Nostra Missione";
+"about.mission.content" = "Crediamo che la dichiarazione fiscale dovrebbe essere semplice, trasparente e senza stress. La nostra missione è aiutare tutti in Svizzera - dai locali agli expat - a navigare nel sistema fiscale con sicurezza.";
+
+// Accessibility
+"accessibility.increase_contrast" = "Aumenta Contrasto";
+"accessibility.larger_text" = "Testo Più Grande";
+"accessibility.motion.footer" = "Riduci animazioni e transizioni";
+"accessibility.motion.header" = "MOVIMENTO";
+"accessibility.reduce_motion" = "Riduci Movimento";
+"accessibility.system_settings" = "Apri Impostazioni Accessibilità di Sistema";
+"accessibility.vision.footer" = "Regola dimensione testo e contrasto per migliore leggibilità";
+"accessibility.vision.header" = "VISTA";
+"accessibility.voiceover" = "VoiceOver";
+"accessibility.voiceover.footer" = "Abilita lettore schermo VoiceOver";
+"accessibility.voiceover.header" = "VOICEOVER";
+
+// Tax Calculator
+"calc.calculate" = "Calcola Tasse";
+"calc.canton" = "Cantone";
+"calc.canton_specific" = "Basato su aliquote fiscali per";
+"calc.children" = "Hai Figli";
+"calc.disclaimer_text" = "Questa è solo una stima. Le tasse effettive possono variare in base a deduzioni e altri fattori.";
+"calc.disclaimer_title" = "Disclaimer";
+"calc.effective_rate" = "Aliquota Fiscale Effettiva";
+"calc.estimated_tax" = "Tasse Stimate";
+"calc.gross_income" = "Reddito Lordo";
+"calc.income" = "Reddito Annuale";
+"calc.income_placeholder" = "Inserisci il tuo reddito lordo";
+"calc.marital" = "Stato Civile";
+"calc.married" = "Sposato";
+"calc.net_income" = "Reddito Netto";
+"calc.number_children" = "Numero di figli";
+"calc.pro_description" = "Ottieni stime fiscali accurate in base al tuo cantone";
+"calc.pro_feature" = "Funzione Pro";
+"calc.results" = "Stima Fiscale";
+"calc.single" = "Single";
+"calc.title" = "Calcolatore Fiscale";
+
+// Categories
+"category.bonus" = "Bonus";
+"category.childcare" = "Assistenza all'Infanzia";
+"category.crypto" = "Criptovaluta";
+"category.donations" = "Donazioni";
+"category.education" = "Istruzione";
+"category.foreign_income" = "Reddito Estero";
+"category.foreign_wealth" = "Patrimonio Estero";
+"category.freelance" = "Libero Professionista";
+"category.home_office" = "Home Office";
+"category.insurance" = "Assicurazione";
+"category.investment" = "Investimento";
+"category.medical" = "Medico";
+"category.military_service" = "Servizio Militare";
+"category.mortgage" = "Ipoteca";
+"category.pension" = "Pensione";
+"category.pillar_2" = "Pilastro 2/3";
+"category.pillar_3a" = "Pilastro 3a";
+"category.property" = "Proprietà";
+"category.rental" = "Reddito da Affitto";
+"category.salary" = "Stipendio";
+"category.savings" = "Risparmi";
+"category.stocks" = "Azioni";
+"category.tax_treaty" = "Convenzione Fiscale";
+
+// Checklist
+"checklist.button.reset" = "Ripristina";
+
+// Contact
+"contact.hours.content" = "Lunedì - Venerdì: 9:00 - 18:00";
+"contact.support_email" = "Email di Supporto";
+
+// Documents
+"documents.swipe.accuracy" = "Precisione";
+"documents.swipe.description" = "Descrizione";
+
+// Expat Hub
+"expat.date.extension" = "Scadenza proroga";
+"expat.date.filing" = "Scadenza dichiarazione fiscale";
+"expat.date.year_end" = "Fine anno fiscale";
+"expat.hub.calculator" = "Calcolatore";
+"expat.hub.calculator_subtitle" = "Stima tasse";
+"expat.hub.checklist" = "Lista di Controllo";
+"expat.hub.checklist_subtitle" = "Traccia progresso";
+"expat.hub.description" = "Tutto ciò di cui hai bisogno come expat per le tasse svizzere";
+"expat.hub.important_dates" = "Date Importanti";
+"expat.hub.items_completed" = "%d di %d elementi completati";
+"expat.hub.keep_going" = "Continua così! Stai facendo grandi progressi";
+"expat.hub.learn" = "Impara";
+"expat.hub.learn_subtitle" = "Guida fiscale";
+"expat.hub.prepare" = "Prepara";
+"expat.hub.prepare_subtitle" = "Documenti";
+"expat.hub.quick_access" = "Accesso Rapido";
+"expat.hub.ready_to_file" = "Pronto per presentare le tasse!";
+"expat.hub.resources" = "Risorse";
+"expat.hub.title" = "Centro Fiscale Expat";
+"expat.hub.welcome" = "Il Tuo Viaggio Fiscale Svizzero";
+"expat.hub.your_progress" = "Il Tuo Progresso";
+"expat.resource.guide" = "Guida Fiscale Completa";
+"expat.resource.guide_subtitle" = "Istruzioni passo-passo";
+"expat.resource.official" = "Risorse Ufficiali";
+"expat.resource.official_subtitle" = "Autorità fiscali svizzere";
+"expat.resource.treaties" = "Convenzioni Fiscali";
+"expat.resource.treaties_subtitle" = "Info doppia imposizione";
+
+// Groups
+"group.assets" = "Patrimonio e Investimenti";
+"group.deductions" = "Deduzioni";
+"group.income" = "Reddito";
+"group.swiss_specific" = "Specifico Svizzero";
+
+// More Menu
+"more.accessibility" = "Accessibilità";
+"more.accessibility.header" = "ACCESSIBILITÀ";
+"more.accessibility.subtitle" = "Impostazioni vista, movimento e VoiceOver";
+"more.security" = "Sicurezza";
+"more.security.header" = "SICUREZZA";
+"more.security.subtitle" = "Autenticazione biometrica, passcode e crittografia";
+
+// Document Preparation
+"prep.category.deductions" = "Deduzioni";
+"prep.category.income" = "Reddito";
+"prep.category.personal" = "Personale";
+"prep.category.wealth" = "Patrimonio";
+"prep.doc.bank_statements" = "Estratti Conto Bancari";
+"prep.doc.crypto" = "Criptovalute Possedute";
+"prep.doc.foreign_assets" = "Patrimonio Estero";
+"prep.doc.foreign_income" = "Prova Reddito Estero";
+"prep.doc.health_insurance" = "Assicurazione Sanitaria";
+"prep.doc.investment_income" = "Redditi da Investimento";
+"prep.doc.marriage" = "Certificato di Matrimonio";
+"prep.doc.moving_expenses" = "Spese di Trasloco";
+"prep.doc.passport" = "Copia Passaporto";
+"prep.doc.permit" = "Permesso di Soggiorno";
+"prep.doc.pillar_3a" = "Certificati Pilastro 3a";
+"prep.doc.professional_expenses" = "Spese Professionali";
+"prep.doc.property" = "Documenti Proprietà";
+"prep.doc.registration" = "Certificato di Registrazione";
+"prep.doc.salary_cert" = "Certificato di Salario";
+"prep.doc.stocks" = "Portafoglio Azionario";
+"prep.optional" = "Opzionale";
+"prep.required" = "Richiesto";
+"prep.tips.copies" = "Fai copie di tutti i documenti importanti";
+"prep.tips.organize" = "Mantieni i documenti organizzati per categoria";
+"prep.tips.title" = "Suggerimenti Pro";
+"prep.tips.translate" = "Traduci i documenti esteri se necessario";
+"prep.title" = "Preparazione Documenti";
+
+// Privacy
+"privacy.rights.content" = "Hai il diritto di:\n• Accedere ai tuoi dati\n• Correggere i tuoi dati\n• Eliminare i tuoi dati\n• Esportare i tuoi dati\n• Opporti al trattamento dei dati\n\nContattaci per esercitare i tuoi diritti.";
+"privacy.rights.title" = "5. I Tuoi Diritti";
+
+// Process
+"process.action.make_payment" = "Effettua Pagamento";
+"process.stage.payment.description" = "Completa il pagamento per il servizio di preparazione fiscale.";
+"process.stage.payment.title" = "Pagamento";
+
+// Profile
+"profile.completeness" = "Completezza Profilo";
+"profile.completeness.complete" = "Il tuo profilo è completo!";
+"profile.completeness.high" = "Il tuo profilo è quasi completo";
+"profile.completeness.low" = "Aggiungi più informazioni per completare il profilo";
+"profile.completeness.medium" = "Quasi fatto! Mancano ancora alcuni dettagli";
+"profile.delete_account.alert.message" = "Questa azione non può essere annullata. Tutti i tuoi dati saranno eliminati permanentemente.";
+"profile.delete_account.alert.title" = "Eliminare Account?";
+"profile.delete_account.confirm" = "Elimina";
+"profile.delete_account.warning" = "Attenzione: Questa azione è permanente e non può essere annullata.";
+
+// Security
+"security.authentication.footer" = "Proteggi il tuo account con autenticazione biometrica";
+"security.authentication.header" = "AUTENTICAZIONE";
+"security.auto_lock.footer" = "Blocca automaticamente l'app dopo inattività";
+"security.auto_lock.header" = "BLOCCO AUTOMATICO";
+"security.auto_lock_enabled" = "Abilita Blocco Automatico";
+"security.auto_lock_time" = "Tempo Blocco Automatico";
+"security.biometric_auth" = "Abilita Autenticazione Biometrica";
+"security.data.header" = "PROTEZIONE DATI";
+"security.encryption.description" = "Tutti i tuoi dati sono crittografati con crittografia AES-256";
+"security.encryption.title" = "Crittografia End-to-End";
+"security.require_password" = "Richiedi Password";
+
+// Settings
+"settings.appearance.dark" = "Scuro";
+"settings.appearance.footer" = "Scegli l'aspetto preferito. Sistema usa le impostazioni del tuo dispositivo.";
+"settings.appearance.header" = "Aspetto";
+"settings.appearance.light" = "Chiaro";
+"settings.appearance.mode" = "Modalità Aspetto";
+"settings.appearance.system" = "Sistema";
+"settings.appearance.title" = "Tema";
+"settings.documents.auto_upload" = "Caricamento Automatico";
+"settings.documents.header" = "Documenti";
+"settings.documents.high_quality" = "Immagini Alta Qualità";
+"settings.storage.clear_cache" = "Svuota Cache";
+"settings.storage.header" = "Archiviazione";
+"settings.storage.used" = "Archiviazione Utilizzata";
+
+// Speech Recognition
+"speech.error.audio" = "Errore sessione audio";
+"speech.error.generic" = "Errore riconoscimento vocale";
+"speech.error.request" = "Impossibile creare richiesta riconoscimento";
+"speech.error.unavailable" = "Riconoscimento vocale non disponibile";
+"speech.microphone.denied" = "Accesso microfono negato";
+"speech.permission.denied" = "Permesso riconoscimento vocale negato";
+"speech.permission.required" = "Permesso microfono richiesto";
+"speech.recording" = "Registrazione...";
+"speech.save.failed" = "Impossibile salvare nota";
+"speech.title" = "Nota Vocale";
+"speech.unavailable" = "Riconoscimento vocale temporaneamente non disponibile";
