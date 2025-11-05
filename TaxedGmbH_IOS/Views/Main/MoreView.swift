@@ -568,6 +568,9 @@ struct ProfileView: View {
         .onAppear {
             profileImageURL = authService.user?.profileImageUrl
         }
+        .onChange(of: authService.user?.profileImageUrl) { newValue in
+            profileImageURL = newValue
+        }
     }
 
     // Default avatar view
