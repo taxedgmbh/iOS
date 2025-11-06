@@ -11,8 +11,14 @@ import FirebaseStorage
 struct DocumentDetailView: View {
     let document: TaxDocument
 
+    @EnvironmentObject var authService: AuthenticationService
+    private let coverSheetService = CoverSheetService.shared
+
     @State private var imageData: Data?
     @State private var isLoadingImage = false
+    @State private var isGeneratingCover = false
+    @State private var coverGenerationSuccess = false
+    @State private var coverGenerationError: String?
 
     var body: some View {
         ScrollView {
@@ -172,6 +178,111 @@ struct DocumentDetailView: View {
                     .background(Color.orange.opacity(0.1))
                     .cornerRadius(12)
                 }
+
+                // Cover Sheet Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Tax Office Submission", systemImage: "doc.badge.checkmark")
+                        .font(.headline)
+
+                    if document.coverSheetGenerated == true {
+                        // Show cover sheet info
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Cover sheet generated")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                            }
+
+                            if let coverUrl = document.coverSheetUrl {
+                                Button(action: {
+                                    if let url = URL(string: coverUrl) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    Label("View Cover Sheet", systemImage: "arrow.up.right.square")
+                                        .font(.caption)
+                                }
+                            }
+
+                            if let processedUrl = document.processedDocumentUrl {
+                                Button(action: {
+                                    if let url = URL(string: processedUrl) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    Label("View Processed Document", systemImage: "arrow.up.right.square")
+                                        .font(.caption)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(8)
+                    } else {
+                        // Generate cover sheet button
+                        Button(action: {
+                            Task {
+                                await generateCoverSheet()
+                            }
+                        }) {
+                            HStack {
+                                if isGeneratingCover {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Image(systemName: "doc.badge.plus")
+                                }
+
+                                Text(isGeneratingCover ? "Generating..." : "Generate Cover Sheet")
+                                    .fontWeight(.semibold)
+
+                                Spacer()
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                            }
+                            .padding()
+                            .background(Color.blue.opacity(0.1))
+                            .foregroundColor(.blue)
+                            .cornerRadius(8)
+                        }
+                        .disabled(isGeneratingCover)
+
+                        Text("Generate a Swiss tax office cover sheet for this document")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+
+                    // Success/Error messages
+                    if coverGenerationSuccess {
+                        HStack {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                            Text("Cover sheet generated successfully!")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                        .padding(.vertical, 4)
+                    }
+
+                    if let error = coverGenerationError {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .padding()
+                .background(Color(.systemBackground))
+                .cornerRadius(12)
+                .shadow(radius: 2)
             }
             .padding()
         }
@@ -194,6 +305,39 @@ struct DocumentDetailView: View {
         } catch {
             print("❌ Error loading image: \(error)")
         }
+    }
+
+    private func generateCoverSheet() async {
+        guard let user = authService.user else {
+            coverGenerationError = "User not found"
+            return
+        }
+
+        isGeneratingCover = true
+        coverGenerationError = nil
+        coverGenerationSuccess = false
+
+        do {
+            let (coverUrl, processedUrl) = try await coverSheetService.processCoverSheet(
+                for: document,
+                user: user
+            )
+
+            print("✅ Cover sheet generated: \(coverUrl)")
+            print("✅ Processed document: \(processedUrl)")
+
+            coverGenerationSuccess = true
+
+            // Auto-hide success message after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                coverGenerationSuccess = false
+            }
+        } catch {
+            print("❌ Cover sheet generation failed: \(error)")
+            coverGenerationError = "Failed to generate cover sheet: \(error.localizedDescription)"
+        }
+
+        isGeneratingCover = false
     }
 }
 
