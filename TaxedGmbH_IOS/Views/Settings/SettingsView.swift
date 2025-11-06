@@ -202,24 +202,6 @@ struct SettingsView: View {
                 Text("settings.support.title".localized)
             }
 
-            // Developer Tools Section (for testing)
-            Section {
-                NavigationLink {
-                    CreateTestDocumentsView()
-                } label: {
-                    HStack {
-                        Image(systemName: "wrench.and.screwdriver.fill")
-                            .foregroundColor(.orange)
-                            .frame(width: 24)
-                        Text("Create Test Documents")
-                    }
-                }
-            } header: {
-                Text("Developer Tools")
-            } footer: {
-                Text("Tools for testing and development")
-            }
-
             // Sign Out Section
             Section {
                 Button(role: .destructive) {

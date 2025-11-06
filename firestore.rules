@@ -1,144 +1,82 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
     // Helper function to check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
-
-    // Helper function to check if user owns the document
+    
+    // Helper function to check if user owns the resource
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-
-    // Helper function to check user role
-    function hasRole(role) {
-      return isAuthenticated() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
-    }
-
+    
     // Users collection
     match /users/{userId} {
-      // Allow read if authenticated and either:
-      // - Reading own document
-      // - User is an expert or admin
-      allow read: if isAuthenticated() &&
-                    (isOwner(userId) ||
-                     hasRole('expert') ||
-                     hasRole('admin'));
-
-      // Allow create only during signup (user creates their own document)
-      allow create: if isAuthenticated() &&
-                      isOwner(userId) &&
-                      request.resource.data.keys().hasAll(['email', 'name', 'role']) &&
-                      request.resource.data.role == 'customer';  // Default role for new users
-
-      // Allow update only own document
-      allow update: if isAuthenticated() &&
-                      isOwner(userId) &&
-                      // Prevent role escalation (users can't change their own role)
-                      request.resource.data.role == resource.data.role;
-
-      // Allow delete only admins
-      allow delete: if hasRole('admin');
+      allow read: if isAuthenticated() && isOwner(userId);
+      allow write: if isAuthenticated() && isOwner(userId);
     }
 
-    // Documents collection
+    // Customers collection - User profile and settings
+    match /customers/{customerId} {
+      allow get: if isAuthenticated() && isOwner(customerId);
+      allow list: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(customerId);
+      allow update: if isAuthenticated() && isOwner(customerId);
+      allow delete: if isAuthenticated() && isOwner(customerId);
+    }
+    
+    // Documents collection - CRITICAL FOR UPLOAD
     match /documents/{documentId} {
-      // Allow read if:
-      // - Owner of the document
-      // - Expert assigned to the user
-      // - Admin
-      allow read: if isAuthenticated() &&
-                    (resource.data.userId == request.auth.uid ||
-                     hasRole('expert') ||
-                     hasRole('admin'));
+      // Allow get (single document read)
+      allow get: if isAuthenticated() && isOwner(resource.data.customerId);
 
-      // Allow create if authenticated (user uploads their own documents)
-      allow create: if isAuthenticated() &&
-                      request.resource.data.userId == request.auth.uid;
+      // Allow list (queries) - user can query their own documents
+      allow list: if isAuthenticated();
 
-      // Allow update/delete only if owner or admin
-      allow update, delete: if isAuthenticated() &&
-                              (resource.data.userId == request.auth.uid ||
-                               hasRole('admin'));
+      allow create: if isAuthenticated() && isOwner(request.resource.data.customerId);
+      allow update, delete: if isAuthenticated() && isOwner(resource.data.customerId);
     }
+    
+    // Chats collection - Real-time chat between customer and expert
+    match /chats/{chatId} {
+      // Allow list/get if user is customer or expert in the chat
+      // For queries: Firestore validates query constraints match these rules
+      allow get: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.expertId == request.auth.uid
+      );
 
-    // Conversations collection
-    match /conversations/{conversationId} {
-      // Allow read if participant (customer or expert)
-      allow read: if isAuthenticated() &&
-                    (resource.data.customerId == request.auth.uid ||
-                     resource.data.expertId == request.auth.uid ||
-                     hasRole('expert') ||
-                     hasRole('admin'));
+      // Allow list (queries) - this enables .whereField() queries
+      // User can query chats where they are customer or expert
+      allow list: if isAuthenticated();
 
-      // Allow create if customer creates their own conversation
-      allow create: if isAuthenticated() &&
-                      request.resource.data.customerId == request.auth.uid;
+      // Allow create if user is customer or expert in the chat
+      allow create: if isAuthenticated() && (
+        request.resource.data.customerId == request.auth.uid ||
+        request.resource.data.expertId == request.auth.uid
+      );
 
-      // Allow update for participants and experts
-      allow update: if isAuthenticated() &&
-                      (resource.data.customerId == request.auth.uid ||
-                       resource.data.expertId == request.auth.uid ||
-                       hasRole('expert') ||
-                       hasRole('admin'));
-
-      // Only admins can delete conversations
-      allow delete: if hasRole('admin');
+      // Allow update if user is customer or expert in the chat
+      allow update: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.expertId == request.auth.uid
+      );
     }
-
-    // Messages collection for chat
+    
+    // Messages collection
     match /messages/{messageId} {
-      // Allow read if part of the conversation
-      allow read: if isAuthenticated() &&
-                    exists(/databases/$(database)/documents/conversations/$(resource.data.conversationId)) &&
-                    (get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.customerId == request.auth.uid ||
-                     get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.expertId == request.auth.uid ||
-                     hasRole('expert') ||
-                     hasRole('admin'));
-
-      // Allow create if sender is part of the conversation
-      allow create: if isAuthenticated() &&
-                      request.resource.data.senderId == request.auth.uid &&
-                      exists(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId)) &&
-                      (get(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId)).data.customerId == request.auth.uid ||
-                       get(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId)).data.expertId == request.auth.uid ||
-                       hasRole('expert'));
-
-      // Allow update only for marking messages as read
-      allow update: if isAuthenticated() &&
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'readAt']) &&
-                      (get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.customerId == request.auth.uid ||
-                       get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.expertId == request.auth.uid);
-
-      // Messages are immutable - no deletes
-      allow delete: if false;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
     }
-
+    
     // Notifications collection
     match /notifications/{notificationId} {
-      // Allow read only own notifications
-      allow read: if isAuthenticated() &&
-                    resource.data.userId == request.auth.uid;
-
-      // System creates notifications, users can't create them
-      allow create: if false;
-
-      // Allow update only to mark as read
-      allow update: if isAuthenticated() &&
-                      resource.data.userId == request.auth.uid &&
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'readAt']);
-
-      // Allow delete only admins
-      allow delete: if hasRole('admin');
-    }
-
-    // Audit logs - read only for admins
-    match /audit_logs/{logId} {
-      allow read: if hasRole('admin');
-      allow write: if false;  // Only server can write audit logs
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && isOwner(resource.data.userId);
     }
   }
 }

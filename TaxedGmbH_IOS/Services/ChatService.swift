@@ -14,7 +14,13 @@ import Combine
 class ChatService: ObservableObject {
     static let shared = ChatService()
 
-    private let db = Firestore.firestore()
+    private let db: Firestore = {
+        if let databaseId = AppConstants.Firebase.databaseId {
+            return Firestore.firestore(database: databaseId)
+        } else {
+            return Firestore.firestore()
+        }
+    }()
     private let storage = Storage.storage()
 
     @Published var conversations: [Conversation] = []
@@ -30,8 +36,11 @@ class ChatService: ObservableObject {
 
     /// Get or create conversation for a customer
     func getOrCreateConversation(customerId: String, customerName: String, taxYear: Int) async throws -> Conversation {
+        print("🔧 ChatService using named database: taxedgmbh")
+        print("📍 Looking for chat in 'chats' collection...")
+
         // First, try to find existing active conversation
-        let query = db.collection("conversations")
+        let query = db.collection("chats")
             .whereField("customerId", isEqualTo: customerId)
             .whereField("taxYear", isEqualTo: taxYear)
             .whereField("status", isEqualTo: "active")
@@ -41,11 +50,13 @@ class ChatService: ObservableObject {
 
         if let doc = snapshot.documents.first,
            let conversation = Conversation.fromDictionary(id: doc.documentID, data: doc.data()) {
+            print("✅ Found existing chat: \(doc.documentID)")
             return conversation
         }
 
         // No conversation found, create new one
         // In production, you'd match with available expert based on languages, specialization, etc.
+        print("📝 Creating new chat for customer: \(customerId)")
         let conversation = Conversation(
             customerId: customerId,
             customerName: customerName,
@@ -57,7 +68,7 @@ class ChatService: ObservableObject {
             expertSpecialization: ["expat", "cross-border"]
         )
 
-        let docRef = db.collection("conversations").document(conversation.id)
+        let docRef = db.collection("chats").document(conversation.id)
         try await docRef.setData(conversation.toDictionary())
 
         // Create welcome message
@@ -77,7 +88,7 @@ class ChatService: ObservableObject {
 
     /// Get customer's conversations
     func getConversations(customerId: String) async throws -> [Conversation] {
-        let query = db.collection("conversations")
+        let query = db.collection("chats")
             .whereField("customerId", isEqualTo: customerId)
             .order(by: "updatedAt", descending: true)
 
@@ -92,7 +103,7 @@ class ChatService: ObservableObject {
     func observeConversation(conversationId: String, completion: @escaping (Conversation?) -> Void) {
         conversationListener?.remove()
 
-        conversationListener = db.collection("conversations").document(conversationId)
+        conversationListener = db.collection("chats").document(conversationId)
             .addSnapshotListener { snapshot, error in
                 if let error = error {
                     print("❌ Error observing conversation: \(error)")
@@ -258,7 +269,7 @@ class ChatService: ObservableObject {
         try await batch.commit()
 
         // Reset unread count in conversation
-        let conversationRef = db.collection("conversations").document(conversationId)
+        let conversationRef = db.collection("chats").document(conversationId)
 
         // Determine which field to update based on user role
         // For now, assume customer
@@ -271,7 +282,7 @@ class ChatService: ObservableObject {
 
     /// Set typing indicator
     func setTyping(conversationId: String, userId: String, isTyping: Bool) async {
-        let docRef = db.collection("conversations").document(conversationId)
+        let docRef = db.collection("chats").document(conversationId)
 
         do {
             try await docRef.updateData([
@@ -285,7 +296,7 @@ class ChatService: ObservableObject {
     // MARK: - Helper Methods
 
     private func updateConversationLastMessage(_ message: ChatMessage) async throws {
-        let docRef = db.collection("conversations").document(message.conversationId)
+        let docRef = db.collection("chats").document(message.conversationId)
 
         var updateData: [String: Any] = [
             "lastMessage": message.content,
@@ -306,7 +317,7 @@ class ChatService: ObservableObject {
 
     private func uploadImage(_ imageData: Data, conversationId: String) async throws -> String {
         // Get customerId from conversation to match regular document upload structure
-        let conversationRef = db.collection("conversations").document(conversationId)
+        let conversationRef = db.collection("chats").document(conversationId)
         let conversationDoc = try await conversationRef.getDocument()
 
         guard let customerId = conversationDoc.data()?["customerId"] as? String else {

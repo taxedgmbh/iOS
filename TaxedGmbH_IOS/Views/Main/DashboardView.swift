@@ -15,7 +15,7 @@ struct DashboardView: View {
 
     @State private var documents: [TaxDocument] = []
     @State private var completionPercentage: Double = 0.0
-    @State private var categoryStats: [TaxCategory: Int] = [:]
+    @State private var subcategoryStats: [String: Int] = [:]  // Maps taxCategoryType to count
     @State private var showUploadSheet = false
     @State private var showDocumentList = false
     @State private var showExpatHub = false
@@ -104,7 +104,7 @@ struct DashboardView: View {
                     )
                     .padding(.horizontal)
 
-                    // Category Grid with Edit Mode
+                    // Category Grid with Edit Mode - Organized by Groups
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Text("dashboard.categories".localized)
@@ -126,54 +126,77 @@ struct DashboardView: View {
                         }
                         .padding(.horizontal)
 
-                        LazyVGrid(columns: [GridItem(), GridItem()], spacing: 16) {
-                            // Show selected categories
-                            ForEach(Array(categoryConfig.selectedCategories), id: \.self) { categoryType in
-                                CustomizableCategoryCard(
-                                    categoryType: categoryType,
-                                    documentCount: getDocumentCount(for: categoryType),
-                                    isEditMode: categoryConfig.isEditMode,
-                                    onRemove: {
-                                        categoryConfig.toggleCategory(categoryType)
+                        // Group categories by CategoryGroup
+                        ForEach(CategoryGroup.allCases, id: \.self) { group in
+                            let categoriesInGroup = categoryConfig.selectedCategories.filter { $0.categoryGroup == group }
+
+                            if !categoriesInGroup.isEmpty || categoryConfig.isEditMode {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    // Group header
+                                    HStack(spacing: 6) {
+                                        Image(systemName: group.icon)
+                                            .font(.caption)
+                                            .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                        Text(group.displayName)
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.secondary)
                                     }
-                                )
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .scale.combined(with: .opacity)
-                                ))
+                                    .padding(.horizontal)
+                                    .padding(.top, 8)
+
+                                    LazyVGrid(columns: [GridItem(), GridItem()], spacing: 16) {
+                                        // Show selected categories in this group
+                                        ForEach(Array(categoriesInGroup).sorted { $0.displayName < $1.displayName }, id: \.self) { categoryType in
+                                            CustomizableCategoryCard(
+                                                categoryType: categoryType,
+                                                documentCount: getDocumentCount(for: categoryType),
+                                                isEditMode: categoryConfig.isEditMode,
+                                                onRemove: {
+                                                    categoryConfig.toggleCategory(categoryType)
+                                                }
+                                            )
+                                            .transition(.asymmetric(
+                                                insertion: .scale.combined(with: .opacity),
+                                                removal: .scale.combined(with: .opacity)
+                                            ))
+                                        }
+                                    }
+                                    .padding(.horizontal)
+                                }
                             }
+                        }
 
-                            // Add category button in edit mode
-                            if categoryConfig.isEditMode {
-                                Button(action: {
-                                    showCategoryPicker = true
-                                }) {
-                                    VStack(spacing: 12) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.gray.opacity(0.1))
-                                                .frame(height: 140)
+                        // Add category button in edit mode
+                        if categoryConfig.isEditMode {
+                            Button(action: {
+                                showCategoryPicker = true
+                            }) {
+                                VStack(spacing: 12) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.gray.opacity(0.1))
+                                            .frame(height: 140)
 
-                                            VStack(spacing: 8) {
-                                                Image(systemName: "plus.circle.fill")
-                                                    .font(.system(size: 32))
-                                                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                        VStack(spacing: 8) {
+                                            Image(systemName: "plus.circle.fill")
+                                                .font(.system(size: 32))
+                                                .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
 
-                                                Text("Add Category")
-                                                    .font(.caption)
-                                                    .fontWeight(.medium)
-                                                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-                                            }
+                                            Text("Add Category")
+                                                .font(.caption)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
                                         }
                                     }
                                 }
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .scale.combined(with: .opacity)
-                                ))
+                                .padding(.horizontal)
                             }
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .scale.combined(with: .opacity)
+                            ))
                         }
-                        .padding(.horizontal)
                     }
 
                     // Quick Actions
@@ -183,6 +206,17 @@ struct DashboardView: View {
                             .padding(.horizontal)
 
                         VStack(spacing: 12) {
+                            // First Page Tax Return - Special Card
+                            QuickActionButton(
+                                icon: "doc.text.fill.badge.checkmark",
+                                title: "dashboard.first_page_tax_return".localized,
+                                subtitle: "dashboard.first_page_subtitle".localized,
+                                color: Color(red: 227/255, green: 30/255, blue: 36/255)
+                            ) {
+                                // TODO: Navigate to first page tax return view
+                                showUploadSheet = true
+                            }
+
                             QuickActionButton(
                                 icon: "globe.europe.africa.fill",
                                 title: "dashboard.expat_guide".localized,
@@ -259,7 +293,7 @@ struct DashboardView: View {
             .navigationTitle("dashboard.title".localized)
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showExpatHub) {
-                ExpatHubView()
+                UnifiedExpatCenterView()
             }
             .sheet(isPresented: $showUploadSheet) {
                 DocumentUploadView()
@@ -281,24 +315,8 @@ struct DashboardView: View {
 
     // Helper function to get document count for category type
     private func getDocumentCount(for categoryType: TaxCategoryType) -> Int {
-        // Map TaxCategoryType to TaxCategory for document counting
-        // This is a simplified mapping - you may need to adjust based on your actual category mapping
-        switch categoryType {
-        case .salary, .bonus, .freelance, .investment, .rental, .pension:
-            return categoryStats[.income] ?? 0
-        case .foreignIncome:
-            return categoryStats[.foreignIncome] ?? 0
-        case .mortgage, .donations, .education, .medical, .insurance, .childcare, .homeOffice:
-            return categoryStats[.deduction] ?? 0
-        case .property, .stocks, .crypto, .savings:
-            return categoryStats[.wealth] ?? 0
-        case .foreignWealth:
-            return categoryStats[.foreignWealth] ?? 0
-        case .pillar2, .pillar3a:
-            return categoryStats[.pillar] ?? 0
-        case .militaryService, .taxTreaty:
-            return categoryStats[.taxTreaty] ?? 0
-        }
+        // Look up the count directly by taxCategoryType raw value
+        return subcategoryStats[categoryType.rawValue] ?? 0
     }
 
     private func loadDashboardData() async {
@@ -306,7 +324,7 @@ struct DashboardView: View {
 
         do {
             documents = try await firestoreService.getDocumentsForCustomer(customerId: userId)
-            categoryStats = try await firestoreService.getDocumentStats(customerId: userId)
+            subcategoryStats = try await firestoreService.getSubcategoryStats(customerId: userId)
             completionPercentage = try await firestoreService.getCompletionPercentage(
                 customerId: userId,
                 requiredCount: requiredDocumentCount
@@ -322,12 +340,18 @@ struct DashboardView: View {
         firestoreService.observeCustomerDocuments(customerId: userId) { updatedDocs in
             documents = updatedDocs
 
-            // Recalculate stats
-            var stats: [TaxCategory: Int] = [:]
-            for category in TaxCategory.allCases {
-                stats[category] = updatedDocs.filter { $0.category == category }.count
+            // Recalculate subcategory stats
+            var stats: [String: Int] = [:]
+            for document in updatedDocs {
+                if let taxCategoryType = document.taxCategoryType {
+                    stats[taxCategoryType, default: 0] += 1
+                } else {
+                    // Fallback for old documents without taxCategoryType
+                    let categoryKey = document.category.rawValue
+                    stats[categoryKey, default: 0] += 1
+                }
             }
-            categoryStats = stats
+            subcategoryStats = stats
 
             // Recalculate completion
             let approvedCount = updatedDocs.filter { $0.status == .approved || $0.status == .reviewed }.count

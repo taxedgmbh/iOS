@@ -1,3 +1,12 @@
+//
+//  AuthenticationView.swift
+//  TaxedGmbH_IOS
+//
+//  User authentication view with enhanced accessibility and Apple HIG compliance
+//  Features: Email/Password auth, Apple Sign In, Biometric authentication
+//  Follows Apple Human Interface Guidelines for accessibility
+//
+
 import SwiftUI
 import AuthenticationServices
 import LocalAuthentication
@@ -5,6 +14,9 @@ import LocalAuthentication
 struct AuthenticationView: View {
     @EnvironmentObject var authService: AuthenticationService
     @StateObject private var biometricAuth = BiometricAuthService()
+    @StateObject private var accessibilityManager = AccessibilityManager.shared
+
+    // Form State
     @State private var email = ""
     @State private var password = ""
     @State private var name = ""
@@ -16,332 +28,723 @@ struct AuthenticationView: View {
     @State private var showBiometricPrompt = false
     @State private var showPasswordReset = false
 
+    // Accessibility Focus States
+    @AccessibilityFocusState private var emailFieldFocused: Bool
+    @AccessibilityFocusState private var passwordFieldFocused: Bool
+    @AccessibilityFocusState private var nameFieldFocused: Bool
+    @AccessibilityFocusState private var phoneFieldFocused: Bool
+    @AccessibilityFocusState private var submitButtonFocused: Bool
+
+    // Accessibility Environment
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var differentiateWithoutColor
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.accessibilityShowButtonShapes) private var showButtonShapes
+
+    // Validation States for Accessibility
+    @State private var emailValidationError: String?
+    @State private var passwordValidationError: String?
+    @State private var nameValidationError: String?
+    @State private var phoneValidationError: String?
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                VStack(spacing: 24) {
-                    // Logo and Title
-                    VStack(spacing: 12) {
-                        Image("taxed-logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                            .cornerRadius(20)
+                VStack(spacing: dynamicSpacing(24)) {
+                    // Logo and Title with Accessibility
+                    logoSection
 
-                        Text(isSignUp ? "auth.signup.title".localized : "auth.login.title".localized)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-
-                        Text(isSignUp ? "auth.signup.subtitle".localized : "auth.login.subtitle".localized)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.top, 40)
-
-                // Quick Login Options
-                VStack(spacing: 16) {
-                    // Face ID / Touch ID Button (only for login with saved credentials)
-                    if !isSignUp && biometricAuth.isBiometricEnabled() {
-                        Button(action: {
-                            Task {
-                                let success = await biometricAuth.performQuickLogin(authService: authService)
-                                if !success {
-                                    authService.errorMessage = biometricAuth.errorMessage
-                                }
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: biometricAuth.biometricIcon)
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-
-                                Text(biometricAuth.biometricType == .faceID ? "auth.faceid.signin".localized : "auth.touchid.signin".localized)
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.taxedPrimary, Color.taxedPrimary.opacity(0.8)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .cornerRadius(AppConstants.UI.cornerRadius)
-                            .shadow(color: Color.taxedPrimary.opacity(0.3), radius: 5, x: 0, y: 3)
-                        }
-                    }
-
-                    // Apple Sign-In Button (for both sign in and sign up)
-                    SignInWithAppleButton(
-                        .signIn,
-                        onRequest: { request in
-                            authService.handleSignInWithAppleRequest(request)
-                        },
-                        onCompletion: { result in
-                            Task {
-                                await authService.handleSignInWithAppleCompletion(result)
-                            }
-                        }
-                    )
-                    .signInWithAppleButtonStyle(.black)
-                    .frame(height: 50)
-                    .cornerRadius(AppConstants.UI.cornerRadius)
-                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 3)
-                }
-
-                // Divider with "or"
-                HStack {
-                    VStack { Divider() }
-                    Text("auth.divider.or".localized)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                    VStack { Divider() }
-                }
-                .padding(.vertical, 16)
-
-                // Email/Password Form
-                VStack(spacing: 16) {
-                    if isSignUp {
-                        CustomTextField(
-                            text: $name,
-                            placeholder: "auth.name.placeholder".localized,
-                            icon: "person.fill"
-                        )
-                        .autocapitalization(.words)
-                        .textContentType(.name)
-
-                        // Phone Number Field
-                        Button {
-                            showPhoneVerification = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "phone.fill")
-                                    .foregroundColor(.secondary)
-                                    .frame(width: 20)
-
-                                if phoneNumber.isEmpty {
-                                    Text("auth.phone.placeholder".localized)
-                                        .foregroundColor(.secondary)
-                                } else {
-                                    Text(phoneNumber)
-                                        .foregroundColor(.primary)
-                                }
-
-                                Spacer()
-
-                                if !phoneNumber.isEmpty {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                } else {
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(AppConstants.UI.cornerRadius)
-                        }
-                    }
-
-                    CustomTextField(
-                        text: $email,
-                        placeholder: "auth.email.placeholder".localized,
-                        icon: "envelope.fill"
-                    )
-                    .autocapitalization(.none)
-                    .keyboardType(.emailAddress)
-                    .textContentType(isSignUp ? .username : .emailAddress)
-
-                    CustomSecureField(
-                        text: $password,
-                        placeholder: "auth.password.placeholder".localized,
-                        showPassword: $showPassword
-                    )
-                    .textContentType(isSignUp ? .newPassword : .password)
-
-                    // Forgot Password Button (only for login)
+                    // Quick Login Options with Accessibility
                     if !isSignUp {
-                        Button(action: {
-                            showPasswordReset = true
-                        }) {
-                            Text("auth.forgot_password".localized)
-                                .font(.subheadline)
-                                .foregroundColor(.taxedPrimary)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .padding(.top, -8)
+                        quickLoginSection
                     }
-                }
 
-                // Error Message
-                if let errorMessage = authService.errorMessage {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(.red)
-                        Text(errorMessage)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                        Spacer()
-                    }
-                    .padding()
-                    .background(Color.red.opacity(0.1))
-                    .cornerRadius(AppConstants.UI.cornerRadius)
-                }
+                    // Divider with Accessibility
+                    accessibleDivider
 
-                // Sign In/Up Button
-                Button(action: {
-                    Task {
-                        await performAuthentication()
-                    }
-                }) {
-                    if authService.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                    } else {
-                        Text(isSignUp ? "auth.signup.button".localized : "auth.login.button".localized)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                    }
-                }
-                .background(isFormValid ? Color.taxedPrimary : Color.gray)
-                .cornerRadius(AppConstants.UI.cornerRadius)
-                .disabled(authService.isLoading || !isFormValid)
+                    // Form Fields with Accessibility
+                    formFieldsSection
 
-                // Password Requirements (only for sign up)
-                if isSignUp {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("auth.password.requirements".localized)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                    // Action Buttons with Accessibility
+                    actionButtonsSection
 
-                        PasswordRequirementRow(
-                            text: String(format: "auth.password.min_length".localized, AppConstants.Validation.minimumPasswordLength),
-                            isMet: password.count >= AppConstants.Validation.minimumPasswordLength
-                        )
-                        PasswordRequirementRow(
-                            text: "auth.password.letters_numbers".localized,
-                            isMet: password.range(of: "[A-Za-z]", options: .regularExpression) != nil &&
-                                   password.range(of: "[0-9]", options: .regularExpression) != nil
-                        )
-                    }
-                    .padding(.horizontal, 4)
+                    // Additional Options with Accessibility
+                    additionalOptionsSection
                 }
-
-                // Biometric Enable Option (only for login)
-                if !isSignUp && biometricAuth.canEvaluatePolicy && !biometricAuth.isBiometricEnabled() {
-                    HStack {
-                        Toggle(isOn: $enableBiometric) {
-                            HStack(spacing: 12) {
-                                Image(systemName: biometricAuth.biometricIcon)
-                                    .foregroundColor(.taxedPrimary)
-                                VStack(alignment: .leading) {
-                                    Text("auth.biometric.enable".localized)
-                                        .font(.footnote)
-                                        .fontWeight(.medium)
-                                    Text(String(format: "auth.biometric.description".localized, biometricAuth.biometricName))
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .toggleStyle(SwitchToggleStyle(tint: .taxedPrimary))
-                    }
-                    .padding()
-                    .background(Color.taxedPrimary.opacity(0.05))
-                    .cornerRadius(AppConstants.UI.cornerRadius)
-                }
-
-                // Toggle Sign In/Up
-                HStack {
-                    Text(isSignUp ? "auth.toggle.login".localized : "auth.toggle.signup".localized)
-                        .foregroundColor(.secondary)
-                    Text(isSignUp ? "auth.toggle.login.button".localized : "auth.toggle.signup.button".localized)
-                        .foregroundColor(.taxedPrimary)
-                        .fontWeight(.semibold)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    withAnimation {
-                        isSignUp.toggle()
-                        authService.errorMessage = nil
-                        email = ""
-                        password = ""
-                        name = ""
-                        phoneNumber = ""
-                    }
-                }
-                .padding(.top, 8)
-
-                // Add bottom padding instead of Spacer
-                Color.clear.frame(height: 40)
+                .padding(.horizontal, dynamicSpacing(20))
+                .padding(.vertical, dynamicSpacing(40))
+                .frame(minHeight: geometry.size.height)
             }
-            .padding(.horizontal, 24)
-            .frame(minHeight: geometry.size.height)
+            .scrollDismissesKeyboard(.interactively)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Authentication form")
         }
-        .sheet(isPresented: $showPhoneVerification) {
-            PhoneVerificationView(
-                isPresented: $showPhoneVerification,
-                verifiedPhoneNumber: $phoneNumber
+        .navigationBarHidden(true)
+        .onAppear {
+            setupAccessibilityFocus()
+            announceScreenContext()
+        }
+        .accessibilityOptimized()
+    }
+
+    // MARK: - Logo Section
+
+    private var logoSection: some View {
+        VStack(spacing: dynamicSpacing(12)) {
+            // Logo with Accessibility
+            Image("taxed-logo")
+                .resizable()
+                .scaledToFit()
+                .frame(
+                    width: dynamicLogoSize(),
+                    height: dynamicLogoSize()
+                )
+                .cornerRadius(20)
+                .accessibleImage(label: "TaxedGmbH Application Logo")
+                .accessibilityHidden(false)
+
+            // Title with Dynamic Type
+            Text(isSignUp ? "auth.signup.title".localized : "auth.login.title".localized)
+                .font(dynamicFont(.largeTitle))
+                .fontWeight(accessibilityManager.isBoldTextEnabled ? .heavy : .bold)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityHeading(.h1)
+
+            // Subtitle with Dynamic Type
+            Text(isSignUp ? "auth.signup.subtitle".localized : "auth.login.subtitle".localized)
+                .font(dynamicFont(.subheadline))
+                .foregroundColor(accessibleSecondaryColor())
+                .multilineTextAlignment(.center)
+                .accessibilityAddTraits(.isStaticText)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilitySortPriority(1000)
+    }
+
+    // MARK: - Quick Login Section
+
+    private var quickLoginSection: some View {
+        VStack(spacing: dynamicSpacing(16)) {
+            // Biometric Authentication with Accessibility
+            if biometricAuth.isBiometricEnabled() {
+                biometricLoginButton
+            }
+
+            // Apple Sign-In with Accessibility
+            appleSignInButton
+        }
+        .accessibilitySortPriority(900)
+    }
+
+    private var biometricLoginButton: some View {
+        Button(action: performBiometricLogin) {
+            HStack(spacing: dynamicSpacing(12)) {
+                Image(systemName: biometricAuth.biometricIcon)
+                    .font(dynamicFont(.title3))
+                    .foregroundColor(.white)
+                    .accessibilityHidden(true)
+
+                Text(biometricAuth.biometricType == .faceID ?
+                     "auth.faceid.signin".localized :
+                     "auth.touchid.signin".localized)
+                    .font(dynamicFont(.headline))
+                    .foregroundColor(.white)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: accessibilityManager.minimumTouchTargetSize.height)
+            .background(accessibleGradient())
+            .cornerRadius(AppConstants.UI.cornerRadius)
+            .overlay(
+                showButtonShapes ?
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+                    .stroke(Color.white, lineWidth: 2) : nil
             )
         }
-        .sheet(isPresented: $showPasswordReset) {
-            PasswordResetView()
-                .environmentObject(authService)
-        }
-        .alert("auth.biometric.setup.title".localized, isPresented: $showBiometricPrompt) {
-            Button("auth.biometric.setup.enable".localized) {
-                biometricAuth.saveBiometricCredentials(email: email, password: password)
+        .accessibleButton(
+            label: biometricAuth.biometricType == .faceID ?
+                   "Sign in with Face ID" :
+                   "Sign in with Touch ID",
+            hint: "Authenticate using biometric authentication"
+        )
+        .accessibilityIdentifier("biometric_login_button")
+    }
+
+    private var appleSignInButton: some View {
+        SignInWithAppleButton(
+            .signIn,
+            onRequest: { request in
+                authService.handleSignInWithAppleRequest(request)
+            },
+            onCompletion: { result in
+                Task {
+                    await authService.handleSignInWithAppleCompletion(result)
+                }
             }
-            Button("auth.biometric.setup.later".localized, role: .cancel) { }
-        } message: {
-            Text(String(format: "auth.biometric.setup.message".localized, biometricAuth.biometricName))
+        )
+        .signInWithAppleButtonStyle(colorSchemeContrast == .increased ? .whiteOutline : .black)
+        .frame(height: 50) // Apple HIG recommended height: 44-50pt
+        .cornerRadius(AppConstants.UI.cornerRadius)
+        .accessibilityLabel("Sign in with Apple")
+        .accessibilityHint("Use your Apple ID to sign in securely")
+        .accessibilityIdentifier("apple_signin_button")
+    }
+
+    // MARK: - Divider Section
+
+    private var accessibleDivider: some View {
+        HStack(spacing: dynamicSpacing(8)) {
+            VStack { Divider() }
+                .accessibilityHidden(true)
+
+            Text("auth.divider.or".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(accessibleSecondaryColor())
+                .accessibilityLabel("Or alternatively")
+
+            VStack { Divider() }
+                .accessibilityHidden(true)
         }
+        .accessibilitySortPriority(800)
+    }
+
+    // MARK: - Form Fields Section
+
+    private var formFieldsSection: some View {
+        VStack(spacing: dynamicSpacing(16)) {
+            // Name Field (Sign Up only)
+            if isSignUp {
+                nameField
+            }
+
+            // Email Field
+            emailField
+
+            // Password Field
+            passwordField
+
+            // Phone Field (Sign Up only)
+            if isSignUp {
+                phoneField
+            }
+        }
+        .accessibilitySortPriority(700)
+    }
+
+    private var nameField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("auth.name.label".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(accessibleSecondaryColor())
+                .accessibilityHidden(true)
+
+            TextField("auth.name.placeholder".localized, text: $name)
+                .textFieldStyle(AccessibleTextFieldStyle())
+                .textContentType(.name)
+                .autocapitalization(.words)
+                .accessibilityFocused($nameFieldFocused)
+                .accessibleTextField(
+                    label: "Full Name",
+                    hint: "Enter your full name",
+                    value: name
+                )
+                .accessibilityIdentifier("name_field")
+                .onChange(of: name) { _, _ in
+                    validateName()
+                }
+
+            if let error = nameValidationError {
+                Text(error)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(.red)
+                    .accessibilityLabel("Error: \(error)")
+            }
         }
     }
 
-    // MARK: - Validation
+    private var emailField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("auth.email.label".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(accessibleSecondaryColor())
+                .accessibilityHidden(true)
+
+            TextField("auth.email.placeholder".localized, text: $email)
+                .textFieldStyle(AccessibleTextFieldStyle())
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .autocapitalization(.none)
+                .accessibilityFocused($emailFieldFocused)
+                .accessibleTextField(
+                    label: "Email Address",
+                    hint: "Enter your email address",
+                    value: email
+                )
+                .accessibilityIdentifier("email_field")
+                .onChange(of: email) { _, _ in
+                    validateEmail()
+                }
+
+            if let error = emailValidationError {
+                Text(error)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(.red)
+                    .accessibilityLabel("Error: \(error)")
+            }
+        }
+    }
+
+    private var passwordField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("auth.password.label".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(accessibleSecondaryColor())
+                .accessibilityHidden(true)
+
+            HStack {
+                if showPassword {
+                    TextField("auth.password.placeholder".localized, text: $password)
+                        .textFieldStyle(AccessibleTextFieldStyle())
+                        .textContentType(isSignUp ? .newPassword : .password)
+                } else {
+                    SecureField("auth.password.placeholder".localized, text: $password)
+                        .textFieldStyle(AccessibleTextFieldStyle())
+                        .textContentType(isSignUp ? .newPassword : .password)
+                }
+
+                Button(action: { showPassword.toggle() }) {
+                    Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
+                        .foregroundColor(accessibleSecondaryColor())
+                        .frame(
+                            minWidth: accessibilityManager.minimumTouchTargetSize.width,
+                            minHeight: accessibilityManager.minimumTouchTargetSize.height
+                        )
+                }
+                .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                .accessibilityHint("Toggle password visibility")
+            }
+            .accessibilityFocused($passwordFieldFocused)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Password field")
+            .accessibilityValue(password.isEmpty ? "Empty" : "Hidden")
+            .accessibilityHint("Enter your password. Use the show password button to toggle visibility")
+            .accessibilityIdentifier("password_field")
+
+            if let error = passwordValidationError {
+                Text(error)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(.red)
+                    .accessibilityLabel("Error: \(error)")
+            }
+        }
+    }
+
+    private var phoneField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("auth.phone.label".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(accessibleSecondaryColor())
+                .accessibilityHidden(true)
+
+            TextField("auth.phone.placeholder".localized, text: $phoneNumber)
+                .textFieldStyle(AccessibleTextFieldStyle())
+                .textContentType(.telephoneNumber)
+                .keyboardType(.phonePad)
+                .accessibilityFocused($phoneFieldFocused)
+                .accessibleTextField(
+                    label: "Phone Number",
+                    hint: "Enter your phone number",
+                    value: phoneNumber
+                )
+                .accessibilityIdentifier("phone_field")
+                .onChange(of: phoneNumber) { _, _ in
+                    validatePhone()
+                }
+
+            if let error = phoneValidationError {
+                Text(error)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(.red)
+                    .accessibilityLabel("Error: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Action Buttons Section
+
+    private var actionButtonsSection: some View {
+        VStack(spacing: dynamicSpacing(16)) {
+            // Submit Button
+            submitButton
+
+            // Toggle Sign Up/Sign In
+            toggleModeButton
+
+            // Forgot Password (Sign In only)
+            if !isSignUp {
+                forgotPasswordButton
+            }
+        }
+        .accessibilitySortPriority(600)
+    }
+
+    private var submitButton: some View {
+        Button(action: performAuthentication) {
+            HStack {
+                Text(isSignUp ? "auth.signup.button".localized : "auth.signin.button".localized)
+                    .font(dynamicFont(.headline))
+                    .foregroundColor(.white)
+
+                if authService.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(0.8)
+                        .accessibilityLabel("Loading")
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: accessibilityManager.minimumTouchTargetSize.height)
+            .background(
+                isFormValid ?
+                Color.taxedPrimary :
+                Color.gray
+            )
+            .cornerRadius(AppConstants.UI.cornerRadius)
+            .overlay(
+                showButtonShapes ?
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+                    .stroke(Color.white, lineWidth: 2) : nil
+            )
+        }
+        .disabled(!isFormValid || authService.isLoading)
+        .accessibilityFocused($submitButtonFocused)
+        .accessibleButton(
+            label: isSignUp ? "Sign Up" : "Sign In",
+            hint: isFormValid ?
+                  "Submit authentication form" :
+                  "Complete all required fields to enable"
+        )
+        .accessibilityIdentifier("submit_button")
+    }
+
+    private var toggleModeButton: some View {
+        Button(action: {
+            withAnimation(accessibilityManager.shouldDisableAnimations ? nil : .default) {
+                isSignUp.toggle()
+                resetForm()
+            }
+        }) {
+            Text(isSignUp ? "auth.signin.prompt".localized : "auth.signup.prompt".localized)
+                .font(dynamicFont(.subheadline))
+                .foregroundColor(Color.taxedPrimary)
+        }
+        .accessibilityLabel(isSignUp ? "Switch to Sign In" : "Switch to Sign Up")
+        .accessibilityHint("Toggle between sign in and sign up modes")
+        .accessibilityIdentifier("toggle_mode_button")
+    }
+
+    private var forgotPasswordButton: some View {
+        Button(action: { showPasswordReset = true }) {
+            Text("auth.forgot.password".localized)
+                .font(dynamicFont(.caption))
+                .foregroundColor(Color.taxedPrimary)
+        }
+        .accessibilityLabel("Forgot Password")
+        .accessibilityHint("Open password reset options")
+        .accessibilityIdentifier("forgot_password_button")
+        .sheet(isPresented: $showPasswordReset) {
+            PasswordResetView()
+                .accessibilityOptimized()
+        }
+    }
+
+    // MARK: - Additional Options Section
+
+    private var additionalOptionsSection: some View {
+        VStack(spacing: dynamicSpacing(12)) {
+            // Terms and Privacy Links
+            HStack(spacing: dynamicSpacing(4)) {
+                Text("auth.terms.prefix".localized)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(accessibleSecondaryColor())
+
+                Button(action: openTerms) {
+                    Text("auth.terms.link".localized)
+                        .font(dynamicFont(.caption2))
+                        .foregroundColor(Color.taxedPrimary)
+                        .underline()
+                }
+                .accessibilityLabel("Terms of Service")
+                .accessibilityHint("Open terms of service")
+
+                Text("auth.terms.and".localized)
+                    .font(dynamicFont(.caption2))
+                    .foregroundColor(accessibleSecondaryColor())
+
+                Button(action: openPrivacy) {
+                    Text("auth.privacy.link".localized)
+                        .font(dynamicFont(.caption2))
+                        .foregroundColor(Color.taxedPrimary)
+                        .underline()
+                }
+                .accessibilityLabel("Privacy Policy")
+                .accessibilityHint("Open privacy policy")
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("By using this app, you agree to our Terms of Service and Privacy Policy")
+        }
+        .accessibilitySortPriority(500)
+    }
+
+    // MARK: - Helper Methods
+
+    private func dynamicSpacing(_ base: CGFloat) -> CGFloat {
+        if dynamicTypeSize >= .accessibility1 {
+            return base * 1.5
+        } else if dynamicTypeSize >= .xxLarge {
+            return base * 1.25
+        }
+        return base
+    }
+
+    private func dynamicFont(_ style: Font.TextStyle) -> Font {
+        if dynamicTypeSize.isAccessibilitySize {
+            switch style {
+            case .largeTitle:
+                return .system(size: 40, weight: .bold, design: .rounded)
+            case .title:
+                return .system(size: 32, weight: .semibold, design: .rounded)
+            case .headline:
+                return .system(size: 20, weight: .semibold, design: .default)
+            case .subheadline:
+                return .system(size: 18, weight: .regular, design: .default)
+            case .caption:
+                return .system(size: 16, weight: .regular, design: .default)
+            case .caption2:
+                return .system(size: 14, weight: .regular, design: .default)
+            default:
+                return .system(style)
+            }
+        }
+        return .system(style)
+    }
+
+    private func dynamicLogoSize() -> CGFloat {
+        if dynamicTypeSize >= .accessibility1 {
+            return 150
+        } else if dynamicTypeSize >= .xxLarge {
+            return 120
+        }
+        return 100
+    }
+
+    private func accessibleSecondaryColor() -> Color {
+        if differentiateWithoutColor {
+            return .primary.opacity(0.7)
+        }
+        return .secondary
+    }
+
+    private func accessibleGradient() -> LinearGradient {
+        if reduceTransparency {
+            return LinearGradient(
+                colors: [Color.taxedPrimary],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+        return LinearGradient(
+            colors: [Color.taxedPrimary, Color.taxedPrimary.opacity(0.8)],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
 
     private var isFormValid: Bool {
         if isSignUp {
-            return !email.isEmpty && !password.isEmpty && !name.isEmpty && !phoneNumber.isEmpty
+            return !name.isEmpty &&
+                   !email.isEmpty &&
+                   !password.isEmpty &&
+                   emailValidationError == nil &&
+                   passwordValidationError == nil &&
+                   nameValidationError == nil
         } else {
-            return !email.isEmpty && !password.isEmpty
+            return !email.isEmpty &&
+                   !password.isEmpty &&
+                   emailValidationError == nil &&
+                   passwordValidationError == nil
         }
     }
 
     // MARK: - Actions
 
-    private func performAuthentication() async {
-        // Clear error message
-        authService.errorMessage = nil
+    private func performAuthentication() {
+        Task {
+            if isSignUp {
+                await authService.signUp(
+                    email: email,
+                    password: password,
+                    name: name,
+                    phone: phoneNumber
+                )
+            } else {
+                await authService.signIn(
+                    email: email,
+                    password: password
+                )
+            }
 
-        if isSignUp {
-            await authService.signUp(email: email, password: password, name: name, phone: phoneNumber)
-            // After successful sign up, prompt for biometric setup
-            if authService.isAuthenticated && biometricAuth.canEvaluatePolicy {
-                showBiometricPrompt = true
+            if authService.isAuthenticated {
+                announceAuthenticationSuccess()
+            } else if let error = authService.errorMessage {
+                announceError(error)
             }
+        }
+    }
+
+    private func performBiometricLogin() {
+        Task {
+            let success = await biometricAuth.performQuickLogin(authService: authService)
+            if !success {
+                authService.errorMessage = biometricAuth.errorMessage
+                if let error = biometricAuth.errorMessage {
+                    announceError(error)
+                }
+            } else {
+                announceAuthenticationSuccess()
+            }
+        }
+    }
+
+    private func resetForm() {
+        email = ""
+        password = ""
+        name = ""
+        phoneNumber = ""
+        emailValidationError = nil
+        passwordValidationError = nil
+        nameValidationError = nil
+        phoneValidationError = nil
+    }
+
+    private func openTerms() {
+        // Open terms of service
+    }
+
+    private func openPrivacy() {
+        // Open privacy policy
+    }
+
+    // MARK: - Validation
+
+    private func validateEmail() {
+        if email.isEmpty {
+            emailValidationError = nil
+        } else if !email.contains("@") || !email.contains(".") {
+            emailValidationError = "Invalid email format"
         } else {
-            await authService.signIn(email: email, password: password)
-            // After successful login, save credentials for biometric if enabled
-            if authService.isAuthenticated && enableBiometric {
-                biometricAuth.saveBiometricCredentials(email: email, password: password)
+            emailValidationError = nil
+        }
+    }
+
+    private func validatePassword() {
+        if password.isEmpty {
+            passwordValidationError = nil
+        } else if password.count < 6 {
+            passwordValidationError = "Password must be at least 6 characters"
+        } else {
+            passwordValidationError = nil
+        }
+    }
+
+    private func validateName() {
+        if name.isEmpty {
+            nameValidationError = nil
+        } else if name.count < 2 {
+            nameValidationError = "Name must be at least 2 characters"
+        } else {
+            nameValidationError = nil
+        }
+    }
+
+    private func validatePhone() {
+        if phoneNumber.isEmpty {
+            phoneValidationError = nil
+        } else if phoneNumber.count < 10 {
+            phoneValidationError = "Invalid phone number"
+        } else {
+            phoneValidationError = nil
+        }
+    }
+
+    // MARK: - Accessibility
+
+    private func setupAccessibilityFocus() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if isSignUp {
+                nameFieldFocused = true
+            } else {
+                emailFieldFocused = true
             }
+        }
+    }
+
+    private func announceScreenContext() {
+        if accessibilityManager.isVoiceOverRunning {
+            let message = isSignUp ?
+                "Sign up screen. Please enter your information to create an account." :
+                "Sign in screen. Please enter your credentials to access your account."
+            AccessibilityAnnouncer.announceScreenChange(message)
+        }
+    }
+
+    private func announceAuthenticationSuccess() {
+        if accessibilityManager.isVoiceOverRunning {
+            AccessibilityAnnouncer.announce(
+                "Authentication successful. Welcome to TaxedGmbH.",
+                priority: .announcement
+            )
+        }
+    }
+
+    private func announceError(_ error: String) {
+        if accessibilityManager.isVoiceOverRunning {
+            AccessibilityAnnouncer.announce(
+                "Error: \(error)",
+                priority: .announcement
+            )
         }
     }
 }
 
-// MARK: - Custom TextField
+// MARK: - Accessible Text Field Style
+
+struct AccessibleTextFieldStyle: TextFieldStyle {
+    @StateObject private var accessibilityManager = AccessibilityManager.shared
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+                    .fill(Color(UIColor.secondarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+                    .stroke(
+                        colorSchemeContrast == .increased ?
+                        Color.primary :
+                        Color.gray.opacity(0.3),
+                        lineWidth: colorSchemeContrast == .increased ? 2 : 1
+                    )
+            )
+            .frame(minHeight: accessibilityManager.minimumTouchTargetSize.height)
+    }
+}
+
+// MARK: - Custom TextField (Legacy Support for PasswordResetView)
 
 struct CustomTextField: View {
     @Binding var text: String
@@ -372,7 +775,7 @@ struct CustomTextField: View {
     }
 }
 
-// MARK: - Custom SecureField
+// MARK: - Custom SecureField (Legacy Support for PasswordResetView)
 
 struct CustomSecureField: View {
     @Binding var text: String
@@ -416,32 +819,4 @@ struct CustomSecureField: View {
         )
         .animation(.easeInOut(duration: 0.2), value: isFocused)
     }
-}
-
-// MARK: - Password Requirement Row
-
-struct PasswordRequirementRow: View {
-    let text: String
-    let isMet: Bool
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: isMet ? "checkmark.circle.fill" : "circle")
-                .foregroundColor(isMet ? .green : .secondary)
-                .font(.caption)
-
-            Text(text)
-                .font(.caption)
-                .foregroundColor(isMet ? .primary : .secondary)
-
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    AuthenticationView()
-        .environmentObject(AuthenticationService())
 }

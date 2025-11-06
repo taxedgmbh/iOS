@@ -178,6 +178,38 @@ struct AboutView_HIGCompliant: View {
                 Text("more.services.header".localized)
             }
 
+            // MARK: - Data Security & Storage Location
+            Section {
+                TrustRow(
+                    icon: "server.rack",
+                    title: "Data Storage Location",
+                    subtitle: "Zurich, Switzerland (europe-west6) - Your data never leaves Swiss/EU jurisdiction"
+                )
+
+                TrustRow(
+                    icon: "lock.shield.fill",
+                    title: "AES-256 Encryption",
+                    subtitle: "Military-grade encryption at rest with TLS 1.3 for all data transfers"
+                )
+
+                TrustRow(
+                    icon: "building.columns.fill",
+                    title: "Swiss Data Protection",
+                    subtitle: "Full compliance with Swiss FADP (revDSG 2023) and EU GDPR"
+                )
+
+                TrustRow(
+                    icon: "checkmark.seal.fill",
+                    title: "ISO Certified Infrastructure",
+                    subtitle: "Google Cloud Firestore with ISO 27001, 27017, 27018, SOC 2/3 certifications"
+                )
+            } header: {
+                Text("Data Security & Storage")
+            } footer: {
+                Text("Database ID: taxedgmbh • Location: europe-west6 (Zurich) • Provider: Google Cloud Platform Switzerland")
+                    .font(.caption2)
+            }
+
             // MARK: - Trust & Compliance
             Section {
                 TrustRow(
@@ -229,12 +261,24 @@ struct AboutView_HIGCompliant: View {
 
             // MARK: - Legal Links
             Section {
-                NavigationLink(destination: PrivacyView()) {
-                    Label("more.app_info.privacy".localized, systemImage: "hand.raised.fill")
+                Link(destination: URL(string: "https://taxed.ch/privacy")!) {
+                    HStack {
+                        Label("more.app_info.privacy".localized, systemImage: "hand.raised.fill")
+                        Spacer()
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
-                NavigationLink(destination: TermsView()) {
-                    Label("more.app_info.terms".localized, systemImage: "doc.text.fill")
+                Link(destination: URL(string: "https://taxed.ch/terms")!) {
+                    HStack {
+                        Label("more.app_info.terms".localized, systemImage: "doc.text.fill")
+                        Spacer()
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 Link(destination: URL(string: "https://taxed.ch/impressum")!) {

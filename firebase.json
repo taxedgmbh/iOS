@@ -1,0 +1,9 @@
+{
+  "firestore": {
+    "database": "taxedgmbh",
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

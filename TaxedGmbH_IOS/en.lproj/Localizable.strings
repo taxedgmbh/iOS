@@ -13,7 +13,7 @@
 
 // MARK: - Authentication
 "auth.login.title" = "Sign In";
-"auth.login.subtitle" = "Welcome back";
+"auth.login.subtitle" = "Enter your credentials";
 "auth.signup.title" = "Create Account";
 "auth.signup.subtitle" = "Create a new account";
 "auth.email.placeholder" = "Email Address";
@@ -100,6 +100,8 @@
 "dashboard.all_uploaded" = "All documents uploaded!";
 "dashboard.categories" = "Categories";
 "dashboard.actions" = "Actions";
+"dashboard.first_page_tax_return" = "First Page Tax Return";
+"dashboard.first_page_subtitle" = "Start your tax return here";
 "dashboard.upload_document" = "Upload Document";
 "dashboard.upload_subtitle" = "Photo or from gallery";
 "dashboard.all_documents" = "All Documents";
@@ -825,18 +827,21 @@
 "category.donations" = "Donations";
 "category.education" = "Education";
 "category.medical" = "Medical";
-"category.insurance" = "Insurance";
+"category.insurance_premiums" = "Insurance Premiums";
 "category.childcare" = "Childcare";
 "category.home_office" = "Home Office";
+"category.travel_expenses" = "Travel Expenses";
 "category.property" = "Property";
 "category.stocks" = "Stocks";
 "category.crypto" = "Cryptocurrency";
 "category.foreign_wealth" = "Foreign Wealth";
 "category.savings" = "Savings";
+"category.insurance_surrender_value" = "Insurance Surrender Value";
 "category.pillar_2" = "Pillar 2/3";
 "category.pillar_3a" = "Pillar 3a";
 "category.military_service" = "Military Service";
 "category.tax_treaty" = "Tax Treaty";
+"category.other" = "Other Documents";
 
 // Category Groups
 "group.income" = "Income";
@@ -940,3 +945,16 @@
 "speech.error.unavailable" = "Speech recognition unavailable";
 "speech.unavailable" = "Speech recognition temporarily unavailable";
 "speech.save.failed" = "Failed to save note";
+
+// MARK: - Privacy Policy (Data Storage)
+"privacy.data_storage_auth.title" = "Authentication Data Storage";
+"privacy.data_storage_auth.content" = "User authentication information (email addresses, encrypted passwords, user IDs) is processed by Firebase Authentication (Google Cloud Platform) and stored in the United States. For transatlantic data transfers, Google maintains Standard Contractual Clauses (SCCs) and adheres to the EU-US Data Privacy Framework and Swiss-US Data Privacy Framework, ensuring compliance with GDPR and Swiss FADP requirements.";
+
+"privacy.data_storage_app.title" = "Application Data Storage";
+"privacy.data_storage_app.content" = "All other personal data, including tax documents, messages, chat history, and application data, is stored exclusively in Switzerland using Google Cloud Firestore (Database ID: taxedgmbh) located in the Zurich region (europe-west6). This data is encrypted at rest using AES-256 encryption and in transit using TLS 1.3 protocol. Your application data never leaves Swiss or EU jurisdiction.";
+
+"privacy.data_processing.title" = "Data Processing";
+"privacy.data_processing.content" = "We use Firebase services (Google Cloud Platform) as our data processor. Firebase is certified under ISO 27001, ISO 27017, ISO 27018, and SOC 2/3 standards. Data Processing Agreements (DPA) are in place ensuring GDPR and Swiss FADP compliance. Application data processing occurs exclusively within the EU/Switzerland region.";
+
+"privacy.data_transfers.title" = "International Data Transfers";
+"privacy.data_transfers.content" = "Authentication data (emails, passwords) may be transferred to the United States via Firebase Authentication. These transfers are protected by Standard Contractual Clauses (SCCs) approved by the European Commission and the Swiss Federal Data Protection and Information Commissioner (FDPIC). All other personal data remains in Switzerland (Zurich, europe-west6) and is not transferred outside of Swiss or EU jurisdiction.";

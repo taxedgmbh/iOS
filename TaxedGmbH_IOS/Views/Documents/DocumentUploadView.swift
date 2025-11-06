@@ -30,7 +30,7 @@ struct DocumentUploadView: View {
     @State private var showingVoiceInput = false
 
     // AI Processing results
-    @State private var aiCategory: DocumentCategory?
+    @State private var aiCategory: TaxDocumentCategory?
     @State private var aiConfidence: Double?
     @State private var extractedText: String?
     @State private var aiProcessingFailed = false
@@ -393,7 +393,7 @@ struct DocumentUploadView: View {
     // MARK: - Upload Logic
 
     private func uploadDocument() async {
-        guard let image = selectedImage,
+        guard var image = selectedImage,
               let userId = authService.user?.id else {
             errorMessage = "documents.upload.error.not_logged_in".localized
             return
@@ -404,6 +404,11 @@ struct DocumentUploadView: View {
         uploadSuccess = false
 
         do {
+            // 0. Compress image to below 4MB BEFORE processing
+            print("🗜️ Compressing image to below 4MB...")
+            image = compressImageBelow4MB(image: image)
+            print("✅ Image compressed successfully")
+
             // 1. Run AI processing on device (Vision OCR + Categorization)
             var processingResult: DocumentProcessingResult?
 
@@ -440,10 +445,22 @@ struct DocumentUploadView: View {
             // Use document type from AI categorization, or "uncategorized" if AI failed
             let documentType = processingResult?.suggestedCategory.rawValue ?? "uncategorized"
 
+            // Map to TaxCategoryType for accurate subcategory tracking
+            let taxCategoryType = mapToTaxCategoryType(processingResult?.suggestedCategory)
+
+            // Get current tax year
+            let taxYear = Calendar.current.component(.year, from: Date())
+
+            // Prepare category info for organized storage
+            let categoryRawValue = processingResult?.suggestedCategory.taxCategory.rawValue ?? "uncategorized"
+
             let downloadURL = try await storageService.uploadDocumentAsPDF(
                 image: image,
                 customerId: userId,
-                documentType: documentType
+                documentType: documentType,
+                taxYear: taxYear,
+                category: categoryRawValue,
+                subcategory: taxCategoryType
             ) { progress in
                 uploadProgress = progress
             }
@@ -470,9 +487,12 @@ struct DocumentUploadView: View {
                         return .processing
                     }
                 }(),
-                taxYear: Calendar.current.component(.year, from: Date()),
+                taxYear: taxYear,
                 canton: authService.user?.canton,
-                amount: processingResult != nil ? extractAmount(from: processingResult!.additionalInfo) : nil
+                amount: processingResult != nil ? extractAmount(from: processingResult!.additionalInfo) : nil,
+                taxCategoryType: taxCategoryType,
+                currency: "CHF",
+                workflowStatus: .pendingClassification
             )
 
             try await firestoreService.createDocument(document)
@@ -536,6 +556,117 @@ struct DocumentUploadView: View {
             .trimmingCharacters(in: .whitespaces)
 
         return Double(cleanedAmount)
+    }
+
+    // MARK: - Image Compression
+
+    private func compressImageBelow4MB(image: UIImage) -> UIImage {
+        let maxSizeBytes = 4 * 1024 * 1024 // 4MB in bytes
+        let maxSizeBytesWithBuffer = Int(Double(maxSizeBytes) * 0.9) // Use 90% to have safety margin
+
+        // Start with high quality
+        var compression: CGFloat = 0.9
+        guard var imageData = image.jpegData(compressionQuality: compression) else {
+            return image
+        }
+
+        // If already below 4MB, return original
+        if imageData.count < maxSizeBytesWithBuffer {
+            print("✅ Image size: \(imageData.count / 1024)KB - No compression needed")
+            return image
+        }
+
+        print("⚠️ Image size: \(imageData.count / 1024)KB - Compressing...")
+
+        // Binary search for optimal compression
+        var minCompression: CGFloat = 0.1
+        var maxCompression: CGFloat = 0.9
+
+        while maxCompression - minCompression > 0.05 {
+            compression = (minCompression + maxCompression) / 2
+            guard let data = image.jpegData(compressionQuality: compression) else {
+                break
+            }
+            imageData = data
+
+            if imageData.count > maxSizeBytesWithBuffer {
+                maxCompression = compression
+            } else {
+                minCompression = compression
+            }
+        }
+
+        // Final check - if still too large, resize image
+        if imageData.count > maxSizeBytesWithBuffer {
+            print("📐 Still too large (\(imageData.count / 1024)KB), resizing image...")
+            let resizedImage = resizeImage(image: image, maxSizeBytes: maxSizeBytesWithBuffer)
+            if let data = resizedImage.jpegData(compressionQuality: 0.8) {
+                imageData = data
+                print("✅ Resized image size: \(imageData.count / 1024)KB")
+                return resizedImage
+            }
+        }
+
+        print("✅ Compressed image size: \(imageData.count / 1024)KB")
+        return UIImage(data: imageData) ?? image
+    }
+
+    private func resizeImage(image: UIImage, maxSizeBytes: Int) -> UIImage {
+        // Calculate scale factor to reduce file size
+        let originalSize = image.size
+        let scaleFactor = sqrt(Double(maxSizeBytes) / Double(image.jpegData(compressionQuality: 1.0)?.count ?? 1))
+        let newSize = CGSize(
+            width: originalSize.width * scaleFactor,
+            height: originalSize.height * scaleFactor
+        )
+
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+
+    // MARK: - Category Mapping
+
+    /// Map AI-detected TaxDocumentCategory to TaxCategoryType for accurate subcategory tracking
+    private func mapToTaxCategoryType(_ category: TaxDocumentCategory?) -> String? {
+        guard let category = category else { return nil }
+
+        switch category {
+        // Income mappings
+        case .lohnausweis:
+            return "salary"
+
+        // Deduction mappings
+        case .spesenbeleg:
+            return "travelExpenses"
+        case .krankenArztkosten:
+            return "medical"
+        case .versicherung:
+            return "insurancePremiums"
+        case .hypothekarzinsen:
+            return "mortgage"
+        case .spenden:
+            return "donations"
+        case .kinderbetreuung:
+            return "childcare"
+        case .weiterbildung:
+            return "education"
+
+        // Pillar/Pension mappings
+        case .pensionskasse:
+            return "pillar_2"
+
+        // Wealth/Asset mappings
+        case .bankStatement:
+            return "savings"
+        case .vermietung:
+            return "rental"
+
+        // Other
+        case .steuerrechnung, .other:
+            return "other"
+        }
     }
 }
 

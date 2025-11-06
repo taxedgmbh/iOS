@@ -12,7 +12,7 @@ import Combine
 
 // MARK: - Document Category (Detailed AI Classification)
 
-enum DocumentCategory: String, Codable, CaseIterable {
+enum TaxDocumentCategory: String, Codable, CaseIterable {
     case lohnausweis = "lohnausweis"
     case spesenbeleg = "spesenbeleg"
     case bankStatement = "bank_statement"
@@ -91,7 +91,7 @@ enum DocumentProcessingError: LocalizedError {
 
 struct DocumentProcessingResult {
     let extractedText: String
-    let suggestedCategory: DocumentCategory
+    let suggestedCategory: TaxDocumentCategory
     let confidence: Double // 0.0 to 1.0
     let detectedKeywords: [String]
     let additionalInfo: [String: String]
@@ -194,11 +194,11 @@ class DocumentProcessorService: ObservableObject {
     // MARK: - Document Categorization
 
     /// Categorize document based on extracted text using keyword matching
-    private func categorizeDocument(text: String) -> (category: DocumentCategory, confidence: Double) {
+    private func categorizeDocument(text: String) -> (category: TaxDocumentCategory, confidence: Double) {
         let lowercasedText = text.lowercased()
 
         // Define keywords for each Swiss tax document category
-        let categoryKeywords: [(DocumentCategory, [String], Double)] = [
+        let categoryKeywords: [(TaxDocumentCategory, [String], Double)] = [
             // Lohnausweis (Salary statement) - highest priority
             (.lohnausweis, [
                 "lohnausweis", "salary certificate", "certificat de salaire",
@@ -285,7 +285,7 @@ class DocumentProcessorService: ObservableObject {
             ], 0.9)
         ]
 
-        var bestMatch: (DocumentCategory, Double) = (.other, 0.0)
+        var bestMatch: (TaxDocumentCategory, Double) = (.other, 0.0)
 
         for (category, keywords, baseConfidence) in categoryKeywords {
             var matchCount = 0
@@ -330,7 +330,7 @@ class DocumentProcessorService: ObservableObject {
     }
 
     /// Extract specific metadata based on document category
-    private func extractMetadata(from text: String, category: DocumentCategory) -> [String: String] {
+    private func extractMetadata(from text: String, category: TaxDocumentCategory) -> [String: String] {
         var metadata: [String: String] = [:]
 
         // Extract dates (Swiss format: DD.MM.YYYY)

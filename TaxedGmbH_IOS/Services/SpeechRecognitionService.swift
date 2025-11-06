@@ -373,11 +373,19 @@ enum NoteType: Codable {
 }
 
 struct VoiceNote: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     let text: String
     let type: NoteType
     let timestamp: Date
     let language: String
+
+    init(id: UUID = UUID(), text: String, type: NoteType, timestamp: Date, language: String) {
+        self.id = id
+        self.text = text
+        self.type = type
+        self.timestamp = timestamp
+        self.language = language
+    }
 }
 
 // MARK: - Whisper API Mock (Replace with actual implementation)

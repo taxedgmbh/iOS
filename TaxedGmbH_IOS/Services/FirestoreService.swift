@@ -13,7 +13,15 @@ import Combine
 class FirestoreService: ObservableObject {
     static let shared = FirestoreService()
 
-    private let db = Firestore.firestore()
+    private let db: Firestore = {
+        if let databaseId = AppConstants.Firebase.databaseId {
+            print("🔧 Using named Firestore database: \(databaseId)")
+            return Firestore.firestore(database: databaseId)
+        } else {
+            print("🔧 Using default Firestore database")
+            return Firestore.firestore()
+        }
+    }()
     @Published var documents: [TaxDocument] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -262,6 +270,27 @@ class FirestoreService: ObservableObject {
             stats[category] = documents.filter { $0.category == category }.count
         }
 
+        return stats
+    }
+
+    /// Get document count by subcategory (taxCategoryType) for accurate dashboard counts
+    func getSubcategoryStats(customerId: String) async throws -> [String: Int] {
+        let documents = try await getDocumentsForCustomer(customerId: customerId)
+
+        var stats: [String: Int] = [:]
+
+        // Count documents by taxCategoryType
+        for document in documents {
+            if let taxCategoryType = document.taxCategoryType {
+                stats[taxCategoryType, default: 0] += 1
+            } else {
+                // Fallback: count by parent category for old documents without taxCategoryType
+                let categoryKey = document.category.rawValue
+                stats[categoryKey, default: 0] += 1
+            }
+        }
+
+        print("✅ Subcategory stats: \(stats)")
         return stats
     }
 

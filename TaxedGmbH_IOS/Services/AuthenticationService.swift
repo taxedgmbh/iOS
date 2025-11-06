@@ -59,18 +59,21 @@ class AuthenticationService: ObservableObject {
     @Published var errorMessage: String?
 
     private let firestore: Firestore
-    private let tempDB = TemporaryDatabaseService.shared
     private var currentNonce: String?
 
-    // Database configuration: Using Firestore (MongoDB compatible mode)
-    // Firebase Enterprise supports named databases with MongoDB compatibility
-    // Connecting to the named database "taxedgmbh"
-    private let useTempDB = false  // Using real Firestore database
+    // Database configuration: Using Firebase Firestore
+    // Enterprise-grade database with real-time sync, offline support, and scalability
+    // Production-ready with automatic backups and security rules
 
     init() {
-        // Initialize Firestore with the named database "taxedgmbh"
-        // Firebase Enterprise allows multiple databases - specify the database name
-        self.firestore = Firestore.firestore(database: "taxedgmbh")
+        // Initialize Firestore with named database support
+        if let databaseId = AppConstants.Firebase.databaseId {
+            print("🔧 AuthenticationService using named database: \(databaseId)")
+            self.firestore = Firestore.firestore(database: databaseId)
+        } else {
+            print("🔧 AuthenticationService using default database")
+            self.firestore = Firestore.firestore()
+        }
 
         // Check if user is already signed in
         if let currentUser = Auth.auth().currentUser {
@@ -244,15 +247,9 @@ class AuthenticationService: ObservableObject {
 
             let userData = newUser.toDictionary()
 
-            if useTempDB {
-                // TEMPORARY: Use in-memory storage
-                try tempDB.createUser(userId: authResult.user.uid, data: userData)
-                print("⚠️ User saved to TEMPORARY storage (not persisted)")
-            } else {
-                // Using Firestore for production
-                try await firestore.collection(AppConstants.Firebase.Collections.users).document(authResult.user.uid).setData(userData)
-                print("✅ User saved to Firestore database")
-            }
+            // Using Firestore Enterprise for production
+            try await firestore.collection(AppConstants.Firebase.Collections.users).document(authResult.user.uid).setData(userData)
+            print("✅ User saved to Firestore Enterprise database")
 
             // 3. Update local state
             self.user = newUser
@@ -445,63 +442,42 @@ class AuthenticationService: ObservableObject {
 
     private func loadUserData(userId: String) async {
         do {
-            if useTempDB {
-                // TEMPORARY: Load from in-memory storage
-                if let data = tempDB.getUser(userId: userId) {
+            // Load from Firestore Enterprise with timeout
+            print("📡 Loading user data from Firestore Enterprise for userId: \(userId)")
+
+            // Create a task with timeout
+            let firestoreTask = Task {
+                try await firestore.collection(AppConstants.Firebase.Collections.users).document(userId).getDocument()
+            }
+
+            // Wait for the task with a 10-second timeout
+            do {
+                let document = try await withTimeout(seconds: 10) {
+                    try await firestoreTask.value
+                }
+
+                if document.exists, let data = document.data() {
                     if let user = User.fromDictionary(data) {
                         self.user = user
                         self.isAuthenticated = true
-                        print("✅ User data loaded from TEMPORARY storage: \(user.email)")
+                        print("✅ User data loaded successfully from Firestore Enterprise: \(user.email)")
                     } else {
-                        print("❌ Failed to parse user data")
+                        print("❌ Failed to parse user data from Firestore")
                         errorMessage = "Benutzerdaten konnten nicht geladen werden"
-                        // Still authenticate even if parsing fails
+                        // Still authenticate to allow app usage
                         self.isAuthenticated = true
                     }
                 } else {
-                    print("❌ User not found in TEMPORARY storage")
+                    print("❌ User document not found in Firestore")
                     errorMessage = "Benutzerdaten nicht gefunden"
                     // Still authenticate to allow app usage
                     self.isAuthenticated = true
                 }
-            } else {
-                // Load from Firestore with timeout
-                print("📡 Loading user data from Firestore for userId: \(userId)")
-
-                // Create a task with timeout
-                let firestoreTask = Task {
-                    try await firestore.collection(AppConstants.Firebase.Collections.users).document(userId).getDocument()
-                }
-
-                // Wait for the task with a 10-second timeout
-                do {
-                    let document = try await withTimeout(seconds: 10) {
-                        try await firestoreTask.value
-                    }
-
-                    if document.exists, let data = document.data() {
-                        if let user = User.fromDictionary(data) {
-                            self.user = user
-                            self.isAuthenticated = true
-                            print("✅ User data loaded successfully: \(user.email)")
-                        } else {
-                            print("❌ Failed to parse user data from Firestore")
-                            errorMessage = "Benutzerdaten konnten nicht geladen werden"
-                            // Still authenticate to allow app usage
-                            self.isAuthenticated = true
-                        }
-                    } else {
-                        print("❌ User document not found in Firestore")
-                        errorMessage = "Benutzerdaten nicht gefunden"
-                        // Still authenticate to allow app usage
-                        self.isAuthenticated = true
-                    }
-                } catch is TimeoutError {
-                    print("⚠️ Firestore request timed out after 10 seconds")
-                    errorMessage = "Die Verbindung zum Server dauert zu lange. Bitte versuchen Sie es später erneut."
-                    // Still authenticate to allow app usage even on timeout
-                    self.isAuthenticated = true
-                }
+            } catch is TimeoutError {
+                print("⚠️ Firestore request timed out after 10 seconds")
+                errorMessage = "Die Verbindung zum Server dauert zu lange. Bitte versuchen Sie es später erneut."
+                // Still authenticate to allow app usage even on timeout
+                self.isAuthenticated = true
             }
         } catch {
             print("❌ Error loading user data: \(error)")

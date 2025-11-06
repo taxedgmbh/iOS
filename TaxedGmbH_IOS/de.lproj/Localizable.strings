@@ -13,7 +13,7 @@
 
 // MARK: - Authentication
 "auth.login.title" = "Anmelden";
-"auth.login.subtitle" = "Willkommen zurück";
+"auth.login.subtitle" = "Geben Sie Ihre Zugangsdaten ein";
 "auth.signup.title" = "Konto erstellen";
 "auth.signup.subtitle" = "Erstellen Sie ein neues Konto";
 "auth.email.placeholder" = "E-Mail-Adresse";
@@ -98,6 +98,8 @@
 "dashboard.all_uploaded" = "Alle Dokumente hochgeladen!";
 "dashboard.categories" = "Kategorien";
 "dashboard.actions" = "Aktionen";
+"dashboard.first_page_tax_return" = "Erste Seite Steuererklärung";
+"dashboard.first_page_subtitle" = "Starten Sie hier Ihre Steuererklärung";
 "dashboard.upload_document" = "Dokument hochladen";
 "dashboard.upload_subtitle" = "Foto oder aus Galerie";
 "dashboard.all_documents" = "Alle Dokumente";
@@ -732,3 +734,44 @@
 "report.success.message" = "Vielen Dank für Ihr Feedback! Wir werden Ihren Bericht in Kürze prüfen.";
 "report.error.title" = "E-Mail nicht verfügbar";
 "report.error.message" = "Bitte konfigurieren Sie einen E-Mail-Account in den Systemeinstellungen, um Probleme zu melden.";
+
+// MARK: - Privacy Policy (Data Storage)
+"privacy.data_storage_auth.title" = "Speicherung von Authentifizierungsdaten";
+"privacy.data_storage_auth.content" = "Benutzerauthentifizierungsinformationen (E-Mail-Adressen, verschlüsselte Passwörter, Benutzer-IDs) werden von Firebase Authentication (Google Cloud Platform) verarbeitet und in den Vereinigten Staaten gespeichert. Für transatlantische Datentransfers unterhält Google Standardvertragsklauseln (SCCs) und hält sich an das EU-US Data Privacy Framework und das Swiss-US Data Privacy Framework, um die Einhaltung der DSGVO und des Schweizer DSG zu gewährleisten.";
+
+"privacy.data_storage_app.title" = "Speicherung von Anwendungsdaten";
+"privacy.data_storage_app.content" = "Alle anderen personenbezogenen Daten, einschließlich Steuerunterlagen, Nachrichten, Chat-Verlauf und Anwendungsdaten, werden ausschließlich in der Schweiz mit Google Cloud Firestore (Datenbank-ID: taxedgmbh) im Raum Zürich (europe-west6) gespeichert. Diese Daten werden im Ruhezustand mit AES-256-Verschlüsselung und bei der Übertragung mit TLS 1.3-Protokoll verschlüsselt. Ihre Anwendungsdaten verlassen niemals die Schweizer oder EU-Rechtsordnung.";
+
+"privacy.data_processing.title" = "Datenverarbeitung";
+"privacy.data_processing.content" = "Wir verwenden Firebase-Dienste (Google Cloud Platform) als unseren Datenverarbeiter. Firebase ist nach ISO 27001, ISO 27017, ISO 27018 und SOC 2/3-Standards zertifiziert. Datenverarbeitungsvereinbarungen (DPA) sind vorhanden, die die Einhaltung der DSGVO und des Schweizer DSG gewährleisten. Die Verarbeitung von Anwendungsdaten erfolgt ausschließlich innerhalb der EU/Schweiz-Region.";
+
+"privacy.data_transfers.title" = "Internationale Datenübertragungen";
+"privacy.data_transfers.content" = "Authentifizierungsdaten (E-Mails, Passwörter) können über Firebase Authentication in die Vereinigten Staaten übertragen werden. Diese Übertragungen sind durch Standardvertragsklauseln (SCCs) geschützt, die von der Europäischen Kommission und dem Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) genehmigt wurden. Alle anderen personenbezogenen Daten verbleiben in der Schweiz (Zürich, europe-west6) und werden nicht außerhalb der Schweizer oder EU-Rechtsordnung übertragen.";
+
+// MARK: - Tax Category Types
+"category.salary" = "Gehalt";
+"category.bonus" = "Bonus";
+"category.freelance" = "Freiberuflich";
+"category.investment" = "Investitionen";
+"category.rental" = "Mieteinnahmen";
+"category.pension" = "Rente";
+"category.foreign_income" = "Ausländisches Einkommen";
+"category.mortgage" = "Hypothek";
+"category.donations" = "Spenden";
+"category.education" = "Bildung";
+"category.medical" = "Medizinisch";
+"category.insurance_premiums" = "Versicherungsprämien";
+"category.childcare" = "Kinderbetreuung";
+"category.home_office" = "Homeoffice";
+"category.travel_expenses" = "Reisekosten";
+"category.property" = "Immobilien";
+"category.stocks" = "Aktien";
+"category.crypto" = "Kryptowährung";
+"category.foreign_wealth" = "Ausländisches Vermögen";
+"category.savings" = "Ersparnisse";
+"category.insurance_surrender_value" = "Versicherungsrückkaufswert";
+"category.pillar_2" = "Säule 2";
+"category.pillar_3a" = "Säule 3a";
+"category.military_service" = "Militärdienst";
+"category.tax_treaty" = "Doppelbesteuerungsabkommen";
+"category.other" = "Andere Dokumente";

@@ -304,10 +304,17 @@ struct VoiceNoteRow: View {
 
 // MARK: - Voice Note Item Model
 struct VoiceNoteItem: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     let text: String
     let timestamp: Date
     let category: NoteCategory
+
+    init(id: UUID = UUID(), text: String, timestamp: Date, category: NoteCategory) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+        self.category = category
+    }
 
     enum NoteCategory: String, Codable {
         case general

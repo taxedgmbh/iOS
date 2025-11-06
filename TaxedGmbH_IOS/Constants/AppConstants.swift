@@ -25,12 +25,21 @@ struct AppConstants {
     struct Firebase {
         static let projectId = "taxedgmbh"
 
+        // Database Configuration
+        // Database ID: taxedgmbh (custom database, not default)
+        // Location: europe-west6
+        static let databaseId: String? = "taxedgmbh"
+
         struct Collections {
             static let users = "users"
             static let documents = "documents"
-            static let conversations = "conversations"
-            static let taxCases = "taxCases"
+            static let chats = "chats"
+            static let messages = "messages"
             static let notifications = "notifications"
+
+            // Legacy/alternative names (kept for backward compatibility)
+            static let conversations = "chats" // Alias for chats
+            static let taxCases = "taxCases" // Future use
         }
 
         struct Storage {

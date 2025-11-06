@@ -24,9 +24,10 @@ enum TaxCategoryType: String, CaseIterable, Codable {
     case donations = "donations"
     case education = "education"
     case medical = "medical"
-    case insurance = "insurance"
+    case insurancePremiums = "insurance_premiums"
     case childcare = "childcare"
     case homeOffice = "home_office"
+    case travelExpenses = "travel_expenses"
 
     // Asset Categories
     case property = "property"
@@ -34,12 +35,16 @@ enum TaxCategoryType: String, CaseIterable, Codable {
     case crypto = "crypto"
     case foreignWealth = "foreign_wealth"
     case savings = "savings"
+    case insuranceSurrenderValue = "insurance_surrender_value"
 
     // Swiss-specific
     case pillar2 = "pillar_2"
     case pillar3a = "pillar_3a"
     case militaryService = "military_service"
     case taxTreaty = "tax_treaty"
+
+    // Other
+    case other = "other"
 
     var displayName: String {
         switch self {
@@ -54,18 +59,21 @@ enum TaxCategoryType: String, CaseIterable, Codable {
         case .donations: return "category.donations".localized
         case .education: return "category.education".localized
         case .medical: return "category.medical".localized
-        case .insurance: return "category.insurance".localized
+        case .insurancePremiums: return "category.insurance_premiums".localized
         case .childcare: return "category.childcare".localized
         case .homeOffice: return "category.home_office".localized
+        case .travelExpenses: return "category.travel_expenses".localized
         case .property: return "category.property".localized
         case .stocks: return "category.stocks".localized
         case .crypto: return "category.crypto".localized
         case .foreignWealth: return "category.foreign_wealth".localized
         case .savings: return "category.savings".localized
+        case .insuranceSurrenderValue: return "category.insurance_surrender_value".localized
         case .pillar2: return "category.pillar_2".localized
         case .pillar3a: return "category.pillar_3a".localized
         case .militaryService: return "category.military_service".localized
         case .taxTreaty: return "category.tax_treaty".localized
+        case .other: return "category.other".localized
         }
     }
 
@@ -82,18 +90,21 @@ enum TaxCategoryType: String, CaseIterable, Codable {
         case .donations: return "heart.fill"
         case .education: return "graduationcap.fill"
         case .medical: return "cross.case.fill"
-        case .insurance: return "shield.fill"
+        case .insurancePremiums: return "shield.fill"
         case .childcare: return "figure.2.and.child.holdinghands"
         case .homeOffice: return "house.and.flag"
+        case .travelExpenses: return "car.fill"
         case .property: return "building.2.fill"
         case .stocks: return "chart.line.uptrend.xyaxis.circle.fill"
         case .crypto: return "bitcoinsign.circle.fill"
         case .foreignWealth: return "globe.americas.fill"
         case .savings: return "banknote.fill"
+        case .insuranceSurrenderValue: return "banknote.fill"
         case .pillar2: return "building.columns.fill"
         case .pillar3a: return "lock.shield.fill"
         case .militaryService: return "shield.lefthalf.filled"
         case .taxTreaty: return "doc.text.below.ecg.fill"
+        case .other: return "doc.circle.fill"
         }
     }
 
@@ -101,14 +112,16 @@ enum TaxCategoryType: String, CaseIterable, Codable {
         switch self {
         case .salary, .bonus, .freelance, .investment, .rental, .pension, .foreignIncome:
             return .green
-        case .mortgage, .donations, .education, .medical, .insurance, .childcare, .homeOffice:
+        case .mortgage, .donations, .education, .medical, .insurancePremiums, .childcare, .homeOffice, .travelExpenses:
             return .blue
-        case .property, .stocks, .crypto, .foreignWealth, .savings:
+        case .property, .stocks, .crypto, .foreignWealth, .savings, .insuranceSurrenderValue:
             return .orange
         case .pillar2, .pillar3a:
             return .purple
         case .militaryService, .taxTreaty:
             return .indigo
+        case .other:
+            return .gray
         }
     }
 
@@ -116,11 +129,13 @@ enum TaxCategoryType: String, CaseIterable, Codable {
         switch self {
         case .salary, .bonus, .freelance, .investment, .rental, .pension, .foreignIncome:
             return .income
-        case .mortgage, .donations, .education, .medical, .insurance, .childcare, .homeOffice:
+        case .mortgage, .donations, .education, .medical, .insurancePremiums, .childcare, .homeOffice, .travelExpenses:
             return .deductions
-        case .property, .stocks, .crypto, .foreignWealth, .savings:
+        case .property, .stocks, .crypto, .foreignWealth, .savings, .insuranceSurrenderValue:
             return .assets
         case .pillar2, .pillar3a, .militaryService, .taxTreaty:
+            return .swissSpecific
+        case .other:
             return .swissSpecific
         }
     }
@@ -167,11 +182,12 @@ class CategoryConfigurationModel: ObservableObject {
     // Default categories for new users
     private let defaultCategories: Set<TaxCategoryType> = [
         .salary,
-        .insurance,
+        .insurancePremiums,
         .pillar3a,
         .pension,
         .mortgage,
-        .foreignIncome
+        .foreignIncome,
+        .other
     ]
 
     init() {

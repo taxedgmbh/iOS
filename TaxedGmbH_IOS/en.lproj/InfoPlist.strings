@@ -1,0 +1,5 @@
+/* Privacy Permissions */
+"NSCameraUsageDescription" = "This app needs access to your camera to scan documents.";
+"NSMicrophoneUsageDescription" = "This app needs access to your microphone for voice notes and communication with your tax advisor.";
+"NSPhotoLibraryUsageDescription" = "This app needs access to your photos to upload documents.";
+"NSSpeechRecognitionUsageDescription" = "This app needs access to speech recognition to convert your spoken messages into text.";

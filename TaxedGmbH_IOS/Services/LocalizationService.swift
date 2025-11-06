@@ -69,15 +69,31 @@ class LocalizationService: ObservableObject {
     }
 
     private init() {
-        // Load saved language or detect from system
+        // Load saved language or detect from system with priority order
         if let savedLang = UserDefaults.standard.string(forKey: languageKey),
            let language = AppLanguage(rawValue: savedLang) {
             self.currentLanguage = language
         } else {
-            // Detect from system locale, default to English
-            let preferredLanguage = Locale.preferredLanguages.first ?? "en"
-            let languageCode = Locale(identifier: preferredLanguage).language.languageCode?.identifier ?? "en"
-            self.currentLanguage = AppLanguage(rawValue: languageCode) ?? .english
+            // Priority order: English → German → French → Italian → English (fallback)
+            // Check system preferred languages against our priority list
+            let systemLanguages = Locale.preferredLanguages.map {
+                Locale(identifier: $0).language.languageCode?.identifier ?? ""
+            }
+
+            // Define priority order
+            let priorityOrder: [AppLanguage] = [.english, .german, .french, .italian]
+
+            // Find first matching language from priority list
+            var selectedLanguage: AppLanguage = .english // Default fallback
+            for priorityLang in priorityOrder {
+                if systemLanguages.contains(priorityLang.rawValue) {
+                    selectedLanguage = priorityLang
+                    break
+                }
+            }
+
+            self.currentLanguage = selectedLanguage
+            print("✅ Language initialized: \(selectedLanguage.displayName) (Priority: \(priorityOrder.map { $0.displayName }.joined(separator: " → ")))")
         }
     }
 

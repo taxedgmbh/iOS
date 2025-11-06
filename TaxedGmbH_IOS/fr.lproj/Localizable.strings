@@ -13,7 +13,7 @@
 
 // MARK: - Authentication
 "auth.login.title" = "Se connecter";
-"auth.login.subtitle" = "Bienvenue";
+"auth.login.subtitle" = "Entrez vos identifiants";
 "auth.signup.title" = "Créer un compte";
 "auth.signup.subtitle" = "Créez un nouveau compte";
 "auth.email.placeholder" = "Adresse e-mail";
@@ -98,6 +98,8 @@
 "dashboard.all_uploaded" = "Tous les documents téléchargés!";
 "dashboard.categories" = "Catégories";
 "dashboard.actions" = "Actions";
+"dashboard.first_page_tax_return" = "Première page déclaration fiscale";
+"dashboard.first_page_subtitle" = "Commencez votre déclaration ici";
 "dashboard.upload_document" = "Télécharger un document";
 "dashboard.upload_subtitle" = "Photo ou galerie";
 "dashboard.all_documents" = "Tous les documents";
@@ -744,3 +746,44 @@
 "report.success.message" = "Merci pour votre retour! Nous examinerons votre rapport sous peu.";
 "report.error.title" = "E-mail non disponible";
 "report.error.message" = "Veuillez configurer un compte e-mail dans les paramètres système pour signaler des problèmes.";
+
+// MARK: - Privacy Policy (Data Storage)
+"privacy.data_storage_auth.title" = "Stockage des données d'authentification";
+"privacy.data_storage_auth.content" = "Les informations d'authentification des utilisateurs (adresses e-mail, mots de passe chiffrés, identifiants utilisateurs) sont traitées par Firebase Authentication (Google Cloud Platform) et stockées aux États-Unis. Pour les transferts de données transatlantiques, Google maintient des clauses contractuelles types (CCT) et respecte le cadre du EU-US Data Privacy Framework et du Swiss-US Data Privacy Framework, garantissant la conformité aux exigences du RGPD et de la LPD suisse.";
+
+"privacy.data_storage_app.title" = "Stockage des données d'application";
+"privacy.data_storage_app.content" = "Toutes les autres données personnelles, y compris les documents fiscaux, les messages, l'historique des discussions et les données d'application, sont stockées exclusivement en Suisse à l'aide de Google Cloud Firestore (ID de base de données : taxedgmbh) située dans la région de Zurich (europe-west6). Ces données sont chiffrées au repos avec le chiffrement AES-256 et en transit avec le protocole TLS 1.3. Vos données d'application ne quittent jamais la juridiction suisse ou européenne.";
+
+"privacy.data_processing.title" = "Traitement des données";
+"privacy.data_processing.content" = "Nous utilisons les services Firebase (Google Cloud Platform) comme processeur de données. Firebase est certifié selon les normes ISO 27001, ISO 27017, ISO 27018 et SOC 2/3. Des accords de traitement des données (DPA) sont en place garantissant la conformité au RGPD et à la LPD suisse. Le traitement des données d'application se fait exclusivement dans la région UE/Suisse.";
+
+"privacy.data_transfers.title" = "Transferts internationaux de données";
+"privacy.data_transfers.content" = "Les données d'authentification (e-mails, mots de passe) peuvent être transférées aux États-Unis via Firebase Authentication. Ces transferts sont protégés par des clauses contractuelles types (CCT) approuvées par la Commission européenne et le Préposé fédéral à la protection des données et à la transparence (PFPDT). Toutes les autres données personnelles restent en Suisse (Zurich, europe-west6) et ne sont pas transférées hors de la juridiction suisse ou européenne.";
+
+// MARK: - Tax Category Types
+"category.salary" = "Salaire";
+"category.bonus" = "Prime";
+"category.freelance" = "Indépendant";
+"category.investment" = "Investissements";
+"category.rental" = "Revenus locatifs";
+"category.pension" = "Pension";
+"category.foreign_income" = "Revenus étrangers";
+"category.mortgage" = "Hypothèque";
+"category.donations" = "Dons";
+"category.education" = "Éducation";
+"category.medical" = "Médical";
+"category.insurance_premiums" = "Primes d'assurance";
+"category.childcare" = "Garde d'enfants";
+"category.home_office" = "Bureau à domicile";
+"category.travel_expenses" = "Frais de déplacement";
+"category.property" = "Propriété";
+"category.stocks" = "Actions";
+"category.crypto" = "Cryptomonnaie";
+"category.foreign_wealth" = "Patrimoine étranger";
+"category.savings" = "Épargne";
+"category.insurance_surrender_value" = "Valeur de rachat d'assurance";
+"category.pillar_2" = "Pilier 2";
+"category.pillar_3a" = "Pilier 3a";
+"category.military_service" = "Service militaire";
+"category.tax_treaty" = "Convention fiscale";
+"category.other" = "Autres documents";

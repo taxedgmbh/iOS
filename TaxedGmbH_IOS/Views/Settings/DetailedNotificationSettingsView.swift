@@ -56,7 +56,7 @@ struct DetailedNotificationSettingsView: View {
                 }
                 .padding(.vertical, 8)
 
-                if let token = notificationService.fcmToken {
+                if notificationService.fcmToken != nil {
                     HStack {
                         Image(systemName: "key.fill")
                             .foregroundColor(.taxedPrimary)

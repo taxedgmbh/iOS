@@ -55,7 +55,7 @@ struct VoiceInputView: View {
                 }
             }
             .disabled(!speechService.hasPermission)
-            .onChange(of: speechService.isRecording) { isRecording in
+            .onChange(of: speechService.isRecording) { _, isRecording in
                 if isRecording {
                     animationScale = 1.3
                 } else {

@@ -30,17 +30,49 @@ class StorageService: ObservableObject {
 
     private init() {}
 
+    // MARK: - Path Generation
+
+    /// Generate organized storage path: documents/{customerId}/{taxYear}/{category}/{subcategory}/{fileName}
+    /// Falls back to flat structure if organization parameters are missing
+    private func generateStoragePath(
+        customerId: String,
+        fileName: String,
+        taxYear: Int? = nil,
+        category: String? = nil,
+        subcategory: String? = nil
+    ) -> String {
+        // If we have full organization info, use hierarchical structure
+        if let year = taxYear, let cat = category {
+            if let subcat = subcategory, !subcat.isEmpty {
+                return "documents/\(customerId)/\(year)/\(cat)/\(subcat)/\(fileName)"
+            } else {
+                return "documents/\(customerId)/\(year)/\(cat)/\(fileName)"
+            }
+        }
+
+        // Fallback to flat structure for backwards compatibility
+        return "documents/\(customerId)/\(fileName)"
+    }
+
+    // MARK: - Upload Methods
+
     /// Upload a document image to Firebase Storage
     /// - Parameters:
     ///   - image: The UIImage to upload
     ///   - customerId: The customer's user ID
     ///   - fileName: Name of the file
+    ///   - taxYear: Optional tax year for organization
+    ///   - category: Optional category for organization
+    ///   - subcategory: Optional subcategory for organization
     ///   - progressHandler: Optional progress callback (0.0 to 1.0)
     /// - Returns: The download URL as a string
     func uploadDocument(
         image: UIImage,
         customerId: String,
         fileName: String,
+        taxYear: Int? = nil,
+        category: String? = nil,
+        subcategory: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> String {
         // Convert image to JPEG data
@@ -48,8 +80,14 @@ class StorageService: ObservableObject {
             throw StorageError.imageConversionFailed
         }
 
-        // Create storage path: documents/{customerId}/{fileName}
-        let path = "documents/\(customerId)/\(fileName)"
+        // Create organized storage path
+        let path = generateStoragePath(
+            customerId: customerId,
+            fileName: fileName,
+            taxYear: taxYear,
+            category: category,
+            subcategory: subcategory
+        )
         let storageRef = storage.reference().child(path)
 
         // Set metadata
@@ -77,17 +115,60 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload to complete and get metadata
-        _ = uploadTask
+        // Wait for upload using continuation to properly await completion
+        do {
+            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                uploadTask.observe(.success) { _ in
+                    print("✅ Image uploaded successfully: \(path)")
+                    continuation.resume(returning: ())
+                }
 
-        // Get download URL
-        let downloadURL = try await storageRef.downloadURL()
+                uploadTask.observe(.failure) { snapshot in
+                    if let error = snapshot.error {
+                        print("❌ Upload failed: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: StorageError.uploadFailed)
+                    }
+                }
+            }
+        } catch {
+            print("❌ Upload error: \(error.localizedDescription)")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.uploadFailed
+        }
+
+        // Get download URL with retry logic
+        var downloadURL: URL?
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                downloadURL = try await storageRef.downloadURL()
+                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
+                break
+            } catch {
+                lastError = error
+                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
+                if attempt < 3 {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+            }
+        }
+
+        guard let finalURL = downloadURL else {
+            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.invalidURL
+        }
 
         isUploading = false
         uploadProgress = 0.0
 
-        print("✅ Document uploaded successfully: \(path)")
-        return downloadURL.absoluteString
+        print("✅ Complete upload process finished: \(path)")
+        return finalURL.absoluteString
     }
 
     /// Upload a document from Data (for PDFs, etc.)
@@ -96,9 +177,18 @@ class StorageService: ObservableObject {
         customerId: String,
         fileName: String,
         mimeType: String,
+        taxYear: Int? = nil,
+        category: String? = nil,
+        subcategory: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> String {
-        let path = "documents/\(customerId)/\(fileName)"
+        let path = generateStoragePath(
+            customerId: customerId,
+            fileName: fileName,
+            taxYear: taxYear,
+            category: category,
+            subcategory: subcategory
+        )
         let storageRef = storage.reference().child(path)
 
         let metadata = StorageMetadata()
@@ -123,15 +213,60 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload to complete and get metadata
-        _ = uploadTask
-        let downloadURL = try await storageRef.downloadURL()
+        // Wait for upload using continuation to properly await completion
+        do {
+            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                uploadTask.observe(.success) { _ in
+                    print("✅ Data uploaded successfully: \(path)")
+                    continuation.resume(returning: ())
+                }
+
+                uploadTask.observe(.failure) { snapshot in
+                    if let error = snapshot.error {
+                        print("❌ Upload failed: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: StorageError.uploadFailed)
+                    }
+                }
+            }
+        } catch {
+            print("❌ Upload error: \(error.localizedDescription)")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.uploadFailed
+        }
+
+        // Get download URL with retry logic
+        var downloadURL: URL?
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                downloadURL = try await storageRef.downloadURL()
+                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
+                break
+            } catch {
+                lastError = error
+                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
+                if attempt < 3 {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+            }
+        }
+
+        guard let finalURL = downloadURL else {
+            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.invalidURL
+        }
 
         isUploading = false
         uploadProgress = 0.0
 
-        print("✅ Document data uploaded successfully: \(path)")
-        return downloadURL.absoluteString
+        print("✅ Complete upload process finished: \(path)")
+        return finalURL.absoluteString
     }
 
     /// Delete a document from Firebase Storage
@@ -155,12 +290,18 @@ class StorageService: ObservableObject {
     ///   - image: The UIImage to convert and upload
     ///   - customerId: The customer's user ID
     ///   - documentType: Type of document (e.g., "lohnausweis", "spesenbeleg")
+    ///   - taxYear: Optional tax year for organization
+    ///   - category: Optional category for organization
+    ///   - subcategory: Optional subcategory for organization
     ///   - progressHandler: Optional progress callback (0.0 to 1.0)
     /// - Returns: The download URL as a string
     func uploadDocumentAsPDF(
         image: UIImage,
         customerId: String,
         documentType: String,
+        taxYear: Int? = nil,
+        category: String? = nil,
+        subcategory: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> String {
         // 1. Compress and resize image for optimal quality/size balance
@@ -217,15 +358,21 @@ class StorageService: ObservableObject {
                 throw StorageError.compressionFailed
             }
 
-            return try await uploadPDFData(finalPDF, customerId: customerId, documentType: documentType, progressHandler: progressHandler)
+            return try await uploadPDFData(finalPDF, customerId: customerId, documentType: documentType, taxYear: taxYear, category: category, subcategory: subcategory, progressHandler: progressHandler)
         }
 
         // 3. Generate UUID-based filename: {UUID}_{documentType}.pdf
         let documentId = UUID().uuidString
         let fileName = "\(documentId)_\(documentType).pdf"
 
-        // 4. Upload PDF
-        let path = "documents/\(customerId)/\(fileName)"
+        // 4. Upload PDF with organized path
+        let path = generateStoragePath(
+            customerId: customerId,
+            fileName: fileName,
+            taxYear: taxYear,
+            category: category,
+            subcategory: subcategory
+        )
         let storageRef = storage.reference().child(path)
 
         let metadata = StorageMetadata()
@@ -241,8 +388,10 @@ class StorageService: ObservableObject {
         isUploading = true
         uploadProgress = 0.0
 
+        // Use async/await upload with progress tracking
         let uploadTask = storageRef.putData(pdfData, metadata: metadata)
 
+        // Observe progress in background
         uploadTask.observe(.progress) { snapshot in
             guard let progress = snapshot.progress else { return }
             let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
@@ -253,17 +402,53 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload to complete
-        _ = uploadTask
-        print("✅ PDF data uploaded to Firebase Storage")
-
-        // Get download URL
-        let downloadURL: URL
+        // Wait for upload using continuation to properly await completion
         do {
-            downloadURL = try await storageRef.downloadURL()
-            print("✅ Download URL retrieved: \(downloadURL.absoluteString)")
+            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                uploadTask.observe(.success) { _ in
+                    print("✅ PDF uploaded successfully: \(path)")
+                    continuation.resume(returning: ())
+                }
+
+                uploadTask.observe(.failure) { snapshot in
+                    if let error = snapshot.error {
+                        print("❌ Upload failed: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: StorageError.uploadFailed)
+                    }
+                }
+            }
         } catch {
-            print("❌ Failed to get download URL: \(error.localizedDescription)")
+            print("❌ Upload error: \(error.localizedDescription)")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.uploadFailed
+        }
+
+        // Get download URL with retry logic (sometimes takes a moment for Firebase to propagate)
+        var downloadURL: URL?
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                downloadURL = try await storageRef.downloadURL()
+                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
+                break
+            } catch {
+                lastError = error
+                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
+                if attempt < 3 {
+                    // Wait a bit before retrying
+                    try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                }
+            }
+        }
+
+        guard let finalURL = downloadURL else {
+            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
+            print("   Note: File was uploaded successfully but download URL retrieval failed")
+            print("   Path: \(path)")
             isUploading = false
             uploadProgress = 0.0
             throw StorageError.invalidURL
@@ -272,8 +457,8 @@ class StorageService: ObservableObject {
         isUploading = false
         uploadProgress = 0.0
 
-        print("✅ PDF uploaded successfully: \(path)")
-        return downloadURL.absoluteString
+        print("✅ Complete upload process finished: \(path)")
+        return finalURL.absoluteString
     }
 
     // MARK: - Helper Methods
@@ -283,11 +468,20 @@ class StorageService: ObservableObject {
         _ pdfData: Data,
         customerId: String,
         documentType: String,
+        taxYear: Int? = nil,
+        category: String? = nil,
+        subcategory: String? = nil,
         progressHandler: ((Double) -> Void)?
     ) async throws -> String {
         let documentId = UUID().uuidString
         let fileName = "\(documentId)_\(documentType).pdf"
-        let path = "documents/\(customerId)/\(fileName)"
+        let path = generateStoragePath(
+            customerId: customerId,
+            fileName: fileName,
+            taxYear: taxYear,
+            category: category,
+            subcategory: subcategory
+        )
         let storageRef = storage.reference().child(path)
 
         let metadata = StorageMetadata()
@@ -303,8 +497,10 @@ class StorageService: ObservableObject {
         isUploading = true
         uploadProgress = 0.0
 
+        // Use async/await upload with progress tracking
         let uploadTask = storageRef.putData(pdfData, metadata: metadata)
 
+        // Observe progress in background
         uploadTask.observe(.progress) { snapshot in
             guard let progress = snapshot.progress else { return }
             let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
@@ -315,17 +511,53 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload to complete
-        _ = uploadTask
-        print("✅ PDF data uploaded to Firebase Storage")
-
-        // Get download URL
-        let downloadURL: URL
+        // Wait for upload using continuation to properly await completion
         do {
-            downloadURL = try await storageRef.downloadURL()
-            print("✅ Download URL retrieved: \(downloadURL.absoluteString)")
+            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                uploadTask.observe(.success) { _ in
+                    print("✅ PDF uploaded successfully: \(path)")
+                    continuation.resume(returning: ())
+                }
+
+                uploadTask.observe(.failure) { snapshot in
+                    if let error = snapshot.error {
+                        print("❌ Upload failed: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: StorageError.uploadFailed)
+                    }
+                }
+            }
         } catch {
-            print("❌ Failed to get download URL: \(error.localizedDescription)")
+            print("❌ Upload error: \(error.localizedDescription)")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.uploadFailed
+        }
+
+        // Get download URL with retry logic (sometimes takes a moment for Firebase to propagate)
+        var downloadURL: URL?
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                downloadURL = try await storageRef.downloadURL()
+                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
+                break
+            } catch {
+                lastError = error
+                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
+                if attempt < 3 {
+                    // Wait a bit before retrying
+                    try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+                }
+            }
+        }
+
+        guard let finalURL = downloadURL else {
+            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
+            print("   Note: File was uploaded successfully but download URL retrieval failed")
+            print("   Path: \(path)")
             isUploading = false
             uploadProgress = 0.0
             throw StorageError.invalidURL
@@ -334,8 +566,8 @@ class StorageService: ObservableObject {
         isUploading = false
         uploadProgress = 0.0
 
-        print("✅ PDF uploaded successfully: \(path)")
-        return downloadURL.absoluteString
+        print("✅ Complete upload process finished: \(path)")
+        return finalURL.absoluteString
     }
 
     // MARK: - Image Processing Helpers

@@ -61,7 +61,9 @@ class NotificationService: NSObject, ObservableObject {
             }
 
             if granted {
-                await UIApplication.shared.registerForRemoteNotifications()
+                await MainActor.run {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
                 print("✅ Notification permission granted")
             } else {
                 print("❌ Notification permission denied")
