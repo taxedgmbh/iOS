@@ -35,6 +35,11 @@ struct DocumentUploadView: View {
     @State private var extractedText: String?
     @State private var aiProcessingFailed = false
 
+    // Manual category selection
+    @State private var manualCategory: TaxCategoryType?
+    @State private var showCategoryPicker = false
+    @State private var needsCategorySelection = false
+
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -307,6 +312,74 @@ struct DocumentUploadView: View {
                         .padding(.horizontal)
                     }
 
+                    // Category Selection (natural part of flow)
+                    if needsCategorySelection && !uploadSuccess {
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "folder.badge.plus")
+                                    .foregroundColor(.blue)
+                                Text("Select Document Category")
+                                    .font(.headline)
+                            }
+
+                            if let category = manualCategory {
+                                // Show selected category
+                                HStack(spacing: 12) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(category.color.opacity(0.15))
+                                            .frame(width: 40, height: 40)
+                                        Image(systemName: category.icon)
+                                            .foregroundColor(category.color)
+                                            .font(.system(size: 20))
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(category.displayName)
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                        Text("Selected")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Button(action: {
+                                        showCategoryPicker = true
+                                    }) {
+                                        Text("Change")
+                                            .font(.subheadline)
+                                            .foregroundColor(.blue)
+                                    }
+                                }
+                                .padding()
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .cornerRadius(12)
+                            } else {
+                                // Show select button
+                                Button(action: {
+                                    showCategoryPicker = true
+                                }) {
+                                    HStack {
+                                        Image(systemName: "folder.badge.plus")
+                                        Text("Choose Category")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(12)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                    }
+
                     // Upload Button
                     if selectedImage != nil && !isUploading && !uploadSuccess {
                         Button(action: {
@@ -322,10 +395,11 @@ struct DocumentUploadView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.green)
+                            .background(needsCategorySelection && manualCategory == nil ? Color.gray : Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
+                        .disabled(needsCategorySelection && manualCategory == nil)
                         .padding(.horizontal)
                     }
 
@@ -366,6 +440,9 @@ struct DocumentUploadView: View {
             .sheet(isPresented: $showDocumentPicker) {
                 DocumentPicker(documentURL: $selectedDocumentURL)
             }
+            .sheet(isPresented: $showCategoryPicker) {
+                SimpleCategoryPickerView(selectedCategory: $manualCategory)
+            }
             .onChange(of: selectedDocumentURL) { _, newURL in
                 if let url = newURL {
                     handleDocumentSelection(url: url)
@@ -404,95 +481,165 @@ struct DocumentUploadView: View {
         uploadSuccess = false
 
         do {
-            // 0. Compress image to below 4MB BEFORE processing
-            print("🗜️ Compressing image to below 4MB...")
-            image = compressImageBelow4MB(image: image)
+            // 0. Compress image to below 4MB BEFORE processing (on background thread)
+            print("🗜️ Compressing image to below 4MB on background thread...")
+            image = await compressImageBelow4MB(image: image)
             print("✅ Image compressed successfully")
 
             // 1. Run AI processing on device (Vision OCR + Categorization)
+            // SKIP AI processing if user has already manually selected a category
             var processingResult: DocumentProcessingResult?
 
-            do {
-                print("🤖 Starting AI document processing...")
-                processingResult = try await documentProcessor.processDocument(image: image)
+            if manualCategory == nil {
+                // Only run AI if no manual category selected
+                do {
+                    print("🤖 Starting AI document processing...")
+                    processingResult = try await documentProcessor.processDocument(image: image)
 
-                // Store AI results
-                aiCategory = processingResult?.suggestedCategory
-                aiConfidence = processingResult?.confidence
-                extractedText = processingResult?.extractedText
+                    // Store AI results
+                    aiCategory = processingResult?.suggestedCategory
+                    aiConfidence = processingResult?.confidence
+                    extractedText = processingResult?.extractedText
 
-                print("✅ AI Processing complete:")
-                print("   Category: \(processingResult?.suggestedCategory.displayName ?? "unknown")")
-                print("   Confidence: \(Int((processingResult?.confidence ?? 0) * 100))%")
-                print("   Text length: \(processingResult?.extractedText.count ?? 0) chars")
-                if let keywords = processingResult?.detectedKeywords {
-                    print("   Keywords: \(keywords.joined(separator: ", "))")
+                    print("✅ AI Processing complete:")
+                    print("   Category: \(processingResult?.suggestedCategory.displayName ?? "unknown")")
+                    print("   Confidence: \(Int((processingResult?.confidence ?? 0) * 100))%")
+                    print("   Text length: \(processingResult?.extractedText.count ?? 0) chars")
+                    if let keywords = processingResult?.detectedKeywords {
+                        print("   Keywords: \(keywords.joined(separator: ", "))")
+                    }
+                } catch {
+                    // AI processing failed, but we'll continue with upload
+                    print("⚠️ AI processing failed: \(error.localizedDescription)")
+                    print("📤 User needs to select category manually...")
+                    aiProcessingFailed = true
+                    processingResult = nil
+
+                    // Quietly require category selection without negative messaging
+                    needsCategorySelection = true
+
+                    // Don't continue with upload automatically - wait for category selection
+                    return
                 }
-            } catch {
-                // AI processing failed, but we'll continue with upload
-                print("⚠️ AI processing failed: \(error.localizedDescription)")
-                print("📤 Continuing with manual review upload...")
-                aiProcessingFailed = true
-                processingResult = nil
 
-                // Set warning message (not error - upload continues)
-                warningMessage = error.localizedDescription
+                // Check if confidence is too low (< 50%)
+                if let confidence = processingResult?.confidence, confidence < 0.5 {
+                    print("⚠️ AI confidence too low: \(Int(confidence * 100))%")
+                    print("📤 User needs to select category manually...")
+                    needsCategorySelection = true
+                    return
+                }
+            } else {
+                // User has manually selected a category, skip AI processing
+                print("📁 Using manually selected category: \(manualCategory!.displayName)")
+                print("⏭️ Skipping AI processing")
             }
 
             // 2. Upload to Firebase Storage as optimized PDF
             isUploading = true
 
-            // Use document type from AI categorization, or "uncategorized" if AI failed
-            let documentType = processingResult?.suggestedCategory.rawValue ?? "uncategorized"
+            // Use manual category if selected, otherwise use AI result
+            let effectiveCategory: TaxCategoryType?
+            if let manual = manualCategory {
+                effectiveCategory = manual
+                print("📁 Using manually selected category: \(manual.displayName)")
+            } else {
+                effectiveCategory = mapToTaxCategoryType(processingResult?.suggestedCategory)
+                print("🤖 Using AI suggested category")
+            }
 
-            // Map to TaxCategoryType for accurate subcategory tracking
-            let taxCategoryType = mapToTaxCategoryType(processingResult?.suggestedCategory)
+            // Use document type from manual selection or AI categorization
+            let documentType = effectiveCategory?.rawValue ?? "uncategorized"
+
+            // Tax category type for organized storage
+            let taxCategoryType = effectiveCategory?.rawValue
 
             // Get current tax year
             let taxYear = Calendar.current.component(.year, from: Date())
 
-            // Prepare category info for organized storage
-            let categoryRawValue = processingResult?.suggestedCategory.taxCategory.rawValue ?? "uncategorized"
+            // Generate attachment number for file labeling
+            let uploadDate = Date()
+            let attachmentNumber = generateAttachmentNumber(for: effectiveCategory, uploadDate: uploadDate)
+            print("📎 Generated attachment number: \(attachmentNumber)")
 
-            let downloadURL = try await storageService.uploadDocumentAsPDF(
+            // Prepare category info for organized storage
+            let categoryRawValue: String
+            if let effective = effectiveCategory {
+                categoryRawValue = convertCategoryGroupToStoragePath(effective.categoryGroup)
+            } else {
+                categoryRawValue = "uncategorized"
+            }
+
+            let (downloadURL, documentId) = try await storageService.uploadDocumentAsPDF(
                 image: image,
                 customerId: userId,
                 documentType: documentType,
                 taxYear: taxYear,
                 category: categoryRawValue,
-                subcategory: taxCategoryType
+                subcategory: taxCategoryType ?? "",
+                attachmentNumber: attachmentNumber
             ) { progress in
                 uploadProgress = progress
             }
+
+            print("✅ Received documentId: \(documentId)")
 
             // 3. Create Firestore document record with AI categorization (if available)
             // Extract document name from URL (UUID_documentType.pdf)
             let urlComponents = downloadURL.components(separatedBy: "/")
             let documentName = urlComponents.last?.removingPercentEncoding ?? "document.pdf"
 
+            // Determine category and subcategory based on whether manual or AI was used
+            let finalCategory: TaxCategory
+            let finalSubcategory: String?
+
+            if let manual = manualCategory {
+                // Manual selection - convert TaxCategoryType to TaxCategory
+                finalCategory = convertToTaxCategory(manual)
+                finalSubcategory = manual.rawValue
+            } else if let aiCat = mapToTaxCategoryType(processingResult?.suggestedCategory) {
+                // AI categorization
+                finalCategory = convertToTaxCategory(aiCat)
+                finalSubcategory = aiCat.rawValue
+            } else {
+                // Fallback
+                finalCategory = .uncategorized
+                finalSubcategory = nil
+            }
+
             let document = TaxDocument(
                 customerId: userId,
                 name: documentName,
                 storageUrl: downloadURL,
-                category: processingResult?.suggestedCategory.taxCategory ?? .uncategorized,
-                subcategory: processingResult?.suggestedCategory.rawValue,
+                category: finalCategory,
+                subcategory: finalSubcategory,
                 aiConfidence: processingResult?.confidence,
                 extractedText: processingResult?.extractedText,
-                aiSummary: processingResult != nil ? generateDocumentSummary(result: processingResult!) : "documents.upload.manual_review_required".localized,
+                aiSummary: {
+                    if let result = processingResult {
+                        return generateDocumentSummary(result: result)
+                    } else if manualCategory != nil {
+                        return "Manually categorized by user"
+                    } else {
+                        return "documents.upload.manual_review_required".localized
+                    }
+                }(),
                 status: {
                     if let result = processingResult {
                         return result.confidence > 0.7 ? .pending : .processing
+                    } else if manualCategory != nil {
+                        return .pending  // Manual categorization - ready for review
                     } else {
-                        // No AI result - needs manual processing
-                        return .processing
+                        return .processing  // No categorization
                     }
                 }(),
                 taxYear: taxYear,
                 canton: authService.user?.canton,
                 amount: processingResult != nil ? extractAmount(from: processingResult!.additionalInfo) : nil,
                 taxCategoryType: taxCategoryType,
+                attachmentNumber: attachmentNumber,
                 currency: "CHF",
-                workflowStatus: .pendingClassification
+                workflowStatus: manualCategory != nil ? .pendingReview : .pendingClassification
             )
 
             try await firestoreService.createDocument(document)
@@ -560,55 +707,58 @@ struct DocumentUploadView: View {
 
     // MARK: - Image Compression
 
-    private func compressImageBelow4MB(image: UIImage) -> UIImage {
-        let maxSizeBytes = 4 * 1024 * 1024 // 4MB in bytes
-        let maxSizeBytesWithBuffer = Int(Double(maxSizeBytes) * 0.9) // Use 90% to have safety margin
+    private func compressImageBelow4MB(image: UIImage) async -> UIImage {
+        // Run compression on background thread to avoid blocking main thread
+        return await Task.detached(priority: .userInitiated) {
+            let maxSizeBytes = 4 * 1024 * 1024 // 4MB in bytes
+            let maxSizeBytesWithBuffer = Int(Double(maxSizeBytes) * 0.9) // Use 90% to have safety margin
 
-        // Start with high quality
-        var compression: CGFloat = 0.9
-        guard var imageData = image.jpegData(compressionQuality: compression) else {
-            return image
-        }
-
-        // If already below 4MB, return original
-        if imageData.count < maxSizeBytesWithBuffer {
-            print("✅ Image size: \(imageData.count / 1024)KB - No compression needed")
-            return image
-        }
-
-        print("⚠️ Image size: \(imageData.count / 1024)KB - Compressing...")
-
-        // Binary search for optimal compression
-        var minCompression: CGFloat = 0.1
-        var maxCompression: CGFloat = 0.9
-
-        while maxCompression - minCompression > 0.05 {
-            compression = (minCompression + maxCompression) / 2
-            guard let data = image.jpegData(compressionQuality: compression) else {
-                break
+            // Start with high quality
+            var compression: CGFloat = 0.9
+            guard var imageData = image.jpegData(compressionQuality: compression) else {
+                return image
             }
-            imageData = data
 
-            if imageData.count > maxSizeBytesWithBuffer {
-                maxCompression = compression
-            } else {
-                minCompression = compression
+            // If already below 4MB, return original
+            if imageData.count < maxSizeBytesWithBuffer {
+                print("✅ Image size: \(imageData.count / 1024)KB - No compression needed")
+                return image
             }
-        }
 
-        // Final check - if still too large, resize image
-        if imageData.count > maxSizeBytesWithBuffer {
-            print("📐 Still too large (\(imageData.count / 1024)KB), resizing image...")
-            let resizedImage = resizeImage(image: image, maxSizeBytes: maxSizeBytesWithBuffer)
-            if let data = resizedImage.jpegData(compressionQuality: 0.8) {
+            print("⚠️ Image size: \(imageData.count / 1024)KB - Compressing on background thread...")
+
+            // Binary search for optimal compression
+            var minCompression: CGFloat = 0.1
+            var maxCompression: CGFloat = 0.9
+
+            while maxCompression - minCompression > 0.05 {
+                compression = (minCompression + maxCompression) / 2
+                guard let data = image.jpegData(compressionQuality: compression) else {
+                    break
+                }
                 imageData = data
-                print("✅ Resized image size: \(imageData.count / 1024)KB")
-                return resizedImage
-            }
-        }
 
-        print("✅ Compressed image size: \(imageData.count / 1024)KB")
-        return UIImage(data: imageData) ?? image
+                if imageData.count > maxSizeBytesWithBuffer {
+                    maxCompression = compression
+                } else {
+                    minCompression = compression
+                }
+            }
+
+            // Final check - if still too large, resize image
+            if imageData.count > maxSizeBytesWithBuffer {
+                print("📐 Still too large (\(imageData.count / 1024)KB), resizing image...")
+                let resizedImage = self.resizeImage(image: image, maxSizeBytes: maxSizeBytesWithBuffer)
+                if let data = resizedImage.jpegData(compressionQuality: 0.8) {
+                    imageData = data
+                    print("✅ Resized image size: \(imageData.count / 1024)KB")
+                    return resizedImage
+                }
+            }
+
+            print("✅ Compressed image size: \(imageData.count / 1024)KB")
+            return UIImage(data: imageData) ?? image
+        }.value
     }
 
     private func resizeImage(image: UIImage, maxSizeBytes: Int) -> UIImage {
@@ -626,47 +776,277 @@ struct DocumentUploadView: View {
         }
     }
 
+    // MARK: - Attachment Number Generation
+
+    /// Generate attachment number based on category and upload timestamp
+    private func generateAttachmentNumber(for categoryType: TaxCategoryType?, uploadDate: Date = Date()) -> String {
+        let categoryCode = categoryType?.rawValue ?? "uncategorized"
+        let shortCode = getShortCode(for: categoryCode)
+
+        // Use timestamp for uniqueness
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        let timeStamp = dateFormatter.string(from: uploadDate)
+        let lastFour = String(timeStamp.suffix(4))
+
+        return "\(shortCode)_\(lastFour)"
+    }
+
+    /// Get short code for category
+    private func getShortCode(for category: String) -> String {
+        let codeMap: [String: String] = [
+            "salary": "SAL",
+            "bonus": "BON",
+            "freelance": "FRL",
+            "investment": "INV",
+            "rental": "REN",
+            "pension": "PEN",
+            "foreignIncome": "FIN",
+            "mortgage": "MTG",
+            "donations": "DON",
+            "education": "EDU",
+            "medical": "MED",
+            "insurancePremiums": "INS",
+            "childcare": "CHI",
+            "homeOffice": "HOM",
+            "travelExpenses": "TRV",
+            "property": "PRO",
+            "stocks": "STK",
+            "crypto": "CRY",
+            "foreignWealth": "FWE",
+            "savings": "SAV",
+            "insuranceSurrenderValue": "ISV",
+            "pillar2": "P2A",
+            "pillar3a": "P3A",
+            "militaryService": "MIL",
+            "taxTreaty": "TAX",
+            "other": "OTH",
+            "uncategorized": "UNC"
+        ]
+        return codeMap[category] ?? "DOC"
+    }
+
     // MARK: - Category Mapping
 
     /// Map AI-detected TaxDocumentCategory to TaxCategoryType for accurate subcategory tracking
-    private func mapToTaxCategoryType(_ category: TaxDocumentCategory?) -> String? {
+    private func mapToTaxCategoryType(_ category: TaxDocumentCategory?) -> TaxCategoryType? {
         guard let category = category else { return nil }
 
         switch category {
         // Income mappings
         case .lohnausweis:
-            return "salary"
+            return .salary
 
         // Deduction mappings
         case .spesenbeleg:
-            return "travelExpenses"
+            return .travelExpenses
         case .krankenArztkosten:
-            return "medical"
+            return .medical
         case .versicherung:
-            return "insurancePremiums"
+            return .insurancePremiums
         case .hypothekarzinsen:
-            return "mortgage"
+            return .mortgage
         case .spenden:
-            return "donations"
+            return .donations
         case .kinderbetreuung:
-            return "childcare"
+            return .childcare
         case .weiterbildung:
-            return "education"
+            return .education
 
         // Pillar/Pension mappings
         case .pensionskasse:
-            return "pillar_2"
+            return .pillar2
 
         // Wealth/Asset mappings
         case .bankStatement:
-            return "savings"
+            return .savings
         case .vermietung:
-            return "rental"
+            return .rental
 
         // Other
         case .steuerrechnung, .other:
-            return "other"
+            return .other
         }
+    }
+
+    /// Convert TaxCategoryType to TaxCategory for TaxDocument model
+    private func convertToTaxCategory(_ categoryType: TaxCategoryType) -> TaxCategory {
+        switch categoryType.categoryGroup {
+        case .income:
+            return .income
+        case .deductions:
+            return .deduction
+        case .assets:
+            return .wealth
+        case .swissSpecific:
+            // Map Swiss specific categories
+            switch categoryType {
+            case .pillar2, .pillar3a:
+                return .pillar
+            case .militaryService, .taxTreaty:
+                return .foreignIncome
+            default:
+                return .uncategorized
+            }
+        }
+    }
+
+    /// Convert CategoryGroup to storage path string
+    private func convertCategoryGroupToStoragePath(_ group: CategoryGroup) -> String {
+        switch group {
+        case .income:
+            return "income"
+        case .deductions:
+            return "deduction"
+        case .assets:
+            return "wealth"
+        case .swissSpecific:
+            return "pillar"
+        }
+    }
+}
+
+// MARK: - Simple Category Picker (Single Selection)
+struct SimpleCategoryPickerView: View {
+    @Binding var selectedCategory: TaxCategoryType?
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+
+    // Get all available categories
+    private var allCategories: [TaxCategoryType] {
+        TaxCategoryType.allCases.filter { $0 != .other }
+    }
+
+    private var filteredCategoriesByGroup: [CategoryGroup: [TaxCategoryType]] {
+        var grouped: [CategoryGroup: [TaxCategoryType]] = [:]
+
+        let categoriesToShow = searchText.isEmpty ? allCategories :
+            allCategories.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
+
+        for category in categoriesToShow {
+            grouped[category.categoryGroup, default: []].append(category)
+        }
+
+        return grouped
+    }
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Search bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        TextField("Search categories", text: $searchText)
+                            .textFieldStyle(PlainTextFieldStyle())
+                    }
+                    .padding(12)
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+
+                    // Categories by group
+                    ForEach(CategoryGroup.allCases, id: \.self) { group in
+                        if let categories = filteredCategoriesByGroup[group], !categories.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                // Group header
+                                HStack {
+                                    Image(systemName: group.icon)
+                                        .font(.system(size: 18))
+                                        .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                    Text(group.displayName)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                }
+                                .padding(.horizontal)
+
+                                // Category grid
+                                LazyVGrid(columns: [GridItem(), GridItem()], spacing: 8) {
+                                    ForEach(categories.sorted { $0.displayName < $1.displayName }, id: \.self) { category in
+                                        CategoryOptionButton(
+                                            category: category,
+                                            isSelected: selectedCategory == category
+                                        ) {
+                                            selectedCategory = category
+                                            // Haptic feedback
+                                            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                                            impactFeedback.impactOccurred()
+                                            // Dismiss after selection
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                                dismiss()
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                    }
+                }
+                .padding(.vertical)
+            }
+            .navigationTitle("Select Document Category")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Category Option Button
+struct CategoryOptionButton: View {
+    let category: TaxCategoryType
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isSelected ? category.color.opacity(0.15) : Color(UIColor.systemGray6))
+                        .frame(height: 80)
+
+                    VStack(spacing: 6) {
+                        Image(systemName: category.icon)
+                            .font(.system(size: 24))
+                            .foregroundColor(category.color)
+
+                        Text(category.displayName)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                    }
+                    .padding(6)
+
+                    if isSelected {
+                        VStack {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                    .font(.title3)
+                            }
+                            Spacer()
+                        }
+                        .padding(8)
+                    }
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isSelected ? Color(red: 227/255, green: 30/255, blue: 36/255) : Color.clear, lineWidth: 2)
+                )
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

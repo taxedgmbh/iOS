@@ -90,18 +90,20 @@ class DocumentManager: ObservableObject {
         let categoryRawValue = convertCategoryGroupToStoragePath(categoryType?.categoryGroup ?? .income)
         let documentType = categoryType?.rawValue ?? "uncategorized"
 
-        // Upload to storage
-        let downloadURL = try await storageService.uploadDocumentAsPDF(
+        // Upload to storage - now returns (downloadURL, documentId) tuple
+        let (downloadURL, documentId) = try await storageService.uploadDocumentAsPDF(
             image: image,
             customerId: userId,
             documentType: documentType,
             taxYear: taxYear,
             category: categoryRawValue,
-            subcategory: categoryType?.rawValue,
+            subcategory: categoryType?.rawValue ?? "",
             attachmentNumber: attachmentNumber
         ) { progress in
             print("📊 Upload progress: \(Int(progress * 100))%")
         }
+
+        print("✅ Received documentId from storage: \(documentId)")
 
         // Create document record
         let document = TaxDocument(

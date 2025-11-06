@@ -32,9 +32,27 @@ class StorageService: ObservableObject {
 
     // MARK: - Path Generation
 
-    /// Generate organized storage path: documents/{customerId}/{taxYear}/{category}/{subcategory}/{fileName}
-    /// Falls back to flat structure if organization parameters are missing
+    /// Generate document-centric storage path: documents/{customerId}/{taxYear}/{category}/{subcategory}/{documentId}/{fileType}
+    /// All related files (original.pdf, cover.pdf, complete.pdf) are grouped in the same documentId folder
     private func generateStoragePath(
+        customerId: String,
+        documentId: String,
+        fileType: String, // e.g., "original.pdf", "cover.pdf", "complete.pdf"
+        taxYear: Int,
+        category: String,
+        subcategory: String
+    ) -> String {
+        if !subcategory.isEmpty {
+            return "documents/\(customerId)/\(taxYear)/\(category)/\(subcategory)/\(documentId)/\(fileType)"
+        } else {
+            return "documents/\(customerId)/\(taxYear)/\(category)/\(documentId)/\(fileType)"
+        }
+    }
+
+    /// Legacy method for backwards compatibility with non-document-centric paths
+    /// Used for old upload methods that don't use documentId folders
+    @available(*, deprecated, message: "Use generateStoragePath with documentId instead")
+    private func generateLegacyStoragePath(
         customerId: String,
         fileName: String,
         taxYear: Int? = nil,
@@ -80,8 +98,8 @@ class StorageService: ObservableObject {
             throw StorageError.imageConversionFailed
         }
 
-        // Create organized storage path
-        let path = generateStoragePath(
+        // Create organized storage path using legacy method
+        let path = generateLegacyStoragePath(
             customerId: customerId,
             fileName: fileName,
             taxYear: taxYear,
@@ -182,7 +200,7 @@ class StorageService: ObservableObject {
         subcategory: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
     ) async throws -> String {
-        let path = generateStoragePath(
+        let path = generateLegacyStoragePath(
             customerId: customerId,
             fileName: fileName,
             taxYear: taxYear,
@@ -285,33 +303,39 @@ class StorageService: ObservableObject {
 
     // MARK: - Optimized Upload with PDF Conversion
 
-    /// Upload document as optimized PDF in A4 format with UUID-based naming
+    /// Upload document as optimized PDF in A4 format using document-centric storage
     /// - Parameters:
     ///   - image: The UIImage to convert and upload
     ///   - customerId: The customer's user ID
     ///   - documentType: Type of document (e.g., "lohnausweis", "spesenbeleg")
-    ///   - taxYear: Optional tax year for organization
-    ///   - category: Optional category for organization
-    ///   - subcategory: Optional subcategory for organization
+    ///   - taxYear: Tax year for organization (required)
+    ///   - category: Category for organization (required)
+    ///   - subcategory: Subcategory for organization (required)
+    ///   - attachmentNumber: Optional attachment number for file labeling (e.g., "SAL_1234")
     ///   - progressHandler: Optional progress callback (0.0 to 1.0)
-    /// - Returns: The download URL as a string
+    /// - Returns: Tuple of (downloadURL, documentId) - documentId is needed for related files (cover, complete)
     func uploadDocumentAsPDF(
         image: UIImage,
         customerId: String,
         documentType: String,
-        taxYear: Int? = nil,
-        category: String? = nil,
-        subcategory: String? = nil,
+        taxYear: Int,
+        category: String,
+        subcategory: String,
+        attachmentNumber: String? = nil,
         progressHandler: ((Double) -> Void)? = nil
-    ) async throws -> String {
-        // 1. Compress and resize image for optimal quality/size balance
+    ) async throws -> (downloadURL: String, documentId: String) {
+        // 1. Generate documentId early - needed for storage path
+        let documentId = UUID().uuidString
+        print("🆔 Generated document ID: \(documentId)")
+
+        // 2. Compress and resize image for optimal quality/size balance
         print("📸 Original image size: \(image.size)")
         guard let compressedImage = compressImage(image, maxWidth: 1240, maxHeight: 1754, quality: 0.5) else {
             throw StorageError.compressionFailed
         }
         print("✅ Compressed image size: \(compressedImage.size)")
 
-        // 2. Convert to PDF in A4 format with additional compression
+        // 3. Convert to PDF in A4 format with additional compression
         guard let pdfData = convertImageToPDFA4(compressedImage, quality: 0.5) else {
             throw StorageError.pdfGenerationFailed
         }
@@ -320,7 +344,7 @@ class StorageService: ObservableObject {
         let pdfSizeMB = Double(pdfData.count) / (1024.0 * 1024.0)
         print("📄 PDF size: \(String(format: "%.2f", pdfSizeKB)) KB (\(String(format: "%.2f", pdfSizeMB)) MB)")
 
-        // 3. Validate file size (max 4 MB as required)
+        // 4. Validate file size (max 4 MB as required)
         let maxSizeBytes = 4 * 1024 * 1024  // 4 MB limit
         if pdfData.count > maxSizeBytes {
             print("⚠️ PDF too large (\(String(format: "%.2f", pdfSizeMB)) MB), applying aggressive compression...")
@@ -358,17 +382,14 @@ class StorageService: ObservableObject {
                 throw StorageError.compressionFailed
             }
 
-            return try await uploadPDFData(finalPDF, customerId: customerId, documentType: documentType, taxYear: taxYear, category: category, subcategory: subcategory, progressHandler: progressHandler)
+            return try await uploadPDFData(finalPDF, customerId: customerId, documentId: documentId, documentType: documentType, taxYear: taxYear, category: category, subcategory: subcategory, attachmentNumber: attachmentNumber, progressHandler: progressHandler)
         }
 
-        // 3. Generate UUID-based filename: {UUID}_{documentType}.pdf
-        let documentId = UUID().uuidString
-        let fileName = "\(documentId)_\(documentType).pdf"
-
-        // 4. Upload PDF with organized path
+        // 5. Upload PDF with document-centric path structure
         let path = generateStoragePath(
             customerId: customerId,
-            fileName: fileName,
+            documentId: documentId,
+            fileType: "original.pdf",
             taxYear: taxYear,
             category: category,
             subcategory: subcategory
@@ -382,7 +403,9 @@ class StorageService: ObservableObject {
             "uploadedAt": ISO8601DateFormatter().string(from: Date()),
             "documentType": documentType,
             "documentId": documentId,
-            "format": "A4"
+            "attachmentNumber": attachmentNumber ?? "",
+            "format": "A4",
+            "fileType": "original"
         ]
 
         isUploading = true
@@ -458,26 +481,144 @@ class StorageService: ObservableObject {
         uploadProgress = 0.0
 
         print("✅ Complete upload process finished: \(path)")
+        print("🆔 Returning documentId: \(documentId)")
+        return (downloadURL: finalURL.absoluteString, documentId: documentId)
+    }
+
+    // MARK: - Related File Upload
+
+    /// Upload related PDF files (cover sheet, complete document) using existing documentId
+    /// - Parameters:
+    ///   - pdfData: The PDF data to upload
+    ///   - customerId: The customer's user ID
+    ///   - documentId: Existing document ID (from original upload)
+    ///   - fileType: Type of file - "cover.pdf" or "complete.pdf"
+    ///   - taxYear: Tax year for organization
+    ///   - category: Category for organization
+    ///   - subcategory: Subcategory for organization
+    ///   - progressHandler: Optional progress callback
+    /// - Returns: The download URL for the uploaded file
+    func uploadRelatedPDF(
+        pdfData: Data,
+        customerId: String,
+        documentId: String,
+        fileType: String, // "cover.pdf" or "complete.pdf"
+        taxYear: Int,
+        category: String,
+        subcategory: String,
+        progressHandler: ((Double) -> Void)? = nil
+    ) async throws -> String {
+        print("📎 Uploading related file: \(fileType) for documentId: \(documentId)")
+
+        let path = generateStoragePath(
+            customerId: customerId,
+            documentId: documentId,
+            fileType: fileType,
+            taxYear: taxYear,
+            category: category,
+            subcategory: subcategory
+        )
+        let storageRef = storage.reference().child(path)
+
+        let metadata = StorageMetadata()
+        metadata.contentType = "application/pdf"
+        metadata.customMetadata = [
+            "uploadedBy": customerId,
+            "uploadedAt": ISO8601DateFormatter().string(from: Date()),
+            "documentId": documentId,
+            "fileType": fileType,
+            "format": "A4"
+        ]
+
+        isUploading = true
+        uploadProgress = 0.0
+
+        let uploadTask = storageRef.putData(pdfData, metadata: metadata)
+
+        uploadTask.observe(.progress) { snapshot in
+            guard let progress = snapshot.progress else { return }
+            let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
+
+            Task { @MainActor in
+                self.uploadProgress = percentComplete
+                progressHandler?(percentComplete)
+            }
+        }
+
+        do {
+            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                uploadTask.observe(.success) { _ in
+                    print("✅ Related PDF uploaded successfully: \(path)")
+                    continuation.resume(returning: ())
+                }
+
+                uploadTask.observe(.failure) { snapshot in
+                    if let error = snapshot.error {
+                        print("❌ Upload failed: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: StorageError.uploadFailed)
+                    }
+                }
+            }
+        } catch {
+            print("❌ Upload error: \(error.localizedDescription)")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.uploadFailed
+        }
+
+        var downloadURL: URL?
+        var lastError: Error?
+
+        for attempt in 1...3 {
+            do {
+                downloadURL = try await storageRef.downloadURL()
+                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
+                break
+            } catch {
+                lastError = error
+                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
+                if attempt < 3 {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                }
+            }
+        }
+
+        guard let finalURL = downloadURL else {
+            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
+            isUploading = false
+            uploadProgress = 0.0
+            throw StorageError.invalidURL
+        }
+
+        isUploading = false
+        uploadProgress = 0.0
+
+        print("✅ Related file upload complete: \(path)")
         return finalURL.absoluteString
     }
 
     // MARK: - Helper Methods
 
-    /// Helper to upload PDF data
+    /// Helper to upload PDF data with document-centric storage
     private func uploadPDFData(
         _ pdfData: Data,
         customerId: String,
+        documentId: String,
         documentType: String,
-        taxYear: Int? = nil,
-        category: String? = nil,
-        subcategory: String? = nil,
+        taxYear: Int,
+        category: String,
+        subcategory: String,
+        attachmentNumber: String? = nil,
         progressHandler: ((Double) -> Void)?
-    ) async throws -> String {
-        let documentId = UUID().uuidString
-        let fileName = "\(documentId)_\(documentType).pdf"
+    ) async throws -> (downloadURL: String, documentId: String) {
+        print("🆔 Using provided document ID: \(documentId)")
+
         let path = generateStoragePath(
             customerId: customerId,
-            fileName: fileName,
+            documentId: documentId,
+            fileType: "original.pdf",
             taxYear: taxYear,
             category: category,
             subcategory: subcategory
@@ -491,7 +632,9 @@ class StorageService: ObservableObject {
             "uploadedAt": ISO8601DateFormatter().string(from: Date()),
             "documentType": documentType,
             "documentId": documentId,
-            "format": "A4"
+            "attachmentNumber": attachmentNumber ?? "",
+            "format": "A4",
+            "fileType": "original"
         ]
 
         isUploading = true
@@ -567,7 +710,8 @@ class StorageService: ObservableObject {
         uploadProgress = 0.0
 
         print("✅ Complete upload process finished: \(path)")
-        return finalURL.absoluteString
+        print("🆔 Returning documentId: \(documentId)")
+        return (downloadURL: finalURL.absoluteString, documentId: documentId)
     }
 
     // MARK: - Image Processing Helpers
