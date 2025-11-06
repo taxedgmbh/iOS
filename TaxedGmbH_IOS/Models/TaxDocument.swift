@@ -111,6 +111,32 @@ enum DocumentStatus: String, Codable {
     }
 }
 
+/// PDF generation status for tracking cover sheet and complete document creation
+enum PDFGenerationStatus: String, Codable {
+    case pending = "pending"          // PDF generation queued
+    case generating = "generating"    // Currently generating PDF
+    case completed = "completed"      // PDF successfully generated
+    case failed = "failed"           // PDF generation failed
+
+    var displayName: String {
+        switch self {
+        case .pending: return "pdf_status.pending".localized
+        case .generating: return "pdf_status.generating".localized
+        case .completed: return "pdf_status.completed".localized
+        case .failed: return "pdf_status.failed".localized
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .pending: return "clock.circle"
+        case .generating: return "gearshape.2.fill"
+        case .completed: return "checkmark.circle.fill"
+        case .failed: return "xmark.circle.fill"
+        }
+    }
+}
+
 /// Enhanced workflow status for complete document lifecycle
 enum DocumentWorkflowStatus: String, Codable {
     case uploading = "uploading"
@@ -196,6 +222,7 @@ struct TaxDocument: Codable, Identifiable {
     // Status & Review
     var status: DocumentStatus
     var expertNotes: String?
+    var userNotes: String?  // User's personal comments on the document
 
     // Swiss Tax Information
     var taxYear: Int
@@ -211,6 +238,7 @@ struct TaxDocument: Codable, Identifiable {
 
     // Enhanced Categorization (for accurate subcategory counting)
     var taxCategoryType: String?  // Explicit TaxCategoryType value (e.g., "salary", "mortgage")
+    var attachmentNumber: String?  // Unique attachment identifier (e.g., "SAL_0001", "MTG_0023")
 
     // Tax Office Requirements
     var purpose: String?          // Document purpose description
@@ -223,6 +251,12 @@ struct TaxDocument: Codable, Identifiable {
     var coverSheetUrl: String?                   // URL to generated cover sheet PDF
     var processedDocumentUrl: String?            // URL to merged document+cover PDF
     var submissionPackageId: String?             // Link to tax submission package
+
+    // PDF Generation Tracking (Phase 2: Versioning)
+    var pdfGenerationStatus: PDFGenerationStatus?  // Current status of PDF generation
+    var pdfLastGeneratedAt: Date?                  // When PDF was last generated
+    var generatedWithProfileVersion: Int?          // User profile version used for generation
+    var needsRegeneration: Bool?                   // Flag indicating PDF needs regeneration
 
     // Tax Office Submission
     var taxOfficeRequired: Bool?  // Whether this document needs tax office submission
@@ -248,6 +282,7 @@ struct TaxDocument: Codable, Identifiable {
         aiSummary: String? = nil,
         status: DocumentStatus = .uploading,
         expertNotes: String? = nil,
+        userNotes: String? = nil,
         taxYear: Int,
         canton: String? = nil,
         municipality: String? = nil,
@@ -257,6 +292,7 @@ struct TaxDocument: Codable, Identifiable {
         reviewedAt: Date? = nil,
         updatedAt: Date = Date(),
         taxCategoryType: String? = nil,
+        attachmentNumber: String? = nil,
         purpose: String? = nil,
         currency: String? = nil,
         documentDate: Date? = nil,
@@ -269,7 +305,11 @@ struct TaxDocument: Codable, Identifiable {
         includeInSubmission: Bool? = nil,
         submittedAt: Date? = nil,
         reviewedBy: String? = nil,
-        approvedBy: String? = nil
+        approvedBy: String? = nil,
+        pdfGenerationStatus: PDFGenerationStatus? = nil,
+        pdfLastGeneratedAt: Date? = nil,
+        generatedWithProfileVersion: Int? = nil,
+        needsRegeneration: Bool? = nil
     ) {
         self.id = id
         self.customerId = customerId
@@ -287,6 +327,7 @@ struct TaxDocument: Codable, Identifiable {
         self.aiSummary = aiSummary
         self.status = status
         self.expertNotes = expertNotes
+        self.userNotes = userNotes
         self.taxYear = taxYear
         self.canton = canton
         self.municipality = municipality
@@ -296,6 +337,7 @@ struct TaxDocument: Codable, Identifiable {
         self.reviewedAt = reviewedAt
         self.updatedAt = updatedAt
         self.taxCategoryType = taxCategoryType
+        self.attachmentNumber = attachmentNumber
         self.purpose = purpose
         self.currency = currency
         self.documentDate = documentDate
@@ -309,6 +351,10 @@ struct TaxDocument: Codable, Identifiable {
         self.submittedAt = submittedAt
         self.reviewedBy = reviewedBy
         self.approvedBy = approvedBy
+        self.pdfGenerationStatus = pdfGenerationStatus
+        self.pdfLastGeneratedAt = pdfLastGeneratedAt
+        self.generatedWithProfileVersion = generatedWithProfileVersion
+        self.needsRegeneration = needsRegeneration
     }
 
     // Convert to Firestore dictionary
@@ -334,6 +380,7 @@ struct TaxDocument: Codable, Identifiable {
         if let extractedText = extractedText { dict["extractedText"] = extractedText }
         if let aiSummary = aiSummary { dict["aiSummary"] = aiSummary }
         if let expertNotes = expertNotes { dict["expertNotes"] = expertNotes }
+        if let userNotes = userNotes { dict["userNotes"] = userNotes }
         if let canton = canton { dict["canton"] = canton }
         if let municipality = municipality { dict["municipality"] = municipality }
         if let amount = amount { dict["amount"] = amount }
@@ -342,6 +389,7 @@ struct TaxDocument: Codable, Identifiable {
 
         // Enhanced Categorization
         if let taxCategoryType = taxCategoryType { dict["taxCategoryType"] = taxCategoryType }
+        if let attachmentNumber = attachmentNumber { dict["attachmentNumber"] = attachmentNumber }
 
         // Tax Office Requirements
         if let purpose = purpose { dict["purpose"] = purpose }
@@ -361,6 +409,12 @@ struct TaxDocument: Codable, Identifiable {
         if let submittedAt = submittedAt { dict["submittedAt"] = Timestamp(date: submittedAt) }
         if let reviewedBy = reviewedBy { dict["reviewedBy"] = reviewedBy }
         if let approvedBy = approvedBy { dict["approvedBy"] = approvedBy }
+
+        // PDF Generation Tracking
+        if let pdfGenerationStatus = pdfGenerationStatus { dict["pdfGenerationStatus"] = pdfGenerationStatus.rawValue }
+        if let pdfLastGeneratedAt = pdfLastGeneratedAt { dict["pdfLastGeneratedAt"] = Timestamp(date: pdfLastGeneratedAt) }
+        if let generatedWithProfileVersion = generatedWithProfileVersion { dict["generatedWithProfileVersion"] = generatedWithProfileVersion }
+        if let needsRegeneration = needsRegeneration { dict["needsRegeneration"] = needsRegeneration }
 
         return dict
     }
@@ -391,6 +445,11 @@ struct TaxDocument: Codable, Identifiable {
         let workflowStatusString = data["workflowStatus"] as? String
         let workflowStatus = workflowStatusString.flatMap { DocumentWorkflowStatus(rawValue: $0) }
 
+        // PDF Generation Tracking
+        let pdfGenerationStatusString = data["pdfGenerationStatus"] as? String
+        let pdfGenerationStatus = pdfGenerationStatusString.flatMap { PDFGenerationStatus(rawValue: $0) }
+        let pdfLastGeneratedAt = (data["pdfLastGeneratedAt"] as? Timestamp)?.dateValue()
+
         return TaxDocument(
             id: id,
             customerId: customerId,
@@ -408,6 +467,7 @@ struct TaxDocument: Codable, Identifiable {
             aiSummary: data["aiSummary"] as? String,
             status: status,
             expertNotes: data["expertNotes"] as? String,
+            userNotes: data["userNotes"] as? String,
             taxYear: taxYear,
             canton: data["canton"] as? String,
             municipality: data["municipality"] as? String,
@@ -417,6 +477,7 @@ struct TaxDocument: Codable, Identifiable {
             reviewedAt: reviewedAt,
             updatedAt: updatedAt,
             taxCategoryType: data["taxCategoryType"] as? String,
+            attachmentNumber: data["attachmentNumber"] as? String,
             purpose: data["purpose"] as? String,
             currency: data["currency"] as? String,
             documentDate: documentDate,
@@ -429,7 +490,11 @@ struct TaxDocument: Codable, Identifiable {
             includeInSubmission: data["includeInSubmission"] as? Bool,
             submittedAt: submittedAt,
             reviewedBy: data["reviewedBy"] as? String,
-            approvedBy: data["approvedBy"] as? String
+            approvedBy: data["approvedBy"] as? String,
+            pdfGenerationStatus: pdfGenerationStatus,
+            pdfLastGeneratedAt: pdfLastGeneratedAt,
+            generatedWithProfileVersion: data["generatedWithProfileVersion"] as? Int,
+            needsRegeneration: data["needsRegeneration"] as? Bool
         )
     }
 }
