@@ -17,11 +17,15 @@ class DocumentManager: ObservableObject {
     private let storageService = StorageService.shared
     private let documentProcessor = DocumentProcessorService.shared
     private let coverSheetService = CoverSheetService.shared
+    private let pdfRegenerationService = PDFRegenerationService.shared
 
     // Published state
     @Published var allDocuments: [TaxDocument] = []
     @Published var isLoading: Bool = false
     @Published var error: String?
+
+    // Phase 4: Combine subscriptions
+    private var cancellables = Set<AnyCancellable>()
 
     // Computed properties for different views
     var recentDocuments: [TaxDocument] {
@@ -48,7 +52,36 @@ class DocumentManager: ObservableObject {
         }
     }
 
-    private init() {}
+    private init() {
+        // Phase 4: Subscribe to profile change events
+        setupProfileChangeSubscription()
+    }
+
+    // MARK: - Phase 4: Event-Driven Architecture
+
+    /// Subscribe to profile changes from AuthenticationService
+    private func setupProfileChangeSubscription() {
+        let authService = AuthenticationService()
+
+        authService.profileDidChange
+            .sink { [weak self] updatedUser in
+                guard let self = self else { return }
+
+                Task { @MainActor in
+                    print("📥 Received profile change event for user: \(updatedUser.name)")
+                    print("   Profile version: \(updatedUser.profileVersion)")
+
+                    // Trigger automatic PDF regeneration for stale documents
+                    await self.pdfRegenerationService.regenerateAllStale(
+                        for: updatedUser,
+                        priority: .high
+                    )
+                }
+            }
+            .store(in: &cancellables)
+
+        print("✅ Profile change subscription established")
+    }
 
     // MARK: - Load Documents
 

@@ -58,6 +58,9 @@ class AuthenticationService: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    // Phase 4: Event-driven architecture for profile changes
+    let profileDidChange = PassthroughSubject<User, Never>()
+
     private let firestore: Firestore
     private var currentNonce: String?
 
@@ -321,9 +324,15 @@ class AuthenticationService: ObservableObject {
         }
 
         do {
-            // Add updatedAt timestamp
+            // Phase 4: Increment profile version on changes
+            let currentVersion = user?.profileVersion ?? 1
+            let newVersion = currentVersion + 1
+
+            // Add updatedAt timestamp and profile versioning
             var updateData = data
             updateData["updatedAt"] = Timestamp(date: Date())
+            updateData["profileVersion"] = newVersion
+            updateData["profileLastUpdatedAt"] = Timestamp(date: Date())
 
             // Update Firestore document
             try await firestore
@@ -334,7 +343,13 @@ class AuthenticationService: ObservableObject {
             // Reload user data to reflect changes
             await loadUserData(userId: userId)
 
-            print("✅ User profile updated successfully")
+            print("✅ User profile updated successfully (version \(currentVersion) -> \(newVersion))")
+
+            // Phase 4: Emit profile change event
+            if let updatedUser = user {
+                profileDidChange.send(updatedUser)
+                print("📢 Profile change event emitted for version \(updatedUser.profileVersion)")
+            }
         } catch {
             print("❌ Error updating user profile: \(error)")
             errorMessage = error.localizedDescription
