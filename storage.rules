@@ -48,7 +48,12 @@ service firebase.storage {
     // Storage rules enforce authentication + file constraints.
     // UUID workspace IDs provide namespace isolation.
     match /workspaces/{workspaceId}/{allPaths=**} {
-      // Allow read/write if:
+      // Read operations (download URLs, file retrieval):
+      // - Only require authentication
+      // - File constraints (size/type) only apply during upload, not download
+      allow read: if isAuthenticated();
+
+      // Write operations (upload):
       // - User is authenticated (Firebase Auth)
       // - File size is within limit (4 MB)
       // - File type is valid (image or PDF)
@@ -56,9 +61,9 @@ service firebase.storage {
       // Membership validation handled by:
       // - Firestore rules (prevent unauthorized workspace queries)
       // - App UI (only shows workspaces user is member of)
-      allow read, write: if isAuthenticated() &&
-                            isValidSize() &&
-                            isValidFileType();
+      allow write: if isAuthenticated() &&
+                      isValidSize() &&
+                      isValidFileType();
 
       // Delete requires authentication
       allow delete: if isAuthenticated();
