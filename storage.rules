@@ -69,6 +69,18 @@ service firebase.storage {
       allow delete: if isAuthenticated();
     }
 
+    // Legacy cover sheets path: covers/{userId}/{taxYear}/{fileName}
+    // For backwards compatibility with documents uploaded before workspace support
+    match /covers/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+
+      allow write: if isAuthenticated() &&
+                      isValidSize() &&
+                      request.resource.contentType == 'application/pdf';
+
+      allow delete: if isAuthenticated();
+    }
+
     // Deny all other paths by default
     match /{allPaths=**} {
       allow read, write: if false;

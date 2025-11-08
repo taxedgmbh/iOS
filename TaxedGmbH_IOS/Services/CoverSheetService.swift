@@ -111,21 +111,28 @@ class CoverSheetService {
                          userInfo: [NSLocalizedDescriptionKey: "User ID is required"])
         }
 
-        // Get workspace ID from document (workspace-centric architecture)
-        guard let workspaceId = document.workspaceId else {
-            throw NSError(domain: "CoverSheetService", code: 1005,
-                         userInfo: [NSLocalizedDescriptionKey: "Workspace ID is required"])
+        // Determine storage path based on whether document has workspaceId (new) or not (legacy)
+        let coverSheetPath: String
+        let processedPath: String
+
+        if let workspaceId = document.workspaceId {
+            // Workspace-centric storage (preferred for new documents)
+            coverSheetPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/cover_sheet.pdf"
+            processedPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/processed.pdf"
+        } else {
+            // Legacy user-centric storage (for backwards compatibility)
+            print("⚠️ Document has no workspaceId - using legacy user-centric path")
+            coverSheetPath = "covers/\(userId)/\(document.taxYear)/\(document.id)_cover.pdf"
+            processedPath = "covers/\(userId)/\(document.taxYear)/\(document.id)_processed.pdf"
         }
 
-        // Use workspace-centric storage paths
-        let coverSheetPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/cover_sheet.pdf"
+        // Upload cover sheet to Firebase Storage
         let coverSheetStorageUrl = try await uploadPDF(
             fileURL: coverSheetURL,
             storagePath: coverSheetPath
         )
 
         // Step 5: Upload merged document to Firebase Storage
-        let processedPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/processed.pdf"
         let processedStorageUrl = try await uploadPDF(
             fileURL: mergedURL,
             storagePath: processedPath
