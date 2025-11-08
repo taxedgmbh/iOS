@@ -37,11 +37,14 @@ struct AllDocumentsView: View {
     @EnvironmentObject var authService: AuthenticationService
     @ObservedObject private var documentManager = DocumentManager.shared
     @ObservedObject private var workspaceManager = WorkspaceManager.shared
+    @ObservedObject private var pdfRegenerationService = PDFRegenerationService.shared
 
     @State private var selectedFilter: DocumentFilter = .all
     @State private var searchText = ""
     @State private var showUploadSheet = false
     @State private var showSortMenu = false
+    @State private var packageURL: String?
+    @State private var taxYear: Int = Calendar.current.component(.year, from: Date())
 
     var filteredDocuments: [TaxDocument] {
         var documents: [TaxDocument]
@@ -76,6 +79,18 @@ struct AllDocumentsView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                    // Tax Package Banner
+                    if let packageURL = packageURL {
+                        TaxPackageBanner(
+                            taxYear: taxYear,
+                            documentCount: filteredDocuments.count,
+                            isRegenerating: pdfRegenerationService.isRegeneratingPackage,
+                            onShare: { sharePackage(url: packageURL) }
+                        )
+                        .padding(.horizontal)
+                        .padding(.vertical, 12)
+                    }
+
                     // Enhanced Filter Pills
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
@@ -178,6 +193,7 @@ struct AllDocumentsView: View {
             }
             .onAppear {
                 loadDocuments()
+                loadPackageURL()
             }
             .refreshable {
                 await refreshAsync()
@@ -242,6 +258,32 @@ struct AllDocumentsView: View {
             print("❌ Error loading workspaces: \(error)")
             // Fallback to user documents on error
             await documentManager.loadDocuments(for: userId)
+        }
+    }
+
+    private func loadPackageURL() {
+        guard let workspaceId = workspaceManager.activeWorkspace?.id else { return }
+
+        Task {
+            packageURL = await pdfRegenerationService.getPackageURL(
+                workspaceId: workspaceId,
+                taxYear: taxYear
+            )
+        }
+    }
+
+    private func sharePackage(url: String) {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let viewController = windowScene.windows.first?.rootViewController else {
+            print("❌ Cannot find view controller for share sheet")
+            return
+        }
+
+        Task {
+            await pdfRegenerationService.downloadAndSharePackage(
+                url: url,
+                presentingViewController: viewController
+            )
         }
     }
 }
@@ -528,6 +570,72 @@ struct EnhancedEmptyState: View {
         case .pending: return "All your documents have been reviewed. Great work!"
         case .byCategory: return "Categorize your documents to see them organized here"
         }
+    }
+}
+
+// MARK: - Tax Package Banner
+
+struct TaxPackageBanner: View {
+    let taxYear: Int
+    let documentCount: Int
+    let isRegenerating: Bool
+    let onShare: () -> Void
+
+    var body: some View {
+        HStack(spacing: 16) {
+            // Package Icon
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.15))
+                    .frame(width: 60, height: 60)
+
+                Image(systemName: "doc.on.doc.fill")
+                    .font(.title2)
+                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+            }
+
+            // Package Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Tax Submission Package \(taxYear)")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+
+                HStack(spacing: 6) {
+                    Image(systemName: isRegenerating ? "arrow.triangle.2.circlepath" : "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundColor(isRegenerating ? .orange : .green)
+
+                    Text(isRegenerating ? "Updating..." : "\(documentCount) documents ready")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+
+            // Share Button
+            Button(action: onShare) {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.subheadline)
+                    Text("Share")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color(red: 227/255, green: 30/255, blue: 36/255))
+                .cornerRadius(10)
+            }
+            .disabled(isRegenerating)
+            .opacity(isRegenerating ? 0.6 : 1.0)
+        }
+        .padding(16)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
     }
 }
 

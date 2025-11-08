@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import FirebaseStorage
+import UIKit
 
 /// Priority levels for PDF regeneration tasks
 enum RegenerationPriority: Int, Comparable {
@@ -394,5 +396,68 @@ class PDFRegenerationService: ObservableObject {
         print("📦 Immediate package regeneration requested")
         markPackageForRegeneration(workspaceId: workspaceId, taxYear: taxYear)
         await processPackageRegenerations()
+    }
+
+    // MARK: - Tax Package Access
+
+    /// Get the download URL for the tax submission package
+    func getPackageURL(workspaceId: String, taxYear: Int) async -> String? {
+        let packagePath = "workspaces/\(workspaceId)/\(taxYear)/tax_submission_package_\(taxYear).pdf"
+
+        do {
+            let storage = FirebaseStorage.Storage.storage()
+            let storageRef = storage.reference().child(packagePath)
+            let downloadURL = try await storageRef.downloadURL()
+            print("✅ Package URL retrieved: \(downloadURL.absoluteString)")
+            return downloadURL.absoluteString
+        } catch {
+            print("❌ Failed to get package URL: \(error)")
+            return nil
+        }
+    }
+
+    /// Download package and present iOS share sheet
+    func downloadAndSharePackage(url: String, presentingViewController: UIViewController) async {
+        print("📥 Downloading package for sharing...")
+
+        guard let packageURL = URL(string: url) else {
+            print("❌ Invalid package URL")
+            return
+        }
+
+        do {
+            // Download PDF to temp location
+            let (tempURL, _) = try await URLSession.shared.download(from: packageURL)
+            let documentsPath = FileManager.default.temporaryDirectory
+            let destinationURL = documentsPath.appendingPathComponent("TaxSubmissionPackage_2025.pdf")
+
+            // Move to temp location with proper name
+            try? FileManager.default.removeItem(at: destinationURL)
+            try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+
+            print("✅ Package downloaded to: \(destinationURL.path)")
+
+            // Present iOS share sheet on main thread
+            await MainActor.run {
+                let activityVC = UIActivityViewController(
+                    activityItems: [destinationURL],
+                    applicationActivities: nil
+                )
+
+                // iPad support
+                if let popover = activityVC.popoverPresentationController {
+                    popover.sourceView = presentingViewController.view
+                    popover.sourceRect = CGRect(x: presentingViewController.view.bounds.midX,
+                                               y: presentingViewController.view.bounds.midY,
+                                               width: 0, height: 0)
+                    popover.permittedArrowDirections = []
+                }
+
+                presentingViewController.present(activityVC, animated: true)
+                print("✅ Share sheet presented")
+            }
+        } catch {
+            print("❌ Failed to download/share package: \(error)")
+        }
     }
 }
