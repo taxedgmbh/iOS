@@ -13,6 +13,7 @@ struct DocumentUploadView: View {
     @ObservedObject private var firestoreService = FirestoreService.shared
     @ObservedObject private var documentProcessor = DocumentProcessorService.shared
     @ObservedObject private var workspaceManager = WorkspaceManager.shared
+    private let coverSheetService = CoverSheetService.shared
 
     @State private var selectedImage: UIImage?
     @State private var selectedDocumentURL: URL?
@@ -589,6 +590,13 @@ struct DocumentUploadView: View {
                 ])
             }
 
+            // Debug: Print upload context
+            print("🔍 DEBUG Upload Context:")
+            print("   User ID: \(userId)")
+            print("   Workspace ID: \(workspaceId)")
+            print("   Workspace Name: \(workspaceManager.activeWorkspace?.name ?? "unknown")")
+            print("   Workspace MemberIDs: \(workspaceManager.activeWorkspace?.memberIds ?? [])")
+
             let (downloadURL, documentId) = try await storageService.uploadDocumentAsPDF(
                 image: image,
                 workspaceId: workspaceId,
@@ -629,6 +637,7 @@ struct DocumentUploadView: View {
 
             let document = TaxDocument(
                 customerId: userId,
+                workspaceId: workspaceId,  // Add workspace ID for workspace-centric architecture
                 name: documentName,
                 storageUrl: downloadURL,
                 category: finalCategory,
@@ -666,7 +675,28 @@ struct DocumentUploadView: View {
             try await firestoreService.createDocument(document)
             uploadedDocumentId = document.id
 
-            // 4. Show success and clear any warnings
+            // 4. Auto-generate cover sheet in background
+            if let user = authService.user {
+                print("🔄 Starting background cover sheet generation...")
+                Task(priority: .background) {
+                    do {
+                        let (coverUrl, processedUrl) = try await coverSheetService.processCoverSheet(
+                            for: document,
+                            user: user
+                        )
+                        print("✅ Cover sheet generated successfully")
+                        print("   Cover: \(coverUrl)")
+                        print("   Processed: \(processedUrl)")
+                    } catch {
+                        print("⚠️ Cover sheet generation failed: \(error)")
+                        // Don't fail the upload if cover sheet fails
+                    }
+                }
+            } else {
+                print("⚠️ Cannot generate cover sheet: User not available")
+            }
+
+            // 5. Show success and clear any warnings
             uploadSuccess = true
             isUploading = false
             warningMessage = nil

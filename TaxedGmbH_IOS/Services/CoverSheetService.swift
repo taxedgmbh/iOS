@@ -8,6 +8,7 @@
 import Foundation
 import PDFKit
 import UIKit
+import SwiftUI
 import FirebaseStorage
 
 @MainActor
@@ -105,14 +106,26 @@ class CoverSheetService {
         )
 
         // Step 4: Upload cover sheet to Firebase Storage
-        let coverSheetPath = "covers/\(user.id)/\(document.taxYear)/\(document.id)_cover.pdf"
+        guard let userId = user.id else {
+            throw NSError(domain: "CoverSheetService", code: 1004,
+                         userInfo: [NSLocalizedDescriptionKey: "User ID is required"])
+        }
+
+        // Get workspace ID from document (workspace-centric architecture)
+        guard let workspaceId = document.workspaceId else {
+            throw NSError(domain: "CoverSheetService", code: 1005,
+                         userInfo: [NSLocalizedDescriptionKey: "Workspace ID is required"])
+        }
+
+        // Use workspace-centric storage paths
+        let coverSheetPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/cover_sheet.pdf"
         let coverSheetStorageUrl = try await uploadPDF(
             fileURL: coverSheetURL,
             storagePath: coverSheetPath
         )
 
         // Step 5: Upload merged document to Firebase Storage
-        let processedPath = "processed/\(user.id)/\(document.taxYear)/\(mergedFileName)"
+        let processedPath = "workspaces/\(workspaceId)/\(document.taxYear)/\(document.id)/processed.pdf"
         let processedStorageUrl = try await uploadPDF(
             fileURL: mergedURL,
             storagePath: processedPath
@@ -150,13 +163,25 @@ class CoverSheetService {
             // Swiss Tax Office Header
             drawHeader(in: pageRect, context: context.cgContext)
 
-            // Document Information Section
+            // Get category color for color coding
+            let categoryColor = getCategoryColor(document)
+            let categoryDisplayName = getCategoryDisplayName(document)
+
+            // Generate attachment number
+            let attachmentNumber = document.attachmentNumber ?? generateAttachmentNumber(document)
+
+            // Document Information Section with color indicator
             var yPosition: CGFloat = 120
+
+            // Draw category color indicator
+            drawColorIndicator(color: categoryColor, y: yPosition, pageRect: pageRect, context: context.cgContext)
+
             yPosition = drawSection(
                 title: "Dokument Informationen",
                 items: [
                     ("Dokument Name", document.name),
-                    ("Kategorie", getCategoryDisplayName(document)),
+                    ("Kategorie", categoryDisplayName),
+                    ("Anhang-Nummer", attachmentNumber),
                     ("Steuerjahr", String(document.taxYear)),
                     ("Hochgeladen am", formatDate(document.uploadedAt))
                 ],
@@ -171,6 +196,7 @@ class CoverSheetService {
                 title: "Kundeninformationen",
                 items: [
                     ("Name", user.name),
+                    ("AHV-Nummer", user.ahvNumber ?? "Nicht angegeben"),
                     ("Kanton", user.canton ?? "Nicht angegeben"),
                     ("Gemeinde", user.municipality ?? "Nicht angegeben"),
                     ("Kunden-ID", user.id ?? "Nicht angegeben")
@@ -359,7 +385,7 @@ class CoverSheetService {
     }
 
     private func drawFooter(in rect: CGRect, context: CGContext) {
-        let footerY = rect.height - 60
+        let footerY = rect.height - 100
 
         // Separator line
         context.setStrokeColor(UIColor.lightGray.cgColor)
@@ -368,13 +394,28 @@ class CoverSheetService {
         context.addLine(to: CGPoint(x: rect.width - 40, y: footerY))
         context.strokePath()
 
-        // Footer text
+        // Disclaimer section
+        let disclaimerTitle = "Haftungsausschluss"
+        let disclaimerAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 10, weight: .semibold),
+            .foregroundColor: UIColor.darkGray
+        ]
+        let disclaimerTitleRect = CGRect(x: 40, y: footerY + 10, width: rect.width - 80, height: 12)
+        disclaimerTitle.draw(in: disclaimerTitleRect, withAttributes: disclaimerAttributes)
+
+        // Disclaimer text
         let footerAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 9, weight: .regular),
+            .font: UIFont.systemFont(ofSize: 8, weight: .regular),
             .foregroundColor: UIColor.gray
         ]
-        let footerText = "Dieses Deckblatt wurde automatisch generiert von TAXED.CH\nBitte zusammen mit dem Originaldokument einreichen."
-        let footerRect = CGRect(x: 40, y: footerY + 10, width: rect.width - 80, height: 30)
+        let footerText = """
+        Dieses Deckblatt wurde automatisch von TAXED.CH generiert und dient der Organisation Ihrer Steuerunterlagen.
+        Bitte reichen Sie es zusammen mit dem Originaldokument beim Steueramt ein.
+
+        Die Anhang-Nummern und Farbcodierung dienen der eindeutigen Identifikation. TAXED.CH übernimmt keine Haftung
+        für die Richtigkeit der AI-generierten Kategorisierung. Bitte prüfen Sie alle Angaben vor der Einreichung.
+        """
+        let footerRect = CGRect(x: 40, y: footerY + 24, width: rect.width - 80, height: 60)
         footerText.draw(in: footerRect, withAttributes: footerAttributes)
     }
 
@@ -431,5 +472,82 @@ class CoverSheetService {
         print("✅ PDF uploaded to: \(downloadURL.absoluteString)")
 
         return downloadURL.absoluteString
+    }
+
+    // MARK: - Color Coding & Attachment Numbers
+
+    /// Get the category color for color-coded visual identification
+    private func getCategoryColor(_ document: TaxDocument) -> UIColor {
+        // Try to get TaxCategoryType from subcategory
+        if let taxCategoryType = document.taxCategoryType,
+           let categoryType = TaxCategoryType(rawValue: taxCategoryType) {
+            // Convert SwiftUI Color to UIColor
+            return convertToUIColor(categoryType.color)
+        }
+        // Fallback to gray for uncategorized
+        return UIColor.gray
+    }
+
+    /// Convert SwiftUI Color to UIColor
+    private func convertToUIColor(_ color: Color) -> UIColor {
+        // Use UIColor init from SwiftUI Color
+        return UIColor(color)
+    }
+
+    /// Generate attachment number based on category and subcategory
+    private func generateAttachmentNumber(_ document: TaxDocument) -> String {
+        // Get category/subcategory short codes
+        let categoryCode = document.taxCategoryType ?? document.category.rawValue
+        let shortCode = getShortCode(categoryCode)
+
+        // For now, use a simple counter based on upload time
+        // In a real app, you'd query Firestore to get the count of documents with the same category
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        let timeStamp = dateFormatter.string(from: document.uploadedAt)
+        let lastFour = String(timeStamp.suffix(4))
+
+        return "\(shortCode)_\(lastFour)"
+    }
+
+    /// Get short code for category
+    private func getShortCode(_ category: String) -> String {
+        let codeMap: [String: String] = [
+            "salary": "SAL",
+            "bonus": "BON",
+            "freelance": "FRL",
+            "investment": "INV",
+            "rental": "REN",
+            "pension": "PEN",
+            "foreignIncome": "FIN",
+            "mortgage": "MTG",
+            "donations": "DON",
+            "education": "EDU",
+            "medical": "MED",
+            "insurancePremiums": "INS",
+            "childcare": "CHI",
+            "homeOffice": "HOM",
+            "travelExpenses": "TRV",
+            "property": "PRO",
+            "stocks": "STK",
+            "crypto": "CRY",
+            "foreignWealth": "FWE",
+            "savings": "SAV",
+            "insuranceSurrenderValue": "ISV",
+            "pillar2": "P2A",
+            "pillar3a": "P3A",
+            "militaryService": "MIL",
+            "taxTreaty": "TAX",
+            "other": "OTH",
+            "uncategorized": "UNC"
+        ]
+        return codeMap[category] ?? "DOC"
+    }
+
+    /// Draw color indicator bar on the left side
+    private func drawColorIndicator(color: UIColor, y: CGFloat, pageRect: CGRect, context: CGContext) {
+        context.setFillColor(color.cgColor)
+        let indicatorRect = CGRect(x: 10, y: y, width: 8, height: 100)
+        context.fill(indicatorRect)
     }
 }
