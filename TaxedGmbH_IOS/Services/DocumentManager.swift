@@ -28,10 +28,19 @@ class DocumentManager: ObservableObject {
     // Computed properties for different views
     var recentDocuments: [TaxDocument] {
         let calendar = Calendar.current
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
         return allDocuments
-            .filter { $0.uploadedAt >= sevenDaysAgo }
-            .sorted { $0.uploadedAt > $1.uploadedAt }
+            .filter { document in
+                // Show if uploaded recently OR updated recently
+                document.uploadedAt >= thirtyDaysAgo ||
+                (document.updatedAt ?? document.uploadedAt) >= thirtyDaysAgo
+            }
+            .sorted { doc1, doc2 in
+                // Sort by most recently modified first
+                let date1 = doc1.updatedAt ?? doc1.uploadedAt
+                let date2 = doc2.updatedAt ?? doc2.uploadedAt
+                return date1 > date2
+            }
     }
 
     var pendingReviewDocuments: [TaxDocument] {

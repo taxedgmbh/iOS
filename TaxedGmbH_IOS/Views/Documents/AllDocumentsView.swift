@@ -35,7 +35,8 @@ enum DocumentFilter: String, CaseIterable {
 
 struct AllDocumentsView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var documentManager = DocumentManager.shared
+    @ObservedObject private var documentManager = DocumentManager.shared
+    @ObservedObject private var workspaceManager = WorkspaceManager.shared
 
     @State private var selectedFilter: DocumentFilter = .all
     @State private var searchText = ""
@@ -70,12 +71,11 @@ struct AllDocumentsView: View {
     }
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color(.systemGroupedBackground)
-                    .ignoresSafeArea()
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
 
-                VStack(spacing: 0) {
+            VStack(spacing: 0) {
                     // Enhanced Filter Pills
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
@@ -182,7 +182,6 @@ struct AllDocumentsView: View {
             .refreshable {
                 await refreshAsync()
             }
-        }
     }
 
     // MARK: - Helper Methods
@@ -202,8 +201,23 @@ struct AllDocumentsView: View {
 
     private func loadDocuments() {
         guard let userId = authService.user?.id else { return }
+
+        // Load workspace documents if workspace exists, otherwise fall back to user documents
         Task {
-            await documentManager.loadDocuments(for: userId)
+            do {
+                try await workspaceManager.loadUserWorkspaces(for: userId)
+
+                if let workspaceId = workspaceManager.activeWorkspace?.id {
+                    await documentManager.loadDocuments(forWorkspace: workspaceId)
+                } else {
+                    // Fallback to loading all user documents (legacy mode)
+                    await documentManager.loadDocuments(for: userId)
+                }
+            } catch {
+                print("❌ Error loading workspaces: \(error)")
+                // Fallback to user documents on error
+                await documentManager.loadDocuments(for: userId)
+            }
         }
     }
 
@@ -213,7 +227,22 @@ struct AllDocumentsView: View {
 
     private func refreshAsync() async {
         guard let userId = authService.user?.id else { return }
-        await documentManager.loadDocuments(for: userId)
+
+        // Load workspace documents if workspace exists, otherwise fall back to user documents
+        do {
+            try await workspaceManager.loadUserWorkspaces(for: userId)
+
+            if let workspaceId = workspaceManager.activeWorkspace?.id {
+                await documentManager.loadDocuments(forWorkspace: workspaceId)
+            } else {
+                // Fallback to loading all user documents (legacy mode)
+                await documentManager.loadDocuments(for: userId)
+            }
+        } catch {
+            print("❌ Error loading workspaces: \(error)")
+            // Fallback to user documents on error
+            await documentManager.loadDocuments(for: userId)
+        }
     }
 }
 
@@ -495,7 +524,7 @@ struct EnhancedEmptyState: View {
         }
         switch filter {
         case .all: return "Upload your first document to get started with your tax filing journey"
-        case .recent: return "Documents uploaded in the last 7 days will appear here"
+        case .recent: return "Documents uploaded or updated in the last 30 days will appear here"
         case .pending: return "All your documents have been reviewed. Great work!"
         case .byCategory: return "Categorize your documents to see them organized here"
         }
