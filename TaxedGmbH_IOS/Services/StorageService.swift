@@ -32,260 +32,22 @@ class StorageService: ObservableObject {
 
     // MARK: - Path Generation
 
-    /// Generate document-centric storage path: documents/{customerId}/{taxYear}/{category}/{subcategory}/{documentId}/{fileType}
-    /// All related files (original.pdf, cover.pdf, complete.pdf) are grouped in the same documentId folder
+    /// Generate workspace-centric storage path: workspaces/{workspaceId}/{taxYear}/{documentId}/{fileType}
+    /// All related files (original.pdf, cover_sheet.pdf, processed.pdf) are grouped in the same documentId folder
+    /// Categories and subcategories are stored in Firestore metadata, not in storage paths (for agility)
+    /// Workspaces enable collaborative access - multiple users (e.g., spouses) can share document access
     private func generateStoragePath(
-        customerId: String,
+        workspaceId: String,  // Changed from customerId to workspaceId for collaboration
         documentId: String,
-        fileType: String, // e.g., "original.pdf", "cover.pdf", "complete.pdf"
+        fileType: String, // e.g., "original.pdf", "cover_sheet.pdf", "processed.pdf"
         taxYear: Int,
-        category: String,
-        subcategory: String
+        category: String, // Kept for signature compatibility, but not used in path
+        subcategory: String // Kept for signature compatibility, but not used in path
     ) -> String {
-        if !subcategory.isEmpty {
-            return "documents/\(customerId)/\(taxYear)/\(category)/\(subcategory)/\(documentId)/\(fileType)"
-        } else {
-            return "documents/\(customerId)/\(taxYear)/\(category)/\(documentId)/\(fileType)"
-        }
-    }
-
-    /// Legacy method for backwards compatibility with non-document-centric paths
-    /// Used for old upload methods that don't use documentId folders
-    @available(*, deprecated, message: "Use generateStoragePath with documentId instead")
-    private func generateLegacyStoragePath(
-        customerId: String,
-        fileName: String,
-        taxYear: Int? = nil,
-        category: String? = nil,
-        subcategory: String? = nil
-    ) -> String {
-        // If we have full organization info, use hierarchical structure
-        if let year = taxYear, let cat = category {
-            if let subcat = subcategory, !subcat.isEmpty {
-                return "documents/\(customerId)/\(year)/\(cat)/\(subcat)/\(fileName)"
-            } else {
-                return "documents/\(customerId)/\(year)/\(cat)/\(fileName)"
-            }
-        }
-
-        // Fallback to flat structure for backwards compatibility
-        return "documents/\(customerId)/\(fileName)"
+        return "workspaces/\(workspaceId)/\(taxYear)/\(documentId)/\(fileType)"
     }
 
     // MARK: - Upload Methods
-
-    /// Upload a document image to Firebase Storage
-    /// - Parameters:
-    ///   - image: The UIImage to upload
-    ///   - customerId: The customer's user ID
-    ///   - fileName: Name of the file
-    ///   - taxYear: Optional tax year for organization
-    ///   - category: Optional category for organization
-    ///   - subcategory: Optional subcategory for organization
-    ///   - progressHandler: Optional progress callback (0.0 to 1.0)
-    /// - Returns: The download URL as a string
-    func uploadDocument(
-        image: UIImage,
-        customerId: String,
-        fileName: String,
-        taxYear: Int? = nil,
-        category: String? = nil,
-        subcategory: String? = nil,
-        progressHandler: ((Double) -> Void)? = nil
-    ) async throws -> String {
-        // Convert image to JPEG data
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            throw StorageError.imageConversionFailed
-        }
-
-        // Create organized storage path using legacy method
-        let path = generateLegacyStoragePath(
-            customerId: customerId,
-            fileName: fileName,
-            taxYear: taxYear,
-            category: category,
-            subcategory: subcategory
-        )
-        let storageRef = storage.reference().child(path)
-
-        // Set metadata
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-        metadata.customMetadata = [
-            "uploadedBy": customerId,
-            "uploadedAt": ISO8601DateFormatter().string(from: Date())
-        ]
-
-        // Upload with progress tracking
-        isUploading = true
-        uploadProgress = 0.0
-
-        let uploadTask = storageRef.putData(imageData, metadata: metadata)
-
-        // Observe upload progress
-        uploadTask.observe(.progress) { snapshot in
-            guard let progress = snapshot.progress else { return }
-            let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
-
-            Task { @MainActor in
-                self.uploadProgress = percentComplete
-                progressHandler?(percentComplete)
-            }
-        }
-
-        // Wait for upload using continuation to properly await completion
-        do {
-            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                uploadTask.observe(.success) { _ in
-                    print("✅ Image uploaded successfully: \(path)")
-                    continuation.resume(returning: ())
-                }
-
-                uploadTask.observe(.failure) { snapshot in
-                    if let error = snapshot.error {
-                        print("❌ Upload failed: \(error.localizedDescription)")
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume(throwing: StorageError.uploadFailed)
-                    }
-                }
-            }
-        } catch {
-            print("❌ Upload error: \(error.localizedDescription)")
-            isUploading = false
-            uploadProgress = 0.0
-            throw StorageError.uploadFailed
-        }
-
-        // Get download URL with retry logic
-        var downloadURL: URL?
-        var lastError: Error?
-
-        for attempt in 1...3 {
-            do {
-                downloadURL = try await storageRef.downloadURL()
-                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
-                break
-            } catch {
-                lastError = error
-                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
-                if attempt < 3 {
-                    try? await Task.sleep(nanoseconds: 500_000_000)
-                }
-            }
-        }
-
-        guard let finalURL = downloadURL else {
-            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
-            isUploading = false
-            uploadProgress = 0.0
-            throw StorageError.invalidURL
-        }
-
-        isUploading = false
-        uploadProgress = 0.0
-
-        print("✅ Complete upload process finished: \(path)")
-        return finalURL.absoluteString
-    }
-
-    /// Upload a document from Data (for PDFs, etc.)
-    func uploadDocumentData(
-        data: Data,
-        customerId: String,
-        fileName: String,
-        mimeType: String,
-        taxYear: Int? = nil,
-        category: String? = nil,
-        subcategory: String? = nil,
-        progressHandler: ((Double) -> Void)? = nil
-    ) async throws -> String {
-        let path = generateLegacyStoragePath(
-            customerId: customerId,
-            fileName: fileName,
-            taxYear: taxYear,
-            category: category,
-            subcategory: subcategory
-        )
-        let storageRef = storage.reference().child(path)
-
-        let metadata = StorageMetadata()
-        metadata.contentType = mimeType
-        metadata.customMetadata = [
-            "uploadedBy": customerId,
-            "uploadedAt": ISO8601DateFormatter().string(from: Date())
-        ]
-
-        isUploading = true
-        uploadProgress = 0.0
-
-        let uploadTask = storageRef.putData(data, metadata: metadata)
-
-        uploadTask.observe(.progress) { snapshot in
-            guard let progress = snapshot.progress else { return }
-            let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
-
-            Task { @MainActor in
-                self.uploadProgress = percentComplete
-                progressHandler?(percentComplete)
-            }
-        }
-
-        // Wait for upload using continuation to properly await completion
-        do {
-            _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                uploadTask.observe(.success) { _ in
-                    print("✅ Data uploaded successfully: \(path)")
-                    continuation.resume(returning: ())
-                }
-
-                uploadTask.observe(.failure) { snapshot in
-                    if let error = snapshot.error {
-                        print("❌ Upload failed: \(error.localizedDescription)")
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume(throwing: StorageError.uploadFailed)
-                    }
-                }
-            }
-        } catch {
-            print("❌ Upload error: \(error.localizedDescription)")
-            isUploading = false
-            uploadProgress = 0.0
-            throw StorageError.uploadFailed
-        }
-
-        // Get download URL with retry logic
-        var downloadURL: URL?
-        var lastError: Error?
-
-        for attempt in 1...3 {
-            do {
-                downloadURL = try await storageRef.downloadURL()
-                print("✅ Download URL retrieved (attempt \(attempt)): \(downloadURL?.absoluteString ?? "nil")")
-                break
-            } catch {
-                lastError = error
-                print("⚠️ Attempt \(attempt)/3 to get download URL failed: \(error.localizedDescription)")
-                if attempt < 3 {
-                    try? await Task.sleep(nanoseconds: 500_000_000)
-                }
-            }
-        }
-
-        guard let finalURL = downloadURL else {
-            print("❌ Failed to get download URL after 3 attempts: \(lastError?.localizedDescription ?? "unknown error")")
-            isUploading = false
-            uploadProgress = 0.0
-            throw StorageError.invalidURL
-        }
-
-        isUploading = false
-        uploadProgress = 0.0
-
-        print("✅ Complete upload process finished: \(path)")
-        return finalURL.absoluteString
-    }
 
     /// Delete a document from Firebase Storage
     func deleteDocument(storageUrl: String) async throws {
@@ -316,7 +78,7 @@ class StorageService: ObservableObject {
     /// - Returns: Tuple of (downloadURL, documentId) - documentId is needed for related files (cover, complete)
     func uploadDocumentAsPDF(
         image: UIImage,
-        customerId: String,
+        workspaceId: String,
         documentType: String,
         taxYear: Int,
         category: String,
@@ -382,12 +144,12 @@ class StorageService: ObservableObject {
                 throw StorageError.compressionFailed
             }
 
-            return try await uploadPDFData(finalPDF, customerId: customerId, documentId: documentId, documentType: documentType, taxYear: taxYear, category: category, subcategory: subcategory, attachmentNumber: attachmentNumber, progressHandler: progressHandler)
+            return try await uploadPDFData(finalPDF, workspaceId: workspaceId, documentId: documentId, documentType: documentType, taxYear: taxYear, category: category, subcategory: subcategory, attachmentNumber: attachmentNumber, progressHandler: progressHandler)
         }
 
         // 5. Upload PDF with document-centric path structure
         let path = generateStoragePath(
-            customerId: customerId,
+            workspaceId: workspaceId,
             documentId: documentId,
             fileType: "original.pdf",
             taxYear: taxYear,
@@ -399,7 +161,7 @@ class StorageService: ObservableObject {
         let metadata = StorageMetadata()
         metadata.contentType = "application/pdf"
         metadata.customMetadata = [
-            "uploadedBy": customerId,
+            "workspaceId": workspaceId,
             "uploadedAt": ISO8601DateFormatter().string(from: Date()),
             "documentType": documentType,
             "documentId": documentId,
@@ -425,15 +187,27 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload using continuation to properly await completion
+        // Wait for upload completion with guard to prevent double-resume
         do {
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                var hasResumed = false
+
                 uploadTask.observe(.success) { _ in
+                    guard !hasResumed else {
+                        print("⚠️ Success observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     print("✅ PDF uploaded successfully: \(path)")
                     continuation.resume(returning: ())
                 }
 
                 uploadTask.observe(.failure) { snapshot in
+                    guard !hasResumed else {
+                        print("⚠️ Failure observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     if let error = snapshot.error {
                         print("❌ Upload failed: \(error.localizedDescription)")
                         continuation.resume(throwing: error)
@@ -490,7 +264,7 @@ class StorageService: ObservableObject {
     /// Upload related PDF files (cover sheet, complete document) using existing documentId
     /// - Parameters:
     ///   - pdfData: The PDF data to upload
-    ///   - customerId: The customer's user ID
+    ///   - workspaceId: The workspace ID
     ///   - documentId: Existing document ID (from original upload)
     ///   - fileType: Type of file - "cover.pdf" or "complete.pdf"
     ///   - taxYear: Tax year for organization
@@ -500,7 +274,7 @@ class StorageService: ObservableObject {
     /// - Returns: The download URL for the uploaded file
     func uploadRelatedPDF(
         pdfData: Data,
-        customerId: String,
+        workspaceId: String,
         documentId: String,
         fileType: String, // "cover.pdf" or "complete.pdf"
         taxYear: Int,
@@ -511,7 +285,7 @@ class StorageService: ObservableObject {
         print("📎 Uploading related file: \(fileType) for documentId: \(documentId)")
 
         let path = generateStoragePath(
-            customerId: customerId,
+            workspaceId: workspaceId,
             documentId: documentId,
             fileType: fileType,
             taxYear: taxYear,
@@ -523,7 +297,7 @@ class StorageService: ObservableObject {
         let metadata = StorageMetadata()
         metadata.contentType = "application/pdf"
         metadata.customMetadata = [
-            "uploadedBy": customerId,
+            "workspaceId": workspaceId,
             "uploadedAt": ISO8601DateFormatter().string(from: Date()),
             "documentId": documentId,
             "fileType": fileType,
@@ -535,7 +309,7 @@ class StorageService: ObservableObject {
 
         let uploadTask = storageRef.putData(pdfData, metadata: metadata)
 
-        uploadTask.observe(.progress) { snapshot in
+        uploadTask.observe(StorageTaskStatus.progress) { snapshot in
             guard let progress = snapshot.progress else { return }
             let percentComplete = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
 
@@ -547,12 +321,24 @@ class StorageService: ObservableObject {
 
         do {
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                uploadTask.observe(.success) { _ in
+                var hasResumed = false
+
+                uploadTask.observe(StorageTaskStatus.success) { _ in
+                    guard !hasResumed else {
+                        print("⚠️ Success observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     print("✅ Related PDF uploaded successfully: \(path)")
                     continuation.resume(returning: ())
                 }
 
-                uploadTask.observe(.failure) { snapshot in
+                uploadTask.observe(StorageTaskStatus.failure) { snapshot in
+                    guard !hasResumed else {
+                        print("⚠️ Failure observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     if let error = snapshot.error {
                         print("❌ Upload failed: \(error.localizedDescription)")
                         continuation.resume(throwing: error)
@@ -604,7 +390,7 @@ class StorageService: ObservableObject {
     /// Helper to upload PDF data with document-centric storage
     private func uploadPDFData(
         _ pdfData: Data,
-        customerId: String,
+        workspaceId: String,
         documentId: String,
         documentType: String,
         taxYear: Int,
@@ -616,7 +402,7 @@ class StorageService: ObservableObject {
         print("🆔 Using provided document ID: \(documentId)")
 
         let path = generateStoragePath(
-            customerId: customerId,
+            workspaceId: workspaceId,
             documentId: documentId,
             fileType: "original.pdf",
             taxYear: taxYear,
@@ -628,7 +414,7 @@ class StorageService: ObservableObject {
         let metadata = StorageMetadata()
         metadata.contentType = "application/pdf"
         metadata.customMetadata = [
-            "uploadedBy": customerId,
+            "workspaceId": workspaceId,
             "uploadedAt": ISO8601DateFormatter().string(from: Date()),
             "documentType": documentType,
             "documentId": documentId,
@@ -654,15 +440,27 @@ class StorageService: ObservableObject {
             }
         }
 
-        // Wait for upload using continuation to properly await completion
+        // Wait for upload completion with guard to prevent double-resume
         do {
             _ = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                var hasResumed = false
+
                 uploadTask.observe(.success) { _ in
+                    guard !hasResumed else {
+                        print("⚠️ Success observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     print("✅ PDF uploaded successfully: \(path)")
                     continuation.resume(returning: ())
                 }
 
                 uploadTask.observe(.failure) { snapshot in
+                    guard !hasResumed else {
+                        print("⚠️ Failure observer called but continuation already resumed")
+                        return
+                    }
+                    hasResumed = true
                     if let error = snapshot.error {
                         print("❌ Upload failed: \(error.localizedDescription)")
                         continuation.resume(throwing: error)

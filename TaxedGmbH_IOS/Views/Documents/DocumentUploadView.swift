@@ -9,9 +9,10 @@ import SwiftUI
 
 struct DocumentUploadView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var storageService = StorageService.shared
-    @StateObject private var firestoreService = FirestoreService.shared
-    @StateObject private var documentProcessor = DocumentProcessorService.shared
+    @ObservedObject private var storageService = StorageService.shared
+    @ObservedObject private var firestoreService = FirestoreService.shared
+    @ObservedObject private var documentProcessor = DocumentProcessorService.shared
+    @ObservedObject private var workspaceManager = WorkspaceManager.shared
 
     @State private var selectedImage: UIImage?
     @State private var selectedDocumentURL: URL?
@@ -206,7 +207,7 @@ struct DocumentUploadView: View {
                             HStack {
                                 Image(systemName: "mic.fill")
                                     .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-                                Text("Add Voice Note")
+                                Text("document_upload.add_voice_note".localized)
                                     .font(.headline)
                                 Spacer()
                                 CompactVoiceInputButton(text: $documentNotes)
@@ -214,7 +215,7 @@ struct DocumentUploadView: View {
 
                             if !documentNotes.isEmpty {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Your Note:")
+                                    Text("document_upload.your_note".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                     Text(documentNotes)
@@ -225,13 +226,13 @@ struct DocumentUploadView: View {
                                         .cornerRadius(8)
 
                                     Button(action: { documentNotes = "" }) {
-                                        Text("Clear Note")
+                                        Text("document_upload.clear_note".localized)
                                             .font(.caption)
                                             .foregroundColor(.red)
                                     }
                                 }
                             } else {
-                                Text("Record a voice note about this document")
+                                Text("document_upload.record_voice_note".localized)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -318,7 +319,7 @@ struct DocumentUploadView: View {
                             HStack {
                                 Image(systemName: "folder.badge.plus")
                                     .foregroundColor(.blue)
-                                Text("Select Document Category")
+                                Text("document_upload.select_category".localized)
                                     .font(.headline)
                             }
 
@@ -338,7 +339,7 @@ struct DocumentUploadView: View {
                                         Text(category.displayName)
                                             .font(.subheadline)
                                             .fontWeight(.medium)
-                                        Text("Selected")
+                                        Text("document_upload.selected".localized)
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
@@ -348,7 +349,7 @@ struct DocumentUploadView: View {
                                     Button(action: {
                                         showCategoryPicker = true
                                     }) {
-                                        Text("Change")
+                                        Text("document_upload.change".localized)
                                             .font(.subheadline)
                                             .foregroundColor(.blue)
                                     }
@@ -363,7 +364,7 @@ struct DocumentUploadView: View {
                                 }) {
                                     HStack {
                                         Image(systemName: "folder.badge.plus")
-                                        Text("Choose Category")
+                                        Text("document_upload.choose_category".localized)
                                             .fontWeight(.semibold)
                                     }
                                     .frame(maxWidth: .infinity)
@@ -443,6 +444,11 @@ struct DocumentUploadView: View {
             .sheet(isPresented: $showCategoryPicker) {
                 SimpleCategoryPickerView(selectedCategory: $manualCategory)
             }
+            .task {
+                // Load workspaces when view appears to ensure activeWorkspace is set
+                guard let userId = authService.user?.id else { return }
+                await workspaceManager.loadCurrentWorkspace(userId: userId)
+            }
             .onChange(of: selectedDocumentURL) { _, newURL in
                 if let url = newURL {
                     handleDocumentSelection(url: url)
@@ -470,6 +476,12 @@ struct DocumentUploadView: View {
     // MARK: - Upload Logic
 
     private func uploadDocument() async {
+        // Prevent duplicate simultaneous uploads
+        guard !isUploading else {
+            print("⚠️ Upload already in progress, skipping duplicate call")
+            return
+        }
+
         guard var image = selectedImage,
               let userId = authService.user?.id else {
             errorMessage = "documents.upload.error.not_logged_in".localized
@@ -529,9 +541,9 @@ struct DocumentUploadView: View {
                     needsCategorySelection = true
                     return
                 }
-            } else {
+            } else if let category = manualCategory {
                 // User has manually selected a category, skip AI processing
-                print("📁 Using manually selected category: \(manualCategory!.displayName)")
+                print("📁 Using manually selected category: \(category.displayName)")
                 print("⏭️ Skipping AI processing")
             }
 
@@ -570,17 +582,25 @@ struct DocumentUploadView: View {
                 categoryRawValue = "uncategorized"
             }
 
+            // Get workspace ID - required for upload
+            guard let workspaceId = workspaceManager.activeWorkspace?.id else {
+                throw NSError(domain: "DocumentUpload", code: 1, userInfo: [
+                    NSLocalizedDescriptionKey: "No active workspace found. Please create or select a workspace."
+                ])
+            }
+
             let (downloadURL, documentId) = try await storageService.uploadDocumentAsPDF(
                 image: image,
-                customerId: userId,
+                workspaceId: workspaceId,
                 documentType: documentType,
                 taxYear: taxYear,
                 category: categoryRawValue,
                 subcategory: taxCategoryType ?? "",
-                attachmentNumber: attachmentNumber
-            ) { progress in
-                uploadProgress = progress
-            }
+                attachmentNumber: attachmentNumber,
+                progressHandler: { progress in
+                    uploadProgress = progress
+                }
+            )
 
             print("✅ Received documentId: \(documentId)")
 
@@ -619,7 +639,7 @@ struct DocumentUploadView: View {
                     if let result = processingResult {
                         return generateDocumentSummary(result: result)
                     } else if manualCategory != nil {
-                        return "Manually categorized by user"
+                        return "document_upload.manually_categorized".localized
                     } else {
                         return "documents.upload.manual_review_required".localized
                     }
@@ -633,9 +653,10 @@ struct DocumentUploadView: View {
                         return .processing  // No categorization
                     }
                 }(),
+                userNotes: documentNotes.isEmpty ? nil : documentNotes,
                 taxYear: taxYear,
                 canton: authService.user?.canton,
-                amount: processingResult != nil ? extractAmount(from: processingResult!.additionalInfo) : nil,
+                amount: processingResult.flatMap { extractAmount(from: $0.additionalInfo) },
                 taxCategoryType: taxCategoryType,
                 attachmentNumber: attachmentNumber,
                 currency: "CHF",
@@ -661,6 +682,7 @@ struct DocumentUploadView: View {
                 aiCategory = nil
                 aiConfidence = nil
                 extractedText = nil
+                documentNotes = ""
             }
 
         } catch {
@@ -761,7 +783,7 @@ struct DocumentUploadView: View {
         }.value
     }
 
-    private func resizeImage(image: UIImage, maxSizeBytes: Int) -> UIImage {
+    nonisolated private func resizeImage(image: UIImage, maxSizeBytes: Int) -> UIImage {
         // Calculate scale factor to reduce file size
         let originalSize = image.size
         let scaleFactor = sqrt(Double(maxSizeBytes) / Double(image.jpegData(compressionQuality: 1.0)?.count ?? 1))

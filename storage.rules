@@ -7,11 +7,6 @@ service firebase.storage {
       return request.auth != null;
     }
 
-    // Helper function to check if user owns the file
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
     // Helper function to check if file size is within limit (4 MB)
     function isValidSize() {
       return request.resource.size <= 4 * 1024 * 1024;  // 4 MB limit
@@ -21,6 +16,29 @@ service firebase.storage {
     function isValidFileType() {
       return request.resource.contentType.matches('image/.*') ||
              request.resource.contentType == 'application/pdf';
+    }
+
+    // Helper function to check if user is a workspace member
+    function isWorkspaceMember(workspaceId, userId) {
+      let workspace = firestore.get(/databases/taxedgmbh/documents/workspaces/$(workspaceId));
+      return workspace != null &&
+             workspace.data.memberIds != null &&
+             userId in workspace.data.memberIds;
+    }
+
+    // Helper function to check if user can edit workspace documents
+    function canEditWorkspace(workspaceId, userId) {
+      let workspace = firestore.get(/databases/taxedgmbh/documents/workspaces/$(workspaceId));
+      return workspace != null &&
+             workspace.data.memberIds != null &&
+             userId in workspace.data.memberIds;
+    }
+
+    // Helper function to check if user has admin access (can delete)
+    function hasWorkspaceAdminAccess(workspaceId, userId) {
+      let workspace = firestore.get(/databases/taxedgmbh/documents/workspaces/$(workspaceId));
+      return workspace != null &&
+             workspace.data.ownerId == userId;
     }
 
     // Profile images: users/{userId}/profile_images/{fileName}
@@ -33,27 +51,30 @@ service firebase.storage {
                      request.resource.contentType.matches('image/.*');
     }
 
-    // Tax documents: documents/{userId}/{documentId}_{documentType}.pdf
-    match /documents/{userId}/{document} {
+    // Workspace-centric storage: workspaces/{workspaceId}/{taxYear}/{documentId}/{fileType}
+    // All document-related files (original.pdf, cover_sheet.pdf, processed.pdf) are stored here
+    // Categories and subcategories are stored in Firestore metadata for agility
+    // Members of a workspace can collaboratively access and manage documents
+    match /workspaces/{workspaceId}/{allPaths=**} {
       // Allow read if:
-      // - Owner of the document
-      // - Expert or admin (would need to check user role from Firestore)
+      // - User is a member of the workspace (checked via Firestore)
       allow read: if isAuthenticated() &&
-                    isOwner(userId);
+                    isWorkspaceMember(workspaceId, request.auth.uid);
 
       // Allow write (create/update) if:
-      // - Authenticated user
-      // - User owns the folder (userId matches auth.uid)
-      // - File size is within limit (4 MB)
+      // - Authenticated user AND
+      // - User is a member with edit permissions AND
+      // - File size is within limit (4 MB) AND
       // - File type is valid (image or PDF)
       allow write: if isAuthenticated() &&
-                     isOwner(userId) &&
+                     canEditWorkspace(workspaceId, request.auth.uid) &&
                      isValidSize() &&
                      isValidFileType();
 
-      // Allow delete only if owner
+      // Allow delete if:
+      // - User has admin access to the workspace
       allow delete: if isAuthenticated() &&
-                      isOwner(userId);
+                      hasWorkspaceAdminAccess(workspaceId, request.auth.uid);
     }
 
     // Deny all other paths by default
