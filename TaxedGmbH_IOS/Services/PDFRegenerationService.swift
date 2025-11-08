@@ -50,10 +50,10 @@ struct RegenerationResult {
 class PDFRegenerationService: ObservableObject {
     static let shared = PDFRegenerationService()
 
-    // Dependencies
-    private let firestoreService = FirestoreService.shared
-    private let coverSheetService = CoverSheetService.shared
-    private let documentManager = DocumentManager.shared
+    // Dependencies - lazy to avoid circular initialization with DocumentManager
+    private lazy var firestoreService = FirestoreService.shared
+    private lazy var coverSheetService = CoverSheetService.shared
+    private lazy var documentManager = DocumentManager.shared
 
     // Published state
     @Published var isProcessing: Bool = false
@@ -62,11 +62,19 @@ class PDFRegenerationService: ObservableObject {
     @Published var completedCount: Int = 0
     @Published var failedCount: Int = 0
 
+    // Package regeneration state
+    @Published var isRegeneratingPackage: Bool = false
+    @Published var packageRegenerationNeeded: [String: Set<Int>] = [:] // workspaceId: Set<taxYear>
+
     // Private queue (sorted by priority, then by queued time)
     private var queue: [RegenerationTask] = []
     private var isRunning: Bool = false
+    private var packageRegenerationTimer: Timer?
 
-    private init() {}
+    private init() {
+        // Schedule periodic package regeneration check (every 10 seconds)
+        setupPackageRegenerationTimer()
+    }
 
     // MARK: - Public API
 
@@ -292,5 +300,98 @@ class PDFRegenerationService: ObservableObject {
         }
 
         print("✅ Marked \(documentsWithCovers.count) documents for regeneration")
+    }
+
+    // MARK: - Tax Package Regeneration
+
+    /// Mark a workspace/tax year combination for package regeneration
+    func markPackageForRegeneration(workspaceId: String, taxYear: Int) {
+        if packageRegenerationNeeded[workspaceId] == nil {
+            packageRegenerationNeeded[workspaceId] = Set<Int>()
+        }
+        packageRegenerationNeeded[workspaceId]?.insert(taxYear)
+        print("📦 Marked package for regeneration: workspace=\(workspaceId), year=\(taxYear)")
+    }
+
+    /// Setup timer for periodic package regeneration
+    private func setupPackageRegenerationTimer() {
+        packageRegenerationTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            Task { @MainActor in
+                await self.processPackageRegenerations()
+            }
+        }
+    }
+
+    /// Process all pending package regenerations
+    private func processPackageRegenerations() async {
+        guard !isRegeneratingPackage else {
+            print("⚠️ Package regeneration already in progress")
+            return
+        }
+
+        guard !packageRegenerationNeeded.isEmpty else {
+            return
+        }
+
+        isRegeneratingPackage = true
+
+        // Process each workspace/year combination
+        for (workspaceId, taxYears) in packageRegenerationNeeded {
+            for taxYear in taxYears {
+                do {
+                    // Get workspace and user info
+                    guard let workspace = try? await WorkspaceManager.shared.getWorkspace(workspaceId: workspaceId),
+                          let userId = workspace.ownerId else {
+                        print("❌ Cannot regenerate package: workspace or owner not found")
+                        continue
+                    }
+
+                    guard let user = try? await firestoreService.getUserProfile(userId: userId) else {
+                        print("❌ Cannot regenerate package: user not found")
+                        continue
+                    }
+
+                    // Get all documents for this workspace/year
+                    let allDocuments = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId)
+                    let yearDocuments = allDocuments.filter { $0.taxYear == taxYear }
+
+                    guard !yearDocuments.isEmpty else {
+                        print("⚠️ No documents found for workspace \(workspaceId), year \(taxYear)")
+                        continue
+                    }
+
+                    print("📦 Regenerating package: \(yearDocuments.count) documents for \(taxYear)")
+
+                    // Generate the package
+                    let packageURL = try await coverSheetService.generateTaxSubmissionPackage(
+                        for: yearDocuments,
+                        user: user,
+                        workspaceId: workspaceId,
+                        taxYear: taxYear
+                    )
+
+                    print("✅ Package regenerated successfully: \(packageURL.path)")
+
+                    // TODO: Store package metadata in Firestore (optional)
+                    // This could track package version, generation time, etc.
+
+                } catch {
+                    print("❌ Package regeneration failed for workspace \(workspaceId), year \(taxYear): \(error)")
+                }
+            }
+        }
+
+        // Clear completed regenerations
+        packageRegenerationNeeded.removeAll()
+        isRegeneratingPackage = false
+        print("🏁 Package regeneration batch completed")
+    }
+
+    /// Regenerate package immediately (bypasses timer)
+    func regeneratePackageNow(workspaceId: String, taxYear: Int) async {
+        print("📦 Immediate package regeneration requested")
+        markPackageForRegeneration(workspaceId: workspaceId, taxYear: taxYear)
+        await processPackageRegenerations()
     }
 }

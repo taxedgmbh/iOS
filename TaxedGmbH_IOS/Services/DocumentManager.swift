@@ -13,19 +13,17 @@ import SwiftUI
 class DocumentManager: ObservableObject {
     static let shared = DocumentManager()
 
-    private let firestoreService = FirestoreService.shared
-    private let storageService = StorageService.shared
-    private let documentProcessor = DocumentProcessorService.shared
-    private let coverSheetService = CoverSheetService.shared
-    private let pdfRegenerationService = PDFRegenerationService.shared
+    // Use lazy to avoid initialization order crashes
+    private lazy var firestoreService = FirestoreService.shared
+    private lazy var storageService = StorageService.shared
+    private lazy var documentProcessor = DocumentProcessorService.shared
+    private lazy var coverSheetService = CoverSheetService.shared
+    private lazy var pdfRegenerationService = PDFRegenerationService.shared
 
     // Published state
     @Published var allDocuments: [TaxDocument] = []
     @Published var isLoading: Bool = false
     @Published var error: String?
-
-    // Phase 4: Combine subscriptions
-    private var cancellables = Set<AnyCancellable>()
 
     // Computed properties for different views
     var recentDocuments: [TaxDocument] {
@@ -47,44 +45,41 @@ class DocumentManager: ObservableObject {
     }
 
     var documentsBySubcategory: [String: [TaxDocument]] {
-        Dictionary(grouping: allDocuments.filter { $0.subcategory != nil }) {
-            $0.subcategory!
-        }
+        Dictionary(grouping: allDocuments.compactMap { document -> (String, TaxDocument)? in
+            guard let subcategory = document.subcategory else { return nil }
+            return (subcategory, document)
+        }, by: { $0.0 })
+        .mapValues { $0.map { $0.1 } }
     }
 
     private init() {
-        // Phase 4: Subscribe to profile change events
-        setupProfileChangeSubscription()
-    }
-
-    // MARK: - Phase 4: Event-Driven Architecture
-
-    /// Subscribe to profile changes from AuthenticationService
-    private func setupProfileChangeSubscription() {
-        let authService = AuthenticationService()
-
-        authService.profileDidChange
-            .sink { [weak self] updatedUser in
-                guard let self = self else { return }
-
-                Task { @MainActor in
-                    print("📥 Received profile change event for user: \(updatedUser.name)")
-                    print("   Profile version: \(updatedUser.profileVersion)")
-
-                    // Trigger automatic PDF regeneration for stale documents
-                    await self.pdfRegenerationService.regenerateAllStale(
-                        for: updatedUser,
-                        priority: .high
-                    )
-                }
-            }
-            .store(in: &cancellables)
-
-        print("✅ Profile change subscription established")
+        // Initialization complete
+        // Note: Profile change subscription removed to prevent initialization crash
+        // PDF regeneration can be triggered manually when needed
     }
 
     // MARK: - Load Documents
 
+    /// Load documents for a specific workspace (preferred method for workspace-centric architecture)
+    /// Note: This method assumes the calling code has already verified workspace access.
+    /// For security, views should ensure users can only load documents from their workspaces.
+    func loadDocuments(forWorkspace workspaceId: String) async {
+        isLoading = true
+        error = nil
+
+        do {
+            let documents = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId)
+            allDocuments = documents.sorted { $0.uploadedAt > $1.uploadedAt }
+            print("✅ Loaded \(documents.count) documents for workspace")
+        } catch {
+            self.error = error.localizedDescription
+            print("❌ Failed to load documents for workspace: \(error)")
+        }
+
+        isLoading = false
+    }
+
+    /// Load documents for a user (legacy method - loads ALL user documents across workspaces)
     func loadDocuments(for userId: String) async {
         isLoading = true
         error = nil
@@ -92,10 +87,10 @@ class DocumentManager: ObservableObject {
         do {
             let documents = try await firestoreService.getDocumentsForCustomer(customerId: userId)
             allDocuments = documents.sorted { $0.uploadedAt > $1.uploadedAt }
-            print("✅ Loaded \(documents.count) documents")
+            print("✅ Loaded \(documents.count) documents for user")
         } catch {
             self.error = error.localizedDescription
-            print("❌ Failed to load documents: \(error)")
+            print("❌ Failed to load documents for user: \(error)")
         }
 
         isLoading = false
@@ -106,12 +101,36 @@ class DocumentManager: ObservableObject {
     func uploadDocument(
         image: UIImage,
         userId: String,
+        workspaceId: String? = nil,
         categoryType: TaxCategoryType?,
         processingResult: DocumentProcessingResult?,
         taxYear: Int,
         user: User? = nil
     ) async throws -> TaxDocument {
         print("📤 Starting document upload...")
+
+        // Ensure we have a valid workspaceId for upload
+        guard let validWorkspaceId = workspaceId else {
+            print("❌ Error: No workspaceId provided for document upload")
+            throw NSError(domain: "DocumentManager", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: "Workspace ID is required for document upload"
+            ])
+        }
+
+        // Validate user has access to this workspace
+        do {
+            let workspace = try await WorkspaceManager.shared.getWorkspace(workspaceId: validWorkspaceId)
+            guard workspace.isMember(userId: userId) else {
+                print("❌ Error: User \(userId) is not a member of workspace \(validWorkspaceId)")
+                throw NSError(domain: "DocumentManager", code: 2, userInfo: [
+                    NSLocalizedDescriptionKey: "You do not have access to this workspace"
+                ])
+            }
+            print("✅ Validated user is member of workspace")
+        } catch {
+            print("❌ Error validating workspace access: \(error)")
+            throw error
+        }
 
         // Generate attachment number
         let uploadDate = Date()
@@ -126,7 +145,7 @@ class DocumentManager: ObservableObject {
         // Upload to storage - now returns (downloadURL, documentId) tuple
         let (downloadURL, documentId) = try await storageService.uploadDocumentAsPDF(
             image: image,
-            customerId: userId,
+            workspaceId: validWorkspaceId,
             documentType: documentType,
             taxYear: taxYear,
             category: categoryRawValue,
@@ -141,6 +160,7 @@ class DocumentManager: ObservableObject {
         // Create document record
         let document = TaxDocument(
             customerId: userId,
+            workspaceId: workspaceId,
             name: extractFileName(from: downloadURL),
             storageUrl: downloadURL,
             category: category,
@@ -148,7 +168,7 @@ class DocumentManager: ObservableObject {
             aiConfidence: processingResult?.confidence,
             extractedText: processingResult?.extractedText,
             aiSummary: processingResult != nil ? "AI categorized" : "Manually categorized",
-            status: processingResult != nil && (processingResult!.confidence > 0.7) ? .pending : .processing,
+            status: (processingResult?.confidence ?? 0) > 0.7 ? .pending : .processing,
             taxYear: taxYear,
             taxCategoryType: categoryType?.rawValue,
             attachmentNumber: attachmentNumber,
@@ -166,7 +186,7 @@ class DocumentManager: ObservableObject {
 
         // Auto-generate cover sheet in background if user provided
         if let user = user {
-            Task.detached(priority: .background) {
+            Task(priority: .background) {
                 await self.autoGenerateCoverSheet(for: document, user: user)
             }
         }
@@ -218,8 +238,17 @@ class DocumentManager: ObservableObject {
 
         // Auto-regenerate cover sheet in background if user provided
         if let user = user {
-            Task.detached(priority: .background) {
+            Task(priority: .background) {
                 await self.autoGenerateCoverSheet(for: updatedDocument, user: user)
+
+                // Mark package for regeneration after cover sheet is updated
+                if let workspaceId = updatedDocument.workspaceId {
+                    pdfRegenerationService.markPackageForRegeneration(
+                        workspaceId: workspaceId,
+                        taxYear: updatedDocument.taxYear
+                    )
+                    print("📦 Tax package marked for regeneration after remap")
+                }
             }
         }
     }
@@ -259,6 +288,15 @@ class DocumentManager: ObservableObject {
         allDocuments.removeAll { $0.id == document.id }
 
         print("✅ Document deleted successfully")
+
+        // Mark package for regeneration after deletion
+        if let workspaceId = document.workspaceId {
+            pdfRegenerationService.markPackageForRegeneration(
+                workspaceId: workspaceId,
+                taxYear: document.taxYear
+            )
+            print("📦 Tax package marked for regeneration after deletion")
+        }
     }
 
     // MARK: - Helper Methods

@@ -14,6 +14,7 @@ struct DocumentUploadView: View {
     @ObservedObject private var documentProcessor = DocumentProcessorService.shared
     @ObservedObject private var workspaceManager = WorkspaceManager.shared
     private let coverSheetService = CoverSheetService.shared
+    private let pdfRegenerationService = PDFRegenerationService.shared
 
     @State private var selectedImage: UIImage?
     @State private var selectedDocumentURL: URL?
@@ -687,6 +688,14 @@ struct DocumentUploadView: View {
                         print("✅ Cover sheet generated successfully")
                         print("   Cover: \(coverUrl)")
                         print("   Processed: \(processedUrl)")
+
+                        // Mark tax package for regeneration (happens every 10 seconds automatically)
+                        pdfRegenerationService.markPackageForRegeneration(
+                            workspaceId: workspaceId,
+                            taxYear: taxYear
+                        )
+                        print("📦 Tax package marked for auto-regeneration")
+
                     } catch {
                         print("⚠️ Cover sheet generation failed: \(error)")
                         // Don't fail the upload if cover sheet fails
