@@ -385,6 +385,12 @@ class AuthenticationService: ObservableObject {
             if let updatedUser = user {
                 profileDidChange.send(updatedUser)
                 print("📢 Profile change event emitted for version \(updatedUser.profileVersion)")
+
+                // Trigger automatic PDF regeneration for all documents
+                Task {
+                    await PDFRegenerationService.shared.regenerateAllStale(for: updatedUser, priority: .high)
+                    print("🔄 Triggered automatic PDF regeneration after profile update")
+                }
             }
         } catch {
             print("❌ Error updating user profile: \(error)")
