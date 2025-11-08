@@ -377,7 +377,7 @@ struct EnhancedDocumentCard: View {
 
             // Document Info
             VStack(alignment: .leading, spacing: 6) {
-                Text(document.name)
+                Text(cleanDocumentName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -464,6 +464,30 @@ struct EnhancedDocumentCard: View {
         case .submitted: return .mint
         case .rejected: return .red
         }
+    }
+
+    private var cleanDocumentName: String {
+        // Extract clean filename from storage URL or use document name
+        // Remove storage paths like "workspaces/xxx/" and URL encoding
+        let name = document.name
+
+        // If it contains slashes, extract just the filename
+        if name.contains("/") {
+            let components = name.components(separatedBy: "/")
+            if let filename = components.last {
+                // Remove URL encoding and clean up
+                return filename
+                    .removingPercentEncoding?
+                    .replacingOccurrences(of: "_", with: " ")
+                    .replacingOccurrences(of: ".pdf", with: "")
+                    .capitalized ?? name
+            }
+        }
+
+        // Otherwise return name as-is, cleaned up
+        return name
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: ".pdf", with: "")
     }
 
     private func loadThumbnail() async {
@@ -582,60 +606,66 @@ struct TaxPackageBanner: View {
     let onShare: () -> Void
 
     var body: some View {
-        HStack(spacing: 16) {
-            // Package Icon
-            ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.15))
-                    .frame(width: 60, height: 60)
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                // Package Icon
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.12))
+                        .frame(width: 56, height: 56)
 
-                Image(systemName: "doc.on.doc.fill")
-                    .font(.title2)
-                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-            }
-
-            // Package Info
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Tax Submission Package \(taxYear)")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-
-                HStack(spacing: 6) {
-                    Image(systemName: isRegenerating ? "arrow.triangle.2.circlepath" : "checkmark.circle.fill")
-                        .font(.caption2)
-                        .foregroundColor(isRegenerating ? .orange : .green)
-
-                    Text(isRegenerating ? "Updating..." : "\(documentCount) documents ready")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Image(systemName: "doc.on.doc.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
                 }
-            }
 
-            Spacer()
+                // Package Info
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Tax Submission Package \(String(taxYear))")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
 
-            // Share Button
-            Button(action: onShare) {
-                HStack(spacing: 6) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.subheadline)
-                    Text("Share")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                    HStack(spacing: 6) {
+                        Image(systemName: isRegenerating ? "arrow.triangle.2.circlepath" : "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(isRegenerating ? .orange : .green)
+
+                        Text(isRegenerating ? "Updating..." : "\(documentCount) document\(documentCount == 1 ? "" : "s") ready")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                    }
                 }
-                .foregroundColor(.white)
+
+                Spacer()
+            }
+            .padding(16)
+
+            // Divider
+            Divider()
                 .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color(red: 227/255, green: 30/255, blue: 36/255))
-                .cornerRadius(10)
+
+            // Action Button
+            Button(action: onShare) {
+                HStack {
+                    Spacer()
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text("Download & Share")
+                        .font(.system(size: 15, weight: .semibold))
+                    Spacer()
+                }
+                .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                .padding(.vertical, 14)
             }
             .disabled(isRegenerating)
-            .opacity(isRegenerating ? 0.6 : 1.0)
+            .opacity(isRegenerating ? 0.5 : 1.0)
         }
-        .padding(16)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(14)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color(.separator).opacity(0.3), lineWidth: 0.5)
+        )
     }
 }
 
