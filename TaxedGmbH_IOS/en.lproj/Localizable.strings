@@ -702,6 +702,42 @@
 "document_detail.expert_notes" = "Expert Notes";
 "document_detail.title" = "Document";
 "document_detail.status" = "Status";
+"document_detail.preview" = "Document Preview";
+"document_detail.original" = "Original";
+"document_detail.cover_sheet" = "Cover Sheet";
+"document_detail.loading_pdf" = "Loading PDF...";
+"document_detail.attachment" = "Attachment";
+"document_detail.summary_label" = "Summary";
+"document_detail.add_comment" = "Add Comment";
+"document_detail.saving" = "Saving...";
+"document_detail.saved" = "Saved!";
+"document_detail.save_comment" = "Save Comment";
+"document_detail.tax_office_submission" = "Tax Office Submission";
+"document_detail.cover_generated" = "Cover sheet generated";
+"document_detail.view_cover" = "View Cover Sheet";
+"document_detail.view_processed" = "View Processed Document";
+"document_detail.generating" = "Generating...";
+"document_detail.generate_cover" = "Generate Cover Sheet";
+"document_detail.generate_cover_desc" = "Generate a Swiss tax office cover sheet for this document";
+"document_detail.cover_success" = "Cover sheet generated successfully!";
+"document_detail.remap_category" = "Remap Category";
+"document_detail.delete_document" = "Delete Document";
+"document_detail.cancel" = "Cancel";
+"document_detail.delete" = "Delete";
+"document_detail.delete_confirmation" = "Are you sure you want to delete this document? This action cannot be undone.";
+"document_detail.user_not_found" = "User not found";
+"document_detail.cover_error" = "Failed to generate cover sheet:";
+
+// MARK: - Document Upload
+"document_upload.add_voice_note" = "Add Voice Note";
+"document_upload.your_note" = "Your Note:";
+"document_upload.clear_note" = "Clear Note";
+"document_upload.record_voice_note" = "Record a voice note about this document";
+"document_upload.select_category" = "Select Document Category";
+"document_upload.selected" = "Selected";
+"document_upload.change" = "Change";
+"document_upload.choose_category" = "Choose Category";
+"document_upload.manually_categorized" = "Manually categorized by user";
 
 // MARK: - Phone Verification
 "phone_verification.enter_code" = "Enter Code";
@@ -945,6 +981,224 @@
 "speech.error.unavailable" = "Speech recognition unavailable";
 "speech.unavailable" = "Speech recognition temporarily unavailable";
 "speech.save.failed" = "Failed to save note";
+"speech.use_text" = "Use Text";
+"speech.clear" = "Clear";
+"speech.done" = "Done";
+"speech.cancel" = "Cancel";
+
+// MARK: - More Menu (New Sections)
+"more.appearance" = "Appearance";
+"more.appearance.subtitle" = "Theme and display settings";
+"more.account_management" = "Account Management";
+"more.account_management.subtitle" = "Email, password, and security";
+"more.data_management" = "Data Management";
+"more.data_management.subtitle" = "Export and delete your data";
+"more.data_privacy.header" = "Data & Privacy";
+
+// MARK: - Appearance Settings
+"settings.appearance.title" = "Appearance";
+"settings.appearance.theme" = "Theme";
+"settings.appearance.theme.footer" = "Choose how the app appears on your device.";
+"settings.appearance.system" = "System";
+"settings.appearance.light" = "Light";
+"settings.appearance.dark" = "Dark";
+"settings.appearance.display" = "Display";
+"settings.appearance.font_size" = "Font Size";
+"settings.appearance.system_default" = "System Default";
+"settings.appearance.display.footer" = "Adjust text size in iOS Settings > Accessibility > Display & Text Size.";
+
+// MARK: - Data Management
+"settings.data.title" = "Data Management";
+"settings.data.export" = "Export";
+"settings.data.export_data" = "Export All Data";
+"settings.data.export_data.subtitle" = "Download your documents and information";
+"settings.data.export.footer" = "Download a copy of your tax documents and personal data in a portable format.";
+"settings.data.export_alert.title" = "Export Data";
+"settings.data.export_alert.message" = "This will create a ZIP file with all your documents and data. This may take several minutes.";
+"settings.data.export_alert.confirm" = "Export";
+"settings.data.export_success" = "Export started. You'll receive an email when ready.";
+"settings.data.usage" = "Storage";
+"settings.data.storage_usage" = "Storage Used";
+"settings.data.documents_count" = "Documents";
+"settings.data.calculating" = "Calculating...";
+"settings.data.privacy" = "Privacy Rights";
+"settings.data.portability" = "Data Portability";
+"settings.data.portability.subtitle" = "Your GDPR and FADP rights";
+"settings.data.privacy.footer" = "Under GDPR and Swiss FADP, you have the right to access, modify, and delete your personal data.";
+"settings.data.gdpr_info" = "You have the right to receive your data in a structured, commonly used format. Use the export function above to exercise this right.";
+"settings.data.danger_zone" = "Danger Zone";
+"settings.data.danger_zone.footer" = "Deleting your account is permanent and cannot be undone. All your documents and data will be permanently deleted.";
+"settings.data.delete_account" = "Delete Account";
+"settings.data.delete_account.subtitle" = "Permanently delete your account and all data";
+"settings.data.delete_alert.title" = "Delete Account?";
+"settings.data.delete_alert.message" = "This will permanently delete your account, all documents, and personal data. This action cannot be undone.";
+"settings.data.delete_confirmation.title" = "Confirm Deletion";
+"settings.data.delete_confirmation.message" = "Type DELETE to confirm account deletion.";
+"settings.data.type_delete" = "Type DELETE";
+"settings.data.cancel" = "Cancel";
+"settings.data.continue" = "Continue";
+"settings.data.delete" = "Delete Account";
+
+// MARK: - Account Management
+"settings.account.title" = "Account Management";
+"settings.account.email_section" = "Email";
+"settings.account.email" = "Email Address";
+"settings.account.change" = "Change";
+"settings.account.verify_email" = "Verify Email Address";
+"settings.account.email_verified" = "Email Verified";
+"settings.account.verification_sent" = "Verification email sent";
+"settings.account.email_changed" = "Email address updated successfully";
+"settings.account.security" = "Password";
+"settings.account.security.footer" = "Use a strong, unique password to protect your account.";
+"settings.account.change_password" = "Change Password";
+"settings.account.password_changed" = "Password updated successfully";
+
+// MARK: - More Menu (Phase 2 - Tax Settings)
+"more.tax_settings.header" = "Tax Settings";
+"more.tax_settings" = "Tax Year & Workspace";
+"more.tax_settings.subtitle" = "Manage tax year and workspace";
+"more.canton_settings" = "Canton Settings";
+"more.canton_settings.subtitle" = "Swiss canton and municipality";
+"more.tax_deadlines" = "Tax Deadlines";
+"more.tax_deadlines.subtitle" = "Deadlines and reminders";
+"more.expert_connection" = "Expert Consultation";
+"more.expert_connection.subtitle" = "Book tax expert consultation";
+
+// MARK: - Tax Settings
+"settings.tax.title" = "Tax Settings";
+"settings.tax.year_section" = "Tax Year";
+"settings.tax.year_section.footer" = "Select the tax year for your current workspace";
+"settings.tax.tax_year" = "Tax Year";
+"settings.tax.tax_year.subtitle" = "Current filing year";
+"settings.tax.select_year" = "Select Tax Year";
+"settings.tax.no_workspace" = "No workspace available";
+"settings.tax.workspace_section" = "Workspace Information";
+"settings.tax.workspace_section.footer" = "Workspaces allow collaborative tax filing with family members";
+"settings.tax.workspace_name" = "Workspace Name";
+"settings.tax.workspace_type" = "Workspace Type";
+"settings.tax.workspace_members" = "Members";
+"settings.tax.status_section" = "Filing Status";
+"settings.tax.filing_status" = "Filing Status";
+"settings.tax.filing_status.in_progress" = "In Progress";
+"settings.tax.filing_canton" = "Filing Canton";
+"settings.tax.cancel" = "Cancel";
+"settings.tax.year_changed" = "Tax year changed to %@";
+"settings.tax.loading_workspace" = "Loading workspace...";
+"settings.tax.error.no_workspace" = "No workspace found";
+"settings.tax.error.no_user" = "No user found. Please sign in again.";
+"settings.tax.error.no_workspace_found" = "No workspace found. Please create a workspace first.";
+"settings.tax.create_workspace" = "Create Workspace";
+
+// MARK: - Canton Settings
+"settings.canton.title" = "Canton Settings";
+"settings.canton.selection" = "Canton Selection";
+"settings.canton.selection.footer" = "Select your Swiss canton for accurate tax calculations";
+"settings.canton.current_canton" = "Current Canton";
+"settings.canton.not_set" = "Not set";
+"settings.canton.select_canton" = "Select Canton";
+"settings.canton.info_section" = "Canton Information";
+"settings.canton.info_section.footer" = "Canton-specific tax information and deadlines";
+"settings.canton.tax_deadline" = "Tax Deadline";
+"settings.canton.online_portal" = "Canton Tax Portal";
+"settings.canton.municipality_section" = "Municipality";
+"settings.canton.municipality_section.footer" = "Your municipality for local tax purposes";
+"settings.canton.municipality" = "Municipality";
+"settings.canton.municipality.not_set" = "Municipality not set in profile";
+"settings.canton.municipality_id" = "Municipality ID (BFS)";
+"settings.canton.cancel" = "Cancel";
+"settings.canton.changed" = "Canton changed to %@";
+"settings.canton.error.no_user" = "User not found";
+
+// MARK: - Expert Connection
+"settings.expert.title" = "Expert Consultation";
+"settings.expert.status" = "Expert Status";
+"settings.expert.assigned_expert" = "Assigned Expert";
+"settings.expert.expert_name" = "Tax Expert";
+"settings.expert.no_expert" = "No expert assigned";
+"settings.expert.no_expert.subtitle" = "Book a consultation to get an expert assigned";
+"settings.expert.consultations" = "Consultations";
+"settings.expert.consultations.footer" = "Book video or phone consultations with tax experts";
+"settings.expert.book_consultation" = "Book Consultation";
+"settings.expert.book_consultation.subtitle" = "30 min video or phone call";
+"settings.expert.chat" = "Expert Chat";
+"settings.expert.features" = "Expert Features";
+"settings.expert.chat_feature" = "Expert Chat";
+"settings.expert.chat_feature.subtitle" = "Real-time messaging with your expert";
+"settings.expert.document_review" = "Document Review";
+"settings.expert.document_review.subtitle" = "Get your documents reviewed by an expert";
+"settings.expert.tax_optimization" = "Tax Optimization";
+"settings.expert.tax_optimization.subtitle" = "Personalized tax-saving recommendations";
+"settings.expert.booking.title" = "Book Consultation";
+"settings.expert.booking.type" = "Consultation Type";
+"settings.expert.booking.date" = "Preferred Date & Time";
+"settings.expert.booking.details" = "Consultation Details";
+"settings.expert.booking.notes" = "Additional Notes";
+"settings.expert.booking.notes.footer" = "Optional: Let us know what you'd like to discuss";
+"settings.expert.booking.submit" = "Submit Request";
+"settings.expert.booking.success" = "Consultation request submitted successfully!";
+"settings.expert.consultation.general" = "General Tax Advice";
+"settings.expert.consultation.document" = "Document Assistance";
+"settings.expert.consultation.filing" = "Tax Filing Help";
+"settings.expert.consultation.optimization" = "Tax Optimization";
+"settings.expert.cancel" = "Cancel";
+
+// MARK: - Tax Deadlines
+"settings.deadlines.title" = "Tax Deadlines";
+"settings.deadlines.overview" = "Deadline Overview";
+"settings.deadlines.days_remaining" = "days remaining";
+"settings.deadlines.overdue" = "Overdue";
+"settings.deadlines.deadline_date" = "Filing Deadline";
+"settings.deadlines.canton" = "Canton";
+"settings.deadlines.no_canton" = "Please set your canton in profile";
+"settings.deadlines.reminders" = "Reminder Settings";
+"settings.deadlines.reminders.footer" = "Get notified about upcoming tax deadlines";
+"settings.deadlines.enable_reminders" = "Enable Reminders";
+"settings.deadlines.enable_reminders.subtitle" = "Push notifications for deadlines";
+"settings.deadlines.reminder_schedule" = "Reminder Schedule";
+"settings.deadlines.reminder_schedule.footer" = "Choose when you want to be reminded";
+"settings.deadlines.one_month_before" = "1 month before deadline";
+"settings.deadlines.two_weeks_before" = "2 weeks before deadline";
+"settings.deadlines.one_week_before" = "1 week before deadline";
+"settings.deadlines.one_day_before" = "1 day before deadline";
+"settings.deadlines.weekly_reminders" = "Weekly Progress Reminders";
+"settings.deadlines.weekly_reminders.subtitle" = "Every Monday until deadline";
+"settings.deadlines.important_dates" = "Important Dates";
+"settings.deadlines.tax_year_start" = "Tax Year Start";
+"settings.deadlines.filing_deadline" = "Filing Deadline";
+"settings.deadlines.canton_portal" = "Open Canton Tax Portal";
+"settings.account.2fa_section" = "Two-Factor Authentication";
+"settings.account.2fa" = "Two-Factor Authentication";
+"settings.account.2fa.subtitle" = "Add an extra layer of security";
+"settings.account.2fa.footer" = "Protect your account with two-factor authentication using an authenticator app.";
+"settings.account.setup" = "Set Up";
+"settings.account.2fa_coming_soon" = "Two-Factor Authentication Coming Soon";
+"settings.account.2fa_coming_soon.description" = "We're working on adding two-factor authentication to provide an extra layer of security for your account.";
+"settings.account.active_sessions" = "Active Sessions";
+"settings.account.devices" = "Manage Devices";
+"settings.account.devices.subtitle" = "View and manage where you're signed in";
+"settings.account.this_device" = "This Device";
+"settings.account.active_now" = "Active now";
+"settings.account.current" = "Current";
+"settings.account.sessions.footer" = "You can sign out of other devices to protect your account.";
+"settings.account.info" = "Account Information";
+"settings.account.member_since" = "Member Since";
+"settings.account.last_login" = "Last Login";
+"settings.account.change_email" = "Change Email";
+"settings.account.current_email" = "Current Email";
+"settings.account.new_email" = "New Email";
+"settings.account.new_email_section" = "New Email";
+"settings.account.password_confirm" = "Password";
+"settings.account.password_required" = "Enter your password to confirm this change.";
+"settings.account.current_password" = "Current Password";
+"settings.account.new_password" = "New Password";
+"settings.account.new_password_section" = "New Password";
+"settings.account.confirm_password" = "Confirm New Password";
+"settings.account.password_requirements" = "Password must be at least 8 characters long.";
+"settings.account.passwords_must_match" = "Passwords must match";
+"settings.account.cancel" = "Cancel";
+"settings.account.update" = "Update";
+"settings.account.close" = "Close";
+"settings.account.done" = "Done";
 
 // MARK: - Privacy Policy (Data Storage)
 "privacy.data_storage_auth.title" = "Authentication Data Storage";
@@ -958,3 +1212,224 @@
 
 "privacy.data_transfers.title" = "International Data Transfers";
 "privacy.data_transfers.content" = "Authentication data (emails, passwords) may be transferred to the United States via Firebase Authentication. These transfers are protected by Standard Contractual Clauses (SCCs) approved by the European Commission and the Swiss Federal Data Protection and Information Commissioner (FDPIC). All other personal data remains in Switzerland (Zurich, europe-west6) and is not transferred outside of Swiss or EU jurisdiction.";
+
+// MARK: - Accessibility Settings (Enhanced)
+"accessibility.active_features" = "Active System Features";
+"accessibility.active_features.footer" = "These features are controlled from iOS Settings > Accessibility";
+"accessibility.voiceover.active" = "VoiceOver is Active";
+"accessibility.switchcontrol.active" = "Switch Control is Active";
+"accessibility.assistivetouch.active" = "AssistiveTouch is Active";
+
+// Visual Accessibility
+"accessibility.visual" = "Visual Accessibility";
+"accessibility.visual.footer" = "Visual accessibility features are configured in iOS Settings";
+"accessibility.bold_text" = "Bold Text";
+"accessibility.increase_contrast.title" = "Increase Contrast";
+"accessibility.reduce_transparency" = "Reduce Transparency";
+"accessibility.darker_colors" = "Darker System Colors";
+"accessibility.invert_colors" = "Invert Colors";
+"accessibility.grayscale" = "Grayscale";
+
+// Motion
+"accessibility.motion" = "Motion";
+"accessibility.motion.footer" = "When Reduce Motion is enabled, animations are minimized";
+"accessibility.crossfade" = "Prefer Cross-Fade Transitions";
+
+// Hearing
+"accessibility.hearing" = "Hearing";
+"accessibility.mono_audio" = "Mono Audio";
+"accessibility.closed_captions" = "Closed Captions";
+
+// Motor & Interaction
+"accessibility.motor" = "Motor & Interaction";
+"accessibility.shake_undo" = "Shake to Undo";
+
+// Guided Access & Speech
+"accessibility.guided_speech" = "Guided Access & Speech";
+"accessibility.guided_access" = "Guided Access";
+"accessibility.speak_screen" = "Speak Screen";
+"accessibility.speak_selection" = "Speak Selection";
+
+// Text Size
+"accessibility.text_size" = "Text Size";
+"accessibility.text_size.footer" = "Text size is controlled in iOS Settings > Accessibility > Display & Text Size";
+"accessibility.dynamic_type" = "Dynamic Type Size";
+
+// Open Settings
+"accessibility.open_settings" = "Open iOS Accessibility Settings";
+"accessibility.open_settings.footer" = "Most accessibility features are managed at the system level for consistency across all apps";
+
+// Status
+"accessibility.status.enabled" = "Enabled";
+"accessibility.status.disabled" = "Disabled";
+
+// MARK: - Security Settings (Enhanced)
+"security.title" = "Security";
+"security.authentication" = "Authentication";
+"security.authentication.footer" = "Auto-lock requires re-authentication after the specified time";
+"security.biometric" = "Face ID / Touch ID";
+"security.biometric.description" = "Use biometrics for app login";
+"security.biometric.label" = "Face ID or Touch ID authentication";
+"security.biometric.hint" = "Enable biometric authentication for secure app access";
+"security.autolock" = "Auto-Lock";
+"security.autolock.30s" = "30 seconds";
+"security.autolock.1m" = "1 minute";
+"security.autolock.5m" = "5 minutes";
+"security.autolock.never" = "Never";
+"security.autolock.label" = "Auto-lock timeout: %@";
+
+// Data Protection
+"security.data_protection" = "Data Protection";
+"security.data_protection.footer" = "All backups are encrypted and stored securely";
+"security.encrypt_local" = "Encrypt Local Data";
+"security.encrypt_local.description" = "All data is encrypted using AES-256";
+"security.encrypt_local.label" = "Encrypt Local Data: Always enabled. All data is encrypted using AES-256";
+"security.cloud_backup" = "Secure Cloud Backup";
+"security.cloud_backup.description" = "Encrypted backup to iCloud";
+"security.cloud_backup.hint" = "Enable encrypted backup to iCloud";
+
+// Account Security
+"security.account" = "Account Security";
+"security.change_password" = "Change Password";
+"security.change_password.hint" = "Update your account password";
+"security.change_password.alert.title" = "Change Password";
+"security.change_password.alert.message" = "Password changes must be done through your account settings in the web portal";
+"security.activity_log" = "Security Activity Log";
+"security.activity_log.hint" = "See recent security events";
+"security.activity_log.alert.title" = "Security Log";
+"security.activity_log.alert.message" = "Security activity logging will be available in a future update";
+
+// Security Features
+"security.features" = "Security Features";
+"security.encryption" = "Data Encryption";
+"security.encryption.e2e" = "• End-to-end encryption for all data";
+"security.encryption.aes" = "• AES-256 encryption at rest";
+"security.encryption.tls" = "• TLS 1.3 encryption in transit";
+
+// MARK: - Report Issue
+"report.title" = "Report Issue";
+"report.type" = "Issue Type";
+"report.type.bug" = "Bug";
+"report.type.feature" = "Feature Request";
+"report.type.performance" = "Performance";
+"report.type.other" = "Other";
+"report.type.label" = "Issue type: %@";
+"report.description" = "Description";
+"report.description.hint" = "Describe the issue you're experiencing";
+"report.description.footer" = "Please provide as much detail as possible";
+"report.email" = "Contact (Optional)";
+"report.email.placeholder" = "your.email@example.com";
+"report.email.hint" = "Optional contact email for follow-up";
+"report.email.footer" = "We may reach out if we need more information";
+"report.submit" = "Submit Report";
+"report.submit.hint.empty" = "Description required";
+"report.submit.hint.ready" = "Send your issue report to support";
+"report.success.title" = "Report Submitted";
+"report.success.message" = "Thank you for your feedback! We'll review your report and get back to you if needed.";
+"report.error.title" = "Error";
+"report.error.message" = "Unable to submit report. Please try again or email support@taxed.ch directly.";
+"report.email.issue_type" = "Issue Type:";
+"report.email.description" = "Description:";
+"report.email.contact_email" = "Contact Email:";
+"report.email.not_provided" = "Not provided";
+"report.email.device" = "Device:";
+"report.email.app_version" = "App Version:";
+
+// MARK: - Profile (Enhanced)
+"profile.person1.name" = "Person 1 - Full Name";
+"profile.person1.name.placeholder" = "e.g., Hans Müller";
+"profile.person1.ahv" = "Person 1 - AHV/AVS Number";
+"profile.person1.ahv.short" = "Person 1 - AHV";
+"profile.person2.name" = "Person 2 - Full Name (Spouse/Partner)";
+"profile.person2.name.short" = "Person 2 - Name (Spouse/Partner)";
+"profile.person2.name.placeholder" = "e.g., Maria Müller";
+"profile.person2.ahv" = "Person 2 - AHV/AVS Number";
+"profile.person2.ahv.short" = "Person 2 - AHV";
+"profile.person2.ahv.placeholder" = "756.9876.5432.10";
+
+// Address
+"profile.address" = "Address";
+"profile.address.info" = "Address Information";
+"profile.street" = "Street";
+"profile.street.placeholder" = "Street and Number";
+"profile.postal_code" = "Postal Code";
+"profile.postal_code.placeholder" = "1234";
+"profile.city" = "City";
+"profile.city.placeholder" = "City";
+
+// Swiss Tax Information
+"profile.tax_info" = "Swiss Tax Information";
+"profile.tax_info.footer" = "This information is required for accurate tax calculations and submission to Swiss authorities";
+"profile.tax_info.joint.footer" = "For married couples or registered partnerships, both Person 1 and Person 2 information is required for joint tax filing";
+"profile.ahv" = "AHV/AVS Number";
+"profile.ahv.placeholder" = "756.1234.5678.97";
+"profile.municipality" = "Municipality";
+"profile.municipality.placeholder" = "e.g., Zurich";
+"profile.municipality_id" = "Municipality ID (BFS Number)";
+"profile.municipality_id.short" = "Municipality ID (BFS)";
+"profile.municipality_id.placeholder" = "e.g., 261";
+"profile.marital_status" = "Marital Status";
+"profile.marital_status.not_specified" = "Not specified";
+"profile.marital_status.single" = "Single";
+"profile.marital_status.married" = "Married";
+"profile.marital_status.divorced" = "Divorced";
+"profile.marital_status.widowed" = "Widowed";
+"profile.marital_status.partnership" = "Registered Partnership";
+"profile.children" = "Number of Children";
+"profile.children.placeholder" = "0";
+
+// Profile Completeness
+"profile.completeness.footer" = "Complete your profile information for accurate tax calculations";
+
+
+// MARK: - Authentication (Additional)
+"auth.name.label" = "Full Name";
+"auth.email.label" = "Email Address";
+"auth.password.label" = "Password";
+"auth.phone.label" = "Phone Number";
+"auth.signin.button" = "Sign In";
+"auth.signin.prompt" = "Already have an account? Sign In";
+"auth.signup.prompt" = "Don't have an account yet? Sign Up";
+"auth.forgot.password" = "Forgot Password?";
+
+// Terms & Privacy
+"auth.terms.prefix" = "By signing up, you agree to our";
+"auth.terms.link" = "Terms of Service";
+"auth.terms.and" = "and";
+"auth.privacy.link" = "Privacy Policy";
+
+// Accessibility Labels
+"auth.apple.signin.label" = "Sign in with Apple";
+"auth.apple.signin.hint" = "Use your Apple ID to sign in securely";
+"auth.password.show" = "Show password";
+"auth.password.hide" = "Hide password";
+"auth.password.toggle.hint" = "Toggle password visibility";
+"auth.switch.signin" = "Switch to Sign In";
+"auth.switch.signup" = "Switch to Sign Up";
+"auth.forgot.password.hint" = "Open password reset options";
+"auth.terms.hint" = "Open terms of service";
+"auth.privacy.hint" = "Open privacy policy";
+"auth.terms.privacy.label" = "By using this app, you agree to our Terms of Service and Privacy Policy";
+
+// Validation Errors
+"auth.validation.email.invalid" = "Invalid email format";
+"auth.validation.password.short" = "Password must be at least 6 characters";
+"auth.validation.name.short" = "Name must be at least 2 characters";
+"auth.validation.phone.invalid" = "Invalid phone number";
+
+// VoiceOver Announcements
+"auth.screen.signup.announce" = "Sign up screen. Please enter your information to create an account.";
+"auth.screen.signin.announce" = "Sign in screen. Please enter your credentials to access your account.";
+"auth.success.announce" = "Authentication successful. Welcome to TaxedGmbH.";
+
+// Field Descriptions
+"auth.name.hint" = "Enter your full name";
+"auth.email.hint" = "Enter your email address";
+"auth.password.hint" = "Enter your password. Use the show password button to toggle visibility";
+"auth.password.value.empty" = "Empty";
+"auth.password.value.hidden" = "Hidden";
+"auth.phone.hint" = "Enter your phone number";
+"auth.submit.hint.valid" = "Submit authentication form";
+"auth.submit.hint.invalid" = "Complete all required fields to enable";
+"auth.loading" = "Loading";
+

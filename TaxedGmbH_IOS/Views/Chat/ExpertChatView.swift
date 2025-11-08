@@ -13,7 +13,7 @@ import PhotosUI
 
 struct ExpertChatView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var chatService = ChatService.shared
+    @ObservedObject private var chatService = ChatService.shared
 
     @State private var messageText = ""
     @State private var messages: [ChatMessage] = []

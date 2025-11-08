@@ -9,7 +9,7 @@ import SwiftUI
 import UserNotifications
 
 struct DetailedNotificationSettingsView: View {
-    @StateObject private var notificationService = NotificationService.shared
+    @ObservedObject private var notificationService = NotificationService.shared
     @EnvironmentObject var authService: AuthenticationService
 
     // Notification preferences

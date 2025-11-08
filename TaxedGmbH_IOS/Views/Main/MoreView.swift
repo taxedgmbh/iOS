@@ -59,11 +59,54 @@ struct MoreView: View {
                 )
 
                 MoreMenuItem(
+                    icon: "paintpalette.fill",
+                    iconColor: .purple,
+                    title: "more.appearance".localized,
+                    subtitle: "more.appearance.subtitle".localized,
+                    destination: AnyView(AppearanceSettingsView())
+                )
+
+                MoreMenuItem(
                     icon: "bell.fill",
                     iconColor: .orange,
                     title: "more.notifications".localized,
                     subtitle: "more.notifications.subtitle".localized,
                     destination: AnyView(NotificationSettingsView())
+                )
+            }
+
+            // Tax Settings Section
+            Section(header: Text("more.tax_settings.header".localized)) {
+                MoreMenuItem(
+                    icon: "calendar.badge.clock",
+                    iconColor: .blue,
+                    title: "more.tax_settings".localized,
+                    subtitle: "more.tax_settings.subtitle".localized,
+                    destination: AnyView(TaxSettingsView())
+                )
+
+                MoreMenuItem(
+                    icon: "map.fill",
+                    iconColor: .red,
+                    title: "more.canton_settings".localized,
+                    subtitle: "more.canton_settings.subtitle".localized,
+                    destination: AnyView(CantonSettingsView())
+                )
+
+                MoreMenuItem(
+                    icon: "calendar.badge.exclamationmark",
+                    iconColor: .orange,
+                    title: "more.tax_deadlines".localized,
+                    subtitle: "more.tax_deadlines.subtitle".localized,
+                    destination: AnyView(TaxDeadlinesView())
+                )
+
+                MoreMenuItem(
+                    icon: "person.2.circle.fill",
+                    iconColor: .green,
+                    title: "more.expert_connection".localized,
+                    subtitle: "more.expert_connection.subtitle".localized,
+                    destination: AnyView(ExpertConnectionView())
                 )
             }
 
@@ -81,11 +124,30 @@ struct MoreView: View {
             // Security Section
             Section(header: Text("more.security.header".localized)) {
                 MoreMenuItem(
+                    icon: "person.badge.key.fill",
+                    iconColor: .blue,
+                    title: "more.account_management".localized,
+                    subtitle: "more.account_management.subtitle".localized,
+                    destination: AnyView(AccountManagementView())
+                )
+
+                MoreMenuItem(
                     icon: "lock.shield.fill",
                     iconColor: .red,
                     title: "more.security".localized,
                     subtitle: "more.security.subtitle".localized,
                     destination: AnyView(SecuritySettingsView())
+                )
+            }
+
+            // Data & Privacy Section
+            Section(header: Text("more.data_privacy.header".localized)) {
+                MoreMenuItem(
+                    icon: "externaldrive.fill",
+                    iconColor: .green,
+                    title: "more.data_management".localized,
+                    subtitle: "more.data_management.subtitle".localized,
+                    destination: AnyView(DataManagementView())
                 )
             }
 
@@ -277,6 +339,25 @@ struct ProfileView: View {
     @State private var isEditing = false
     @State private var editedName = ""
     @State private var editedPhone = ""
+
+    // Address fields
+    @State private var editedStreet = ""
+    @State private var editedPostalCode = ""
+    @State private var editedCity = ""
+
+    // Swiss Tax fields
+    @State private var editedAhvNumber = ""
+    @State private var editedMunicipality = ""
+    @State private var editedMunicipalityId = ""
+    @State private var editedMaritalStatus: MaritalStatus? = nil
+    @State private var editedNumberOfChildren = ""
+
+    // Person 1 and Person 2 (for joint filing)
+    @State private var editedPerson1Name = ""
+    @State private var editedPerson1AhvNumber = ""
+    @State private var editedPerson2Name = ""
+    @State private var editedPerson2AhvNumber = ""
+
     @State private var showImagePicker = false
     @State private var selectedImage: UIImage?
     @State private var profileImageURL: String?
@@ -411,7 +492,172 @@ struct ProfileView: View {
                     )
                 }
 
-                if let canton = authService.user?.canton {
+            } header: {
+                Text("profile.personal_info".localized)
+            }
+
+            // Address Information Section
+            Section {
+                if isEditing {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Address")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("Street and Number", text: $editedStreet)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    .padding(.vertical, 4)
+
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Postal Code")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("1234", text: $editedPostalCode)
+                                .textFieldStyle(.roundedBorder)
+                                .keyboardType(.numberPad)
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("City")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("City", text: $editedCity)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                } else {
+                    if let street = authService.user?.street, !street.isEmpty {
+                        ProfileInfoRow(
+                            label: "Street",
+                            value: street,
+                            icon: "house.fill"
+                        )
+                    }
+
+                    if let postalCode = authService.user?.postalCode, !postalCode.isEmpty,
+                       let city = authService.user?.city, !city.isEmpty {
+                        ProfileInfoRow(
+                            label: "City",
+                            value: "\(postalCode) \(city)",
+                            icon: "building.2.fill"
+                        )
+                    }
+                }
+            } header: {
+                Text("Address Information")
+            }
+
+            // Swiss Tax Information Section
+            Section {
+                // Show Person 1 and Person 2 for married/partnered couples
+                let isJointFiling = editedMaritalStatus == .married || editedMaritalStatus == .registered_partnership ||
+                                   authService.user?.maritalStatus == .married || authService.user?.maritalStatus == .registered_partnership
+
+                if isJointFiling {
+                    // Person 1 Information
+                    if isEditing {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Person 1 - Full Name")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("e.g., Hans Müller", text: $editedPerson1Name)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        .padding(.vertical, 4)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Person 1 - AHV/AVS Number")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("756.1234.5678.97", text: $editedPerson1AhvNumber)
+                                .textFieldStyle(.roundedBorder)
+                                .keyboardType(.numberPad)
+                        }
+                        .padding(.vertical, 4)
+                    } else {
+                        if let person1Name = authService.user?.person1Name, !person1Name.isEmpty {
+                            ProfileInfoRow(
+                                label: "Person 1 - Name",
+                                value: person1Name,
+                                icon: "person.fill"
+                            )
+                        }
+                        if let person1Ahv = authService.user?.person1AhvNumber, !person1Ahv.isEmpty {
+                            ProfileInfoRow(
+                                label: "Person 1 - AHV/AVS",
+                                value: person1Ahv,
+                                icon: "number.circle.fill"
+                            )
+                        }
+                    }
+
+                    // Person 2 Information (Spouse/Partner)
+                    if isEditing {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Person 2 - Full Name (Spouse/Partner)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("e.g., Maria Müller", text: $editedPerson2Name)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        .padding(.vertical, 4)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Person 2 - AHV/AVS Number")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("756.9876.5432.10", text: $editedPerson2AhvNumber)
+                                .textFieldStyle(.roundedBorder)
+                                .keyboardType(.numberPad)
+                        }
+                        .padding(.vertical, 4)
+                    } else {
+                        if let person2Name = authService.user?.person2Name, !person2Name.isEmpty {
+                            ProfileInfoRow(
+                                label: "Person 2 - Name (Spouse/Partner)",
+                                value: person2Name,
+                                icon: "person.fill"
+                            )
+                        }
+                        if let person2Ahv = authService.user?.person2AhvNumber, !person2Ahv.isEmpty {
+                            ProfileInfoRow(
+                                label: "Person 2 - AHV/AVS",
+                                value: person2Ahv,
+                                icon: "number.circle.fill"
+                            )
+                        }
+                    }
+                } else {
+                    // Single filer - show single AHV field
+                    if isEditing {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("AHV/AVS Number")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            TextField("756.1234.5678.97", text: $editedPerson1AhvNumber)
+                                .textFieldStyle(.roundedBorder)
+                                .keyboardType(.numberPad)
+                        }
+                        .padding(.vertical, 4)
+                    } else if let person1Ahv = authService.user?.person1AhvNumber, !person1Ahv.isEmpty {
+                        ProfileInfoRow(
+                            label: "AHV/AVS Number",
+                            value: person1Ahv,
+                            icon: "number.circle.fill"
+                        )
+                    } else if let ahvNumber = authService.user?.ahvNumber, !ahvNumber.isEmpty {
+                        // Backward compatibility with old ahvNumber field
+                        ProfileInfoRow(
+                            label: "AHV/AVS Number",
+                            value: ahvNumber,
+                            icon: "number.circle.fill"
+                        )
+                    }
+                }
+
+                if let canton = authService.user?.canton, !canton.isEmpty {
                     ProfileInfoRow(
                         label: "settings.profile.canton".localized,
                         value: canton,
@@ -419,8 +665,96 @@ struct ProfileView: View {
                         isEditable: false
                     )
                 }
+
+                if isEditing {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Municipality")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("e.g., Zurich", text: $editedMunicipality)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    .padding(.vertical, 4)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Municipality ID (BFS Number)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("e.g., 261", text: $editedMunicipalityId)
+                            .textFieldStyle(.roundedBorder)
+                            .keyboardType(.numberPad)
+                    }
+                    .padding(.vertical, 4)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Marital Status")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Picker("Marital Status", selection: $editedMaritalStatus) {
+                            Text("Not specified").tag(nil as MaritalStatus?)
+                            ForEach([MaritalStatus.single, .married, .divorced, .widowed, .registered_partnership], id: \.self) { status in
+                                Text(status.rawValue.capitalized.replacingOccurrences(of: "_", with: " "))
+                                    .tag(status as MaritalStatus?)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    .padding(.vertical, 4)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Number of Children")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        TextField("0", text: $editedNumberOfChildren)
+                            .textFieldStyle(.roundedBorder)
+                            .keyboardType(.numberPad)
+                    }
+                    .padding(.vertical, 4)
+                } else {
+                    if let municipality = authService.user?.municipality, !municipality.isEmpty {
+                        ProfileInfoRow(
+                            label: "Municipality",
+                            value: municipality,
+                            icon: "building.2.fill"
+                        )
+                    }
+
+                    if let municipalityId = authService.user?.municipalityId, !municipalityId.isEmpty {
+                        ProfileInfoRow(
+                            label: "Municipality ID (BFS)",
+                            value: municipalityId,
+                            icon: "number.square.fill"
+                        )
+                    }
+
+                    if let maritalStatus = authService.user?.maritalStatus {
+                        ProfileInfoRow(
+                            label: "Marital Status",
+                            value: maritalStatus.rawValue.capitalized.replacingOccurrences(of: "_", with: " "),
+                            icon: "heart.circle.fill"
+                        )
+                    }
+
+                    if let numberOfChildren = authService.user?.numberOfChildren {
+                        ProfileInfoRow(
+                            label: "Number of Children",
+                            value: "\(numberOfChildren)",
+                            icon: "figure.and.child.holdinghands"
+                        )
+                    }
+                }
             } header: {
-                Text("profile.personal_info".localized)
+                Text("Swiss Tax Information")
+            } footer: {
+                let isJointFiling = editedMaritalStatus == .married || editedMaritalStatus == .registered_partnership ||
+                                   authService.user?.maritalStatus == .married || authService.user?.maritalStatus == .registered_partnership
+                if isJointFiling {
+                    Text("For married couples or registered partnerships, both Person 1 and Person 2 information is required for joint tax filing")
+                        .font(.caption)
+                } else {
+                    Text("This information is required for accurate tax calculations and submission to Swiss authorities")
+                        .font(.caption)
+                }
             }
 
             // Account Information with copy functionality
@@ -595,14 +929,44 @@ struct ProfileView: View {
     // Calculate profile completeness percentage
     private func calculateProfileCompleteness() -> Int {
         var completeness = 0
-        let totalFields = 5
+        var totalFields = 13  // Base fields
 
         if let user = authService.user {
+            // Basic fields (4)
             if !user.name.isEmpty { completeness += 1 }
             if !user.email.isEmpty { completeness += 1 }
             if !(user.phone ?? "").isEmpty { completeness += 1 }
-            if user.canton != nil { completeness += 1 }
             if let imageUrl = user.profileImageUrl, !imageUrl.isEmpty { completeness += 1 }
+
+            // Address fields (3)
+            if !(user.street ?? "").isEmpty { completeness += 1 }
+            if !(user.postalCode ?? "").isEmpty { completeness += 1 }
+            if !(user.city ?? "").isEmpty { completeness += 1 }
+
+            // Check if joint filing (married or registered partnership)
+            let isJointFiling = user.maritalStatus == .married || user.maritalStatus == .registered_partnership
+
+            if isJointFiling {
+                // For joint filing, we need both person 1 and person 2 info (4 fields)
+                totalFields = 15  // 4 basic + 3 address + 2 person1 + 2 person2 + 4 other tax fields
+
+                if !(user.person1Name ?? "").isEmpty { completeness += 1 }
+                if !(user.person1AhvNumber ?? "").isEmpty { completeness += 1 }
+                if !(user.person2Name ?? "").isEmpty { completeness += 1 }
+                if !(user.person2AhvNumber ?? "").isEmpty { completeness += 1 }
+            } else {
+                // For single filing, just person 1 AHV (1 field)
+                totalFields = 12  // 4 basic + 3 address + 1 ahv + 4 other tax fields
+                if !(user.person1AhvNumber ?? "").isEmpty || !(user.ahvNumber ?? "").isEmpty {
+                    completeness += 1
+                }
+            }
+
+            // Common Swiss Tax fields (4)
+            if user.canton != nil { completeness += 1 }
+            if !(user.municipality ?? "").isEmpty { completeness += 1 }
+            if user.maritalStatus != nil { completeness += 1 }
+            if user.numberOfChildren != nil { completeness += 1 }
         }
 
         return Int((Double(completeness) / Double(totalFields)) * 100)
@@ -676,6 +1040,29 @@ struct ProfileView: View {
     private func startEditing() {
         editedName = authService.user?.name ?? ""
         editedPhone = authService.user?.phone ?? ""
+
+        // Address fields
+        editedStreet = authService.user?.street ?? ""
+        editedPostalCode = authService.user?.postalCode ?? ""
+        editedCity = authService.user?.city ?? ""
+
+        // Swiss Tax fields
+        editedAhvNumber = authService.user?.ahvNumber ?? ""
+        editedMunicipality = authService.user?.municipality ?? ""
+        editedMunicipalityId = authService.user?.municipalityId ?? ""
+        editedMaritalStatus = authService.user?.maritalStatus
+        if let numberOfChildren = authService.user?.numberOfChildren {
+            editedNumberOfChildren = "\(numberOfChildren)"
+        } else {
+            editedNumberOfChildren = ""
+        }
+
+        // Person 1 and Person 2 fields
+        editedPerson1Name = authService.user?.person1Name ?? ""
+        editedPerson1AhvNumber = authService.user?.person1AhvNumber ?? (authService.user?.ahvNumber ?? "") // Backward compatibility
+        editedPerson2Name = authService.user?.person2Name ?? ""
+        editedPerson2AhvNumber = authService.user?.person2AhvNumber ?? ""
+
         isEditing = true
     }
 
@@ -696,6 +1083,68 @@ struct ProfileView: View {
 
                 if editedPhone != (authService.user?.phone ?? "") {
                     updateData["phone"] = editedPhone
+                }
+
+                // Address fields
+                if editedStreet != (authService.user?.street ?? "") {
+                    updateData["street"] = editedStreet
+                }
+
+                if editedPostalCode != (authService.user?.postalCode ?? "") {
+                    updateData["postalCode"] = editedPostalCode
+                }
+
+                if editedCity != (authService.user?.city ?? "") {
+                    updateData["city"] = editedCity
+                }
+
+                // Person 1 and Person 2 fields
+                if editedPerson1Name != (authService.user?.person1Name ?? "") {
+                    updateData["person1Name"] = editedPerson1Name
+                }
+
+                if editedPerson1AhvNumber != (authService.user?.person1AhvNumber ?? "") {
+                    updateData["person1AhvNumber"] = editedPerson1AhvNumber
+                }
+
+                if editedPerson2Name != (authService.user?.person2Name ?? "") {
+                    updateData["person2Name"] = editedPerson2Name
+                }
+
+                if editedPerson2AhvNumber != (authService.user?.person2AhvNumber ?? "") {
+                    updateData["person2AhvNumber"] = editedPerson2AhvNumber
+                }
+
+                // Swiss Tax fields
+                if editedAhvNumber != (authService.user?.ahvNumber ?? "") {
+                    updateData["ahvNumber"] = editedAhvNumber
+                }
+
+                if editedMunicipality != (authService.user?.municipality ?? "") {
+                    updateData["municipality"] = editedMunicipality
+                }
+
+                if editedMunicipalityId != (authService.user?.municipalityId ?? "") {
+                    updateData["municipalityId"] = editedMunicipalityId
+                }
+
+                // Marital status
+                if editedMaritalStatus != authService.user?.maritalStatus {
+                    if let status = editedMaritalStatus {
+                        updateData["maritalStatus"] = status.rawValue
+                    } else {
+                        updateData["maritalStatus"] = nil
+                    }
+                }
+
+                // Number of children
+                let numberOfChildren = Int(editedNumberOfChildren)
+                if numberOfChildren != authService.user?.numberOfChildren {
+                    if let count = numberOfChildren {
+                        updateData["numberOfChildren"] = count
+                    } else {
+                        updateData["numberOfChildren"] = nil
+                    }
                 }
 
                 // If there are changes, save them
@@ -951,11 +1400,8 @@ struct IdentifiableURL: Identifiable {
     var id: String { url.absoluteString }
 }
 
-// Keep the extension for backward compatibility but mark as deprecated
-@available(*, deprecated, message: "Use IdentifiableURL wrapper instead to avoid potential conflicts")
-extension URL: Identifiable {
-    public var id: String { absoluteString }
-}
+// URL Identifiable extension removed to avoid future conflicts with Swift/Foundation.
+// Use IdentifiableURL wrapper instead if needed.
 
 // MARK: - Activity View Controller
 import UIKit

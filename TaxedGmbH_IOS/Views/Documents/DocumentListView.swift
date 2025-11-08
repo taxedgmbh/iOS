@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DocumentListView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var firestoreService = FirestoreService.shared
+    @ObservedObject private var firestoreService = FirestoreService.shared
 
     @State private var documents: [TaxDocument] = []
     @State private var isLoading = false

@@ -72,14 +72,15 @@ class DocumentManager: ObservableObject {
     /// Load documents for a specific workspace (preferred method for workspace-centric architecture)
     /// Note: This method assumes the calling code has already verified workspace access.
     /// For security, views should ensure users can only load documents from their workspaces.
-    func loadDocuments(forWorkspace workspaceId: String) async {
+    /// This also loads legacy documents (without workspaceId) for the user.
+    func loadDocuments(forWorkspace workspaceId: String, userId: String? = nil) async {
         isLoading = true
         error = nil
 
         do {
-            let documents = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId)
+            let documents = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId, userId: userId)
             allDocuments = documents.sorted { $0.uploadedAt > $1.uploadedAt }
-            print("✅ Loaded \(documents.count) documents for workspace")
+            print("✅ Loaded \(documents.count) documents for workspace (including legacy)")
         } catch {
             self.error = error.localizedDescription
             print("❌ Failed to load documents for workspace: \(error)")

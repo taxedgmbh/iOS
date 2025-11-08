@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuickVoiceNoteWidget: View {
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @ObservedObject private var speechService = SpeechRecognitionService.shared
     @State private var showingFullInput = false
     @State private var savedNotes: [VoiceNoteItem] = []
     @State private var isExpanded = false

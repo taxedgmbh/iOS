@@ -11,7 +11,7 @@ import Combine
 struct UnifiedExpatCenterView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject private var localizationService = LocalizationService.shared
-    @StateObject private var checklistService = ChecklistService.shared
+    @ObservedObject private var checklistService = ChecklistService.shared
     @StateObject private var expatManager = ExpatDataManager()
 
     @State private var selectedTab = 0

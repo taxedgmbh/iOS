@@ -1,19 +1,27 @@
 #!/bin/bash
 
-# Test Firestore database connection
-echo "🔍 Checking Firestore database 'taxedgmbh'..."
+# Direct check using Firebase console URL
+PROJECT_ID="taxedgmbh"
+DATABASE="taxedgmbh"
+WORKSPACE_ID="V59XKFt4De8ooBKlAULx"
 
-# Extract project ID from GoogleService-Info.plist
-PROJECT_ID=$(plutil -extract PROJECT_ID raw /Users/emanuelflury/github/TaxedGmbH_IOS/TaxedGmbH_IOS/Resources/GoogleService-Info.plist)
-echo "📋 Project ID: $PROJECT_ID"
-
-# Show database URL from config
-DATABASE_URL=$(plutil -extract DATABASE_URL raw /Users/emanuelflury/github/TaxedGmbH_IOS/TaxedGmbH_IOS/Resources/GoogleService-Info.plist)
-echo "🔗 Database URL: $DATABASE_URL"
-
+echo "🔍 FIRESTORE WORKSPACE QUERY"
+echo "=============================="
 echo ""
-echo "✅ Firebase configuration found"
-echo "✅ Database ID 'taxedgmbh' is configured in AppConstants.Firebase.databaseId"
+echo "Project: $PROJECT_ID"
+echo "Database: $DATABASE"
+echo "Workspace ID: $WORKSPACE_ID"
 echo ""
-echo "To verify database access, go to:"
-echo "https://console.firebase.google.com/project/$PROJECT_ID/firestore/databases"
+echo "📋 Please manually check in Firebase Console:"
+echo "   https://console.firebase.google.com/project/$PROJECT_ID/firestore/databases/$DATABASE/data/workspaces/$WORKSPACE_ID"
+echo ""
+echo "🔎 What to look for:"
+echo "   1. Does the workspace document exist?"
+echo "   2. Check the 'memberIds' field - what values are in the array?"
+echo "   3. Check the 'members' field - what user IDs are listed?"
+echo "   4. Check the 'ownerId' field - what is the owner's user ID?"
+echo ""
+echo "🆔 Also check the authenticated user ID in the app:"
+echo "   - Look for console logs containing 'User ID:'"
+echo "   - Or check Firebase Authentication console for the test user's UID"
+echo ""

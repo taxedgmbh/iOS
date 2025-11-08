@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var firestoreService = FirestoreService.shared
+    @ObservedObject private var firestoreService = FirestoreService.shared
     @ObservedObject private var localizationService = LocalizationService.shared
     @StateObject private var categoryConfig = CategoryConfigurationModel()
 
@@ -208,7 +208,7 @@ struct DashboardView: View {
                         VStack(spacing: 12) {
                             // First Page Tax Return - Special Card
                             QuickActionButton(
-                                icon: "doc.text.fill.badge.checkmark",
+                                icon: "doc.text.fill",
                                 title: "dashboard.first_page_tax_return".localized,
                                 subtitle: "dashboard.first_page_subtitle".localized,
                                 color: Color(red: 227/255, green: 30/255, blue: 36/255)

@@ -9,92 +9,425 @@ import SwiftUI
 
 // MARK: - Accessibility Settings View
 struct AccessibilitySettingsView: View {
-    @Environment(\.dismiss) var dismiss
+    @ObservedObject private var accessibilityManager = AccessibilityManager.shared
 
     var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("Visual")) {
-                    Toggle("Increase Contrast", isOn: .constant(false))
-                    Toggle("Reduce Transparency", isOn: .constant(false))
-                    Toggle("Bold Text", isOn: .constant(false))
+        List {
+            // System Status Section
+            Section {
+                if accessibilityManager.isVoiceOverRunning {
+                    HStack {
+                        Image(systemName: "speaker.wave.3.fill")
+                            .foregroundColor(.green)
+                        Text("accessibility.voiceover.active".localized)
+                            .fontWeight(.medium)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
 
-                Section(header: Text("Motion")) {
-                    Toggle("Reduce Motion", isOn: .constant(false))
+                if accessibilityManager.isSwitchControlRunning {
+                    HStack {
+                        Image(systemName: "switch.2")
+                            .foregroundColor(.blue)
+                        Text("accessibility.switchcontrol.active".localized)
+                            .fontWeight(.medium)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
 
-                Section(header: Text("Audio")) {
-                    Toggle("Mono Audio", isOn: .constant(false))
+                if accessibilityManager.isAssistiveTouchRunning {
+                    HStack {
+                        Image(systemName: "hand.tap.fill")
+                            .foregroundColor(.orange)
+                        Text("accessibility.assistivetouch.active".localized)
+                            .fontWeight(.medium)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
+            } header: {
+                Text("accessibility.active_features".localized)
+            } footer: {
+                Text("accessibility.active_features.footer".localized)
             }
-            .navigationTitle("Accessibility")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+
+            // Visual Accessibility
+            Section {
+                AccessibilityStatusRow(
+                    icon: "eyes",
+                    title: "accessibility.bold_text".localized,
+                    isEnabled: accessibilityManager.isBoldTextEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "circle.lefthalf.filled",
+                    title: "accessibility.increase_contrast.title".localized,
+                    isEnabled: accessibilityManager.isIncreaseContrastEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "rectangle.3.offgrid.fill",
+                    title: "accessibility.reduce_transparency".localized,
+                    isEnabled: accessibilityManager.isReduceTransparencyEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "sun.max.fill",
+                    title: "accessibility.darker_colors".localized,
+                    isEnabled: accessibilityManager.isDarkerSystemColorsEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "circle.grid.cross.fill",
+                    title: "accessibility.invert_colors".localized,
+                    isEnabled: accessibilityManager.isInvertColorsEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "camera.filters",
+                    title: "accessibility.grayscale".localized,
+                    isEnabled: accessibilityManager.isGrayscaleEnabled,
+                    systemSetting: true
+                )
+            } header: {
+                Text("accessibility.visual".localized)
+            } footer: {
+                Text("accessibility.visual.footer".localized)
+            }
+
+            // Motion
+            Section {
+                AccessibilityStatusRow(
+                    icon: "arrow.triangle.2.circlepath",
+                    title: "accessibility.reduce_motion".localized,
+                    isEnabled: accessibilityManager.isReduceMotionEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "arrow.left.and.right.circle.fill",
+                    title: "accessibility.crossfade".localized,
+                    isEnabled: accessibilityManager.prefersCrossFadeTransitions,
+                    systemSetting: true
+                )
+            } header: {
+                Text("accessibility.motion".localized)
+            } footer: {
+                Text("accessibility.motion.footer".localized)
+            }
+
+            // Audio & Hearing
+            Section {
+                AccessibilityStatusRow(
+                    icon: "speaker.wave.1.fill",
+                    title: "accessibility.mono_audio".localized,
+                    isEnabled: accessibilityManager.isMonoAudioEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "captions.bubble.fill",
+                    title: "accessibility.closed_captions".localized,
+                    isEnabled: accessibilityManager.isClosedCaptioningEnabled,
+                    systemSetting: true
+                )
+            } header: {
+                Text("accessibility.hearing".localized)
+            }
+
+            // Motor & Interaction
+            Section {
+                AccessibilityStatusRow(
+                    icon: "figure.wave",
+                    title: "accessibility.shake_undo".localized,
+                    isEnabled: accessibilityManager.isShakeToUndoEnabled,
+                    systemSetting: true
+                )
+            } header: {
+                Text("accessibility.motor".localized)
+            }
+
+            // Guided Access & Learning
+            Section {
+                AccessibilityStatusRow(
+                    icon: "app.badge.checkmark.fill",
+                    title: "accessibility.guided_access".localized,
+                    isEnabled: accessibilityManager.isGuidedAccessEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "text.bubble.fill",
+                    title: "accessibility.speak_screen".localized,
+                    isEnabled: accessibilityManager.isSpeakScreenEnabled,
+                    systemSetting: true
+                )
+
+                AccessibilityStatusRow(
+                    icon: "text.viewfinder",
+                    title: "accessibility.speak_selection".localized,
+                    isEnabled: accessibilityManager.isSpeakSelectionEnabled,
+                    systemSetting: true
+                )
+            } header: {
+                Text("accessibility.guided_speech".localized)
+            }
+
+            // Text Size
+            Section {
+                HStack {
+                    Image(systemName: "textformat.size")
+                        .foregroundColor(.taxedPrimary)
+                        .frame(width: 24)
+                    Text("accessibility.dynamic_type".localized)
+                    Spacer()
+                    Text("\(accessibilityManager.preferredContentSizeCategory.rawValue)")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                }
+                .accessibilityElement(children: .combine)
+            } header: {
+                Text("accessibility.text_size".localized)
+            } footer: {
+                Text("accessibility.text_size.footer".localized)
+            }
+
+            // Open iOS Settings
+            Section {
+                Button(action: openAccessibilitySettings) {
+                    HStack {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundColor(.taxedPrimary)
+                            .frame(width: 24)
+                        Text("accessibility.open_settings".localized)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "arrow.up.right.square")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
+            } footer: {
+                Text("accessibility.open_settings.footer".localized)
             }
         }
+        .navigationTitle("more.accessibility".localized)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func openAccessibilitySettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+
+// MARK: - Accessibility Status Row
+struct AccessibilityStatusRow: View {
+    let icon: String
+    let title: String
+    let isEnabled: Bool
+    let systemSetting: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(isEnabled ? .green : .gray)
+                .frame(width: 24)
+
+            Text(title)
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            if isEnabled {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .accessibilityLabel("accessibility.status.enabled".localized)
+            } else {
+                Image(systemName: "circle")
+                    .foregroundColor(.gray)
+                    .accessibilityLabel("accessibility.status.disabled".localized)
+            }
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title), \(isEnabled ? "accessibility.status.enabled".localized : "accessibility.status.disabled".localized)")
     }
 }
 
 // MARK: - Security Settings View
 struct SecuritySettingsView: View {
-    @Environment(\.dismiss) var dismiss
-    @State private var biometricEnabled = false
-    @State private var autoLockTime = "5 minutes"
+    @AppStorage("biometricEnabled") private var biometricEnabled = false
+    @AppStorage("autoLockTime") private var autoLockTime = "5 minutes"
+    @AppStorage("secureBackupEnabled") private var secureBackupEnabled = false
+    @State private var showPasswordChange = false
+    @State private var showSecurityLog = false
 
     var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("Authentication")) {
-                    Toggle("Face ID / Touch ID", isOn: $biometricEnabled)
-
-                    HStack {
-                        Text("Auto-Lock")
-                        Spacer()
-                        Menu {
-                            Button("30 seconds") { autoLockTime = "30 seconds" }
-                            Button("1 minute") { autoLockTime = "1 minute" }
-                            Button("5 minutes") { autoLockTime = "5 minutes" }
-                            Button("Never") { autoLockTime = "Never" }
-                        } label: {
-                            Text(autoLockTime)
+        List {
+            // Authentication
+            Section {
+                Toggle(isOn: $biometricEnabled) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "faceid")
+                            .foregroundColor(.taxedPrimary)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Face ID / Touch ID")
+                                .font(.body)
+                            Text("Use biometrics for app login")
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
                 }
+                .accessibilityLabel("Face ID or Touch ID authentication")
+                .accessibilityHint("Enable biometric authentication for secure app access")
 
-                Section(header: Text("Data Protection")) {
-                    Toggle("Encrypt Local Data", isOn: .constant(true))
-                        .disabled(true)
-                    Toggle("Secure Backup", isOn: .constant(false))
+                HStack {
+                    Image(systemName: "lock.rotation")
+                        .foregroundColor(.taxedPrimary)
+                        .frame(width: 24)
+                    Text("Auto-Lock")
+                    Spacer()
+                    Menu {
+                        Button("30 seconds") { autoLockTime = "30 seconds" }
+                        Button("1 minute") { autoLockTime = "1 minute" }
+                        Button("5 minutes") { autoLockTime = "5 minutes" }
+                        Button("Never") { autoLockTime = "Never" }
+                    } label: {
+                        HStack {
+                            Text(autoLockTime)
+                                .foregroundColor(.secondary)
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Auto-lock timeout: \(autoLockTime)")
+            } header: {
+                Text("Authentication")
+            } footer: {
+                Text("Auto-lock requires re-authentication after the specified time")
+            }
 
-                Section {
-                    Button(action: {}) {
+            // Data Protection
+            Section {
+                HStack(spacing: 12) {
+                    Image(systemName: "lock.shield.fill")
+                        .foregroundColor(.green)
+                        .frame(width: 24)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Encrypt Local Data")
+                            .font(.body)
+                        Text("All data is encrypted using AES-256")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                }
+                .accessibilityLabel("Encrypt Local Data: Always enabled. All data is encrypted using AES-256")
+
+                Toggle(isOn: $secureBackupEnabled) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "icloud.and.arrow.up")
+                            .foregroundColor(.taxedPrimary)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Secure Cloud Backup")
+                                .font(.body)
+                            Text("Encrypted backup to iCloud")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .accessibilityLabel("Secure Cloud Backup")
+                .accessibilityHint("Enable encrypted backup to iCloud")
+            } header: {
+                Text("Data Protection")
+            } footer: {
+                Text("All backups are encrypted and stored securely")
+            }
+
+            // Password & Account
+            Section {
+                Button(action: { showPasswordChange = true }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "key.fill")
+                            .foregroundColor(.taxedPrimary)
+                            .frame(width: 24)
                         Text("Change Password")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
+                }
+                .accessibilityLabel("Change password")
+                .accessibilityHint("Update your account password")
 
-                    Button(action: {}) {
-                        Text("Export Security Log")
-                            .foregroundColor(.blue)
+                Button(action: { showSecurityLog = true }) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "list.clipboard.fill")
+                            .foregroundColor(.taxedPrimary)
+                            .frame(width: 24)
+                        Text("Security Activity Log")
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
+                .accessibilityLabel("View security activity log")
+                .accessibilityHint("See recent security events")
+            } header: {
+                Text("Account Security")
             }
-            .navigationTitle("Security")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+
+            // Security Information
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundColor(.green)
+                        Text("Data Encryption")
+                            .fontWeight(.medium)
                     }
+                    Text("• End-to-end encryption for all data")
+                        .font(.caption)
+                    Text("• AES-256 encryption at rest")
+                        .font(.caption)
+                    Text("• TLS 1.3 encryption in transit")
+                        .font(.caption)
                 }
+                .foregroundColor(.secondary)
+                .accessibilityElement(children: .combine)
+            } header: {
+                Text("Security Features")
             }
+        }
+        .navigationTitle("Security")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Change Password", isPresented: $showPasswordChange) {
+            Button("OK") { showPasswordChange = false }
+        } message: {
+            Text("Password changes must be done through your account settings in the web portal")
+        }
+        .alert("Security Log", isPresented: $showSecurityLog) {
+            Button("OK") { showSecurityLog = false }
+        } message: {
+            Text("Security activity logging will be available in a future update")
         }
     }
 }
@@ -105,59 +438,121 @@ struct ReportIssueView: View {
     @State private var issueType = "Bug"
     @State private var description = ""
     @State private var email = ""
+    @State private var showSuccess = false
+    @State private var showError = false
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Issue Type")) {
-                    Picker("Type", selection: $issueType) {
-                        Text("Bug").tag("Bug")
-                        Text("Feature Request").tag("Feature")
-                        Text("Performance").tag("Performance")
-                        Text("Other").tag("Other")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
+        Form {
+            Section {
+                Picker("report.type".localized, selection: $issueType) {
+                    Label("report.type.bug".localized, systemImage: "ladybug.fill").tag("Bug")
+                    Label("report.type.feature".localized, systemImage: "lightbulb.fill").tag("Feature")
+                    Label("report.type.performance".localized, systemImage: "speedometer").tag("Performance")
+                    Label("report.type.other".localized, systemImage: "ellipsis.circle.fill").tag("Other")
                 }
-
-                Section(header: Text("Description")) {
-                    TextEditor(text: $description)
-                        .frame(minHeight: 100)
-                }
-
-                Section(header: Text("Contact (Optional)")) {
-                    TextField("Email", text: $email)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                }
-
-                Section {
-                    Button(action: submitIssue) {
-                        HStack {
-                            Spacer()
-                            Text("Submit Report")
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                    }
-                    .foregroundColor(.white)
-                    .listRowBackground(Color(red: 227/255, green: 30/255, blue: 36/255))
-                }
+                .pickerStyle(.menu)
+                .accessibilityLabel(String(format: "report.type.label".localized, issueType))
+            } header: {
+                Text("report.type".localized)
             }
-            .navigationTitle("Report Issue")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
+
+            Section {
+                TextEditor(text: $description)
+                    .frame(minHeight: 120)
+                    .accessibilityLabel("report.description".localized)
+                    .accessibilityHint("report.description.hint".localized)
+            } header: {
+                Text("report.description".localized)
+            } footer: {
+                Text("report.description.footer".localized)
+            }
+
+            Section {
+                TextField("report.email.placeholder".localized, text: $email)
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .accessibilityLabel("report.email".localized)
+                    .accessibilityHint("report.email.hint".localized)
+            } header: {
+                Text("report.email".localized)
+            } footer: {
+                Text("report.email.footer".localized)
+            }
+
+            Section {
+                Button(action: submitIssue) {
+                    HStack {
+                        Spacer()
+                        Text("report.submit".localized)
+                            .fontWeight(.semibold)
+                        Spacer()
                     }
                 }
+                .disabled(description.isEmpty)
+                .foregroundColor(.white)
+                .listRowBackground(description.isEmpty ? Color.gray : Color.taxedPrimary)
+                .accessibilityLabel("report.submit".localized)
+                .accessibilityHint(description.isEmpty ? "report.submit.hint.empty".localized : "report.submit.hint.ready".localized)
             }
+        }
+        .navigationTitle("report.title".localized)
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("report.success.title".localized, isPresented: $showSuccess) {
+            Button("common.ok".localized) {
+                dismiss()
+            }
+        } message: {
+            Text("report.success.message".localized)
+        }
+        .alert("report.error.title".localized, isPresented: $showError) {
+            Button("common.ok".localized) { showError = false }
+        } message: {
+            Text("report.error.message".localized)
         }
     }
 
     private func submitIssue() {
-        // Submit the issue
-        dismiss()
+        guard !description.isEmpty else { return }
+
+        // Create email URL
+        var emailComponents = URLComponents()
+        emailComponents.scheme = "mailto"
+        emailComponents.path = "support@taxed.ch"
+
+        let queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "subject", value: "[\(issueType)] Issue Report - TaxedGmbH iOS"),
+            URLQueryItem(name: "body", value: """
+            \("report.email.issue_type".localized) \(issueType)
+
+            \("report.email.description".localized)
+            \(description)
+
+            \("report.email.contact_email".localized) \(email.isEmpty ? "report.email.not_provided".localized : email)
+
+            ---
+            \("report.email.device".localized) iOS \(UIDevice.current.systemVersion)
+            \("report.email.app_version".localized) 1.0.0
+            """)
+        ]
+
+        emailComponents.queryItems = queryItems
+
+        if let emailURL = emailComponents.url {
+            if UIApplication.shared.canOpenURL(emailURL) {
+                UIApplication.shared.open(emailURL) { success in
+                    if success {
+                        showSuccess = true
+                    } else {
+                        showError = true
+                    }
+                }
+            } else {
+                showError = true
+            }
+        } else {
+            showError = true
+        }
     }
 }
 

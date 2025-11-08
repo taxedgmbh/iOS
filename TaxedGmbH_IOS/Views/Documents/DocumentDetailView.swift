@@ -13,7 +13,7 @@ struct DocumentDetailView: View {
     let document: TaxDocument
 
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var documentManager = DocumentManager.shared
+    @ObservedObject private var documentManager = DocumentManager.shared
     private let coverSheetService = CoverSheetService.shared
 
     @State private var isLoadingPDF = false
@@ -47,7 +47,7 @@ struct DocumentDetailView: View {
                 // PDF Preview Section
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("Document Preview")
+                        Text("document_detail.preview".localized)
                             .font(.headline)
                         Spacer()
                         if document.coverSheetUrl != nil {
@@ -55,7 +55,7 @@ struct DocumentDetailView: View {
                                 HStack(spacing: 4) {
                                     Image(systemName: showCoverSheet ? "doc.text" : "doc.badge.plus")
                                         .font(.caption)
-                                    Text(showCoverSheet ? "Original" : "Cover Sheet")
+                                    Text(showCoverSheet ? "document_detail.original".localized : "document_detail.cover_sheet".localized)
                                         .font(.caption)
                                         .fontWeight(.medium)
                                 }
@@ -75,7 +75,7 @@ struct DocumentDetailView: View {
 
                         // Always show PDFViewer (don't destroy/recreate it)
                         PDFViewerRepresentable(
-                            url: showCoverSheet && document.coverSheetUrl != nil ? document.coverSheetUrl! : document.storageUrl,
+                            url: (showCoverSheet ? document.coverSheetUrl : nil) ?? document.storageUrl,
                             isLoading: $isLoadingPDF
                         )
                         .cornerRadius(12)
@@ -86,7 +86,7 @@ struct DocumentDetailView: View {
                             VStack(spacing: 12) {
                                 ProgressView()
                                     .scaleEffect(1.2)
-                                Text("Loading PDF...")
+                                Text("document_detail.loading_pdf".localized)
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -145,7 +145,7 @@ struct DocumentDetailView: View {
                     HStack(spacing: 12) {
                         if let attachmentNum = document.attachmentNumber {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Attachment")
+                                Text("document_detail.attachment".localized)
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                                     .textCase(.uppercase)
@@ -164,7 +164,7 @@ struct DocumentDetailView: View {
                             .frame(height: 30)
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Tax Year")
+                            Text("document_detail.tax_year".localized)
                                 .font(.caption2)
                                 .foregroundColor(.gray)
                                 .textCase(.uppercase)
@@ -178,7 +178,7 @@ struct DocumentDetailView: View {
                                 .frame(height: 30)
 
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Canton")
+                                Text("document_detail.canton".localized)
                                     .font(.caption2)
                                     .foregroundColor(.gray)
                                     .textCase(.uppercase)
@@ -205,7 +205,7 @@ struct DocumentDetailView: View {
                 // Document Summary
                 if let summary = document.aiSummary {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Summary", systemImage: "text.alignleft")
+                        Label("document_detail.summary_label".localized, systemImage: "text.alignleft")
                             .font(.headline)
 
                         Text(summary)
@@ -281,7 +281,7 @@ struct DocumentDetailView: View {
                 // User Comments Section with Voice Input
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Label("Add Comment", systemImage: "text.bubble")
+                        Label("document_detail.add_comment".localized, systemImage: "text.bubble")
                             .font(.headline)
                         Spacer()
                         CompactVoiceInputButton(text: $documentNotes)
@@ -308,13 +308,13 @@ struct DocumentDetailView: View {
                                 if isSavingNotes {
                                     ProgressView()
                                         .scaleEffect(0.8)
-                                    Text("Saving...")
+                                    Text("document_detail.saving".localized)
                                 } else if notesSaveSuccess {
                                     Image(systemName: "checkmark.circle.fill")
-                                    Text("Saved!")
+                                    Text("document_detail.saved".localized)
                                 } else {
                                     Image(systemName: "checkmark.circle.fill")
-                                    Text("Save Comment")
+                                    Text("document_detail.save_comment".localized)
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -332,7 +332,7 @@ struct DocumentDetailView: View {
 
                 // Cover Sheet Section
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Tax Office Submission", systemImage: "doc.badge.checkmark")
+                    Label("document_detail.tax_office_submission".localized, systemImage: "doc.badge.checkmark")
                         .font(.headline)
 
                     if document.coverSheetGenerated == true {
@@ -341,7 +341,7 @@ struct DocumentDetailView: View {
                             HStack {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.green)
-                                Text("Cover sheet generated")
+                                Text("document_detail.cover_generated".localized)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                             }
@@ -352,7 +352,7 @@ struct DocumentDetailView: View {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
-                                    Label("View Cover Sheet", systemImage: "arrow.up.right.square")
+                                    Label("document_detail.view_cover".localized, systemImage: "arrow.up.right.square")
                                         .font(.caption)
                                 }
                             }
@@ -363,7 +363,7 @@ struct DocumentDetailView: View {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
-                                    Label("View Processed Document", systemImage: "arrow.up.right.square")
+                                    Label("document_detail.view_processed".localized, systemImage: "arrow.up.right.square")
                                         .font(.caption)
                                 }
                             }
@@ -387,7 +387,7 @@ struct DocumentDetailView: View {
                                     Image(systemName: "doc.badge.plus")
                                 }
 
-                                Text(isGeneratingCover ? "Generating..." : "Generate Cover Sheet")
+                                Text(isGeneratingCover ? "document_detail.generating".localized : "document_detail.generate_cover".localized)
                                     .fontWeight(.semibold)
 
                                 Spacer()
@@ -402,7 +402,7 @@ struct DocumentDetailView: View {
                         }
                         .disabled(isGeneratingCover)
 
-                        Text("Generate a Swiss tax office cover sheet for this document")
+                        Text("document_detail.generate_cover_desc".localized)
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -412,7 +412,7 @@ struct DocumentDetailView: View {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
-                            Text("Cover sheet generated successfully!")
+                            Text("document_detail.cover_success".localized)
                                 .font(.caption)
                                 .foregroundColor(.green)
                         }
@@ -447,13 +447,13 @@ struct DocumentDetailView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: { showRemapSheet = true }) {
-                        Label("Remap Category", systemImage: "arrow.triangle.2.circlepath")
+                        Label("document_detail.remap_category".localized, systemImage: "arrow.triangle.2.circlepath")
                     }
 
                     Divider()
 
                     Button(role: .destructive, action: { showDeleteConfirmation = true }) {
-                        Label("Delete Document", systemImage: "trash")
+                        Label("document_detail.delete_document".localized, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -470,21 +470,21 @@ struct DocumentDetailView: View {
                 }
             }
         }
-        .alert("Delete Document", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
+        .alert("document_detail.delete_document".localized, isPresented: $showDeleteConfirmation) {
+            Button("document_detail.cancel".localized, role: .cancel) { }
+            Button("document_detail.delete".localized, role: .destructive) {
                 Task {
                     await deleteDocument()
                 }
             }
         } message: {
-            Text("Are you sure you want to delete this document? This action cannot be undone.")
+            Text("document_detail.delete_confirmation".localized)
         }
     }
 
     private func generateCoverSheet() async {
         guard let user = authService.user else {
-            coverGenerationError = "User not found"
+            coverGenerationError = "document_detail.user_not_found".localized
             return
         }
 
@@ -509,7 +509,7 @@ struct DocumentDetailView: View {
             }
         } catch {
             print("❌ Cover sheet generation failed: \(error)")
-            coverGenerationError = "Failed to generate cover sheet: \(error.localizedDescription)"
+            coverGenerationError = "\("document_detail.cover_error".localized) \(error.localizedDescription)"
         }
 
         isGeneratingCover = false

@@ -179,6 +179,24 @@ class AuthenticationService: ObservableObject {
                     )
 
                     try await firestore.collection(AppConstants.Firebase.Collections.users).document(userId).setData(newUser.toDictionary())
+
+                    // Create default workspace for new user (permanent, multi-year)
+                    let currentYear = Calendar.current.component(.year, from: Date())
+                    do {
+                        let defaultWorkspace = try await WorkspaceManager.shared.createWorkspace(
+                            name: "Personal Taxes",
+                            type: .personal,
+                            taxYear: currentYear,
+                            owner: newUser,
+                            description: "Your personal tax documents and filings"
+                        )
+                        print("✅ Created default workspace: \(defaultWorkspace.name)")
+                    } catch {
+                        print("⚠️ Warning: Failed to create default workspace: \(error)")
+                        print("⚠️ User can create workspace manually later")
+                        // Don't fail the entire signup if workspace creation fails
+                    }
+
                     self.user = newUser
                     self.isAuthenticated = true
                 } else {
@@ -254,7 +272,25 @@ class AuthenticationService: ObservableObject {
             try await firestore.collection(AppConstants.Firebase.Collections.users).document(authResult.user.uid).setData(userData)
             print("✅ User saved to Firestore Enterprise database")
 
-            // 3. Update local state
+            // 3. Create default workspace for new user (permanent, multi-year)
+            let currentYear = Calendar.current.component(.year, from: Date())
+            do {
+                let defaultWorkspace = try await WorkspaceManager.shared.createWorkspace(
+                    name: "Personal Taxes",
+                    type: .personal,
+                    taxYear: currentYear,
+                    owner: newUser,
+                    description: "Your personal tax documents and filings"
+                )
+                print("✅ Created default workspace: \(defaultWorkspace.name)")
+            } catch {
+                print("⚠️ Warning: Failed to create default workspace: \(error)")
+                print("⚠️ User can create workspace manually later")
+                // Don't fail the entire signup if workspace creation fails
+                // User will see "No workspace" message and can create one manually
+            }
+
+            // 4. Update local state
             self.user = newUser
             self.isAuthenticated = true
 
@@ -476,6 +512,17 @@ class AuthenticationService: ObservableObject {
                         self.user = user
                         self.isAuthenticated = true
                         print("✅ User data loaded successfully from Firestore Enterprise: \(user.email)")
+                        print("🔍 ========== USER AUTHENTICATION DEBUG ==========")
+                        print("   Firebase Auth UID: \(userId)")
+                        print("   User Model ID: \(user.id ?? "nil")")
+                        print("   Email: \(user.email)")
+                        print("   Name: \(user.name)")
+                        print("   IDs Match: \(userId == user.id ? "YES ✅" : "NO ❌")")
+                        if userId != user.id {
+                            print("   ⚠️ WARNING: Firebase Auth UID does not match User.id!")
+                            print("   This will cause permission errors in Firebase Storage!")
+                        }
+                        print("=================================================")
                     } else {
                         print("❌ Failed to parse user data from Firestore")
                         errorMessage = "Benutzerdaten konnten nicht geladen werden"

@@ -12,7 +12,7 @@ struct RemapDocumentSheet: View {
     let onComplete: () -> Void
 
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var documentManager = DocumentManager.shared
+    @ObservedObject private var documentManager = DocumentManager.shared
     @State private var selectedCategory: TaxCategoryType?
     @State private var regenerateAttachment = true
     @State private var isRemapping = false

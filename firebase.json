@@ -3,7 +3,14 @@
     "database": "taxedgmbh",
     "rules": "firestore.rules"
   },
-  "storage": {
-    "rules": "storage.rules"
-  }
+  "storage": [
+    {
+      "bucket": "taxedgmbh.firebasestorage.app",
+      "rules": "storage.rules"
+    },
+    {
+      "bucket": "taxedgmbh.appspot.com",
+      "rules": "storage.rules"
+    }
+  ]
 }

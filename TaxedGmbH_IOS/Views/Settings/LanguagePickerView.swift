@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LanguagePickerView: View {
-    @StateObject private var localizationService = LocalizationService.shared
+    @ObservedObject private var localizationService = LocalizationService.shared
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {

@@ -208,7 +208,8 @@ struct AllDocumentsView: View {
                 try await workspaceManager.loadUserWorkspaces(for: userId)
 
                 if let workspaceId = workspaceManager.activeWorkspace?.id {
-                    await documentManager.loadDocuments(forWorkspace: workspaceId)
+                    // Load workspace documents + legacy documents without workspaceId
+                    await documentManager.loadDocuments(forWorkspace: workspaceId, userId: userId)
                 } else {
                     // Fallback to loading all user documents (legacy mode)
                     await documentManager.loadDocuments(for: userId)
@@ -233,7 +234,8 @@ struct AllDocumentsView: View {
             try await workspaceManager.loadUserWorkspaces(for: userId)
 
             if let workspaceId = workspaceManager.activeWorkspace?.id {
-                await documentManager.loadDocuments(forWorkspace: workspaceId)
+                // Load workspace documents + legacy documents without workspaceId
+                await documentManager.loadDocuments(forWorkspace: workspaceId, userId: userId)
             } else {
                 // Fallback to loading all user documents (legacy mode)
                 await documentManager.loadDocuments(for: userId)

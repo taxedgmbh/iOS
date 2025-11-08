@@ -264,6 +264,9 @@ class WorkspaceManager: ObservableObject {
         error = nil
         defer { isLoading = false }
 
+        print("🔍 =============== WORKSPACE LOADING DEBUG ===============")
+        print("   Loading workspaces for user ID: \(userId)")
+
         // Query workspaces where user ID is in memberIds array
         let snapshot = try await firestore
             .collection(AppConstants.Firebase.Collections.workspaces)
@@ -277,6 +280,21 @@ class WorkspaceManager: ObservableObject {
         }
 
         print("✅ Loaded \(userWorkspaces.count) workspaces for user")
+
+        // Debug: Print detailed info about each workspace
+        for (index, workspace) in userWorkspaces.enumerated() {
+            print("   📁 Workspace #\(index + 1):")
+            print("      ID: \(workspace.id ?? "nil")")
+            print("      Name: \(workspace.name)")
+            print("      Owner ID: \(workspace.ownerId)")
+            print("      Member IDs: \(workspace.memberIds)")
+            print("      Member Count: \(workspace.members.count)")
+            for (mIndex, member) in workspace.members.enumerated() {
+                print("         Member #\(mIndex + 1): \(member.userId) (\(member.email)) - \(member.role.rawValue)")
+            }
+            print("      User '\(userId)' is member: \(workspace.isMember(userId: userId) ? "YES ✅" : "NO ❌")")
+        }
+        print("=======================================================")
 
         // If requested, set active workspace from user's preference
         if setActiveFromUser {

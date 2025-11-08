@@ -697,6 +697,59 @@
 "document_detail.expert_notes" = "Notes d'expert";
 "document_detail.title" = "Document";
 "document_detail.status" = "Statut";
+"document_detail.preview" = "Aperçu du document";
+"document_detail.original" = "Original";
+"document_detail.cover_sheet" = "Page de garde";
+"document_detail.loading_pdf" = "Chargement du PDF...";
+"document_detail.attachment" = "Annexe";
+"document_detail.summary_label" = "Résumé";
+"document_detail.add_comment" = "Ajouter un commentaire";
+"document_detail.saving" = "Enregistrement...";
+"document_detail.saved" = "Enregistré !";
+"document_detail.save_comment" = "Enregistrer le commentaire";
+"document_detail.tax_office_submission" = "Soumission au bureau des impôts";
+"document_detail.cover_generated" = "Page de garde générée";
+"document_detail.view_cover" = "Voir la page de garde";
+"document_detail.view_processed" = "Voir le document traité";
+"document_detail.generating" = "Génération...";
+"document_detail.generate_cover" = "Générer une page de garde";
+"document_detail.generate_cover_desc" = "Générer une page de garde du bureau des impôts suisse pour ce document";
+"document_detail.cover_success" = "Page de garde générée avec succès !";
+"document_detail.remap_category" = "Réattribuer la catégorie";
+"document_detail.delete_document" = "Supprimer le document";
+"document_detail.cancel" = "Annuler";
+"document_detail.delete" = "Supprimer";
+"document_detail.delete_confirmation" = "Êtes-vous sûr de vouloir supprimer ce document ? Cette action ne peut pas être annulée.";
+"document_detail.user_not_found" = "Utilisateur introuvable";
+"document_detail.cover_error" = "Échec de la génération de la page de garde :";
+
+// MARK: - Document Upload
+"document_upload.add_voice_note" = "Ajouter une note vocale";
+"document_upload.your_note" = "Votre note :";
+"document_upload.clear_note" = "Effacer la note";
+"document_upload.record_voice_note" = "Enregistrer une note vocale sur ce document";
+"document_upload.select_category" = "Sélectionner la catégorie du document";
+"document_upload.selected" = "Sélectionné";
+"document_upload.change" = "Modifier";
+"document_upload.choose_category" = "Choisir une catégorie";
+"document_upload.manually_categorized" = "Catégorisé manuellement par l'utilisateur";
+
+// MARK: - Speech Recognition
+"speech.title" = "Note vocale";
+"speech.recording" = "Enregistrement...";
+"speech.permission.required" = "Autorisation du microphone requise";
+"speech.permission.denied" = "Autorisation de reconnaissance vocale refusée";
+"speech.microphone.denied" = "Accès au microphone refusé";
+"speech.error.generic" = "Erreur de reconnaissance vocale";
+"speech.error.request" = "Échec de création de la demande de reconnaissance";
+"speech.error.audio" = "Erreur de session audio";
+"speech.error.unavailable" = "Reconnaissance vocale non disponible";
+"speech.unavailable" = "Reconnaissance vocale temporairement indisponible";
+"speech.save.failed" = "Échec de l'enregistrement de la note";
+"speech.use_text" = "Utiliser le texte";
+"speech.clear" = "Effacer";
+"speech.done" = "Terminé";
+"speech.cancel" = "Annuler";
 
 // MARK: - Phone Verification
 "phone_verification.enter_code" = "Saisir le code";
@@ -787,3 +840,351 @@
 "category.military_service" = "Service militaire";
 "category.tax_treaty" = "Convention fiscale";
 "category.other" = "Autres documents";
+
+// MARK: - Paramètres d'accessibilité (Amélioré)
+"accessibility.active_features" = "Fonctionnalités système actives";
+"accessibility.active_features.footer" = "Ces fonctionnalités sont contrôlées depuis Réglages iOS > Accessibilité";
+"accessibility.voiceover.active" = "VoiceOver est actif";
+"accessibility.switchcontrol.active" = "Contrôle de sélection est actif";
+"accessibility.assistivetouch.active" = "AssistiveTouch est actif";
+
+// Accessibilité visuelle
+"accessibility.visual" = "Accessibilité visuelle";
+"accessibility.visual.footer" = "Les fonctionnalités d'accessibilité visuelle sont configurées dans les Réglages iOS";
+"accessibility.bold_text" = "Texte en gras";
+"accessibility.increase_contrast.title" = "Augmenter le contraste";
+"accessibility.reduce_transparency" = "Réduire la transparence";
+"accessibility.darker_colors" = "Couleurs système plus foncées";
+"accessibility.invert_colors" = "Inverser les couleurs";
+"accessibility.grayscale" = "Niveaux de gris";
+
+// Mouvement
+"accessibility.motion" = "Mouvement";
+"accessibility.motion.footer" = "Lorsque Réduire les animations est activé, les animations sont minimisées";
+"accessibility.crossfade" = "Préférer les transitions en fondu";
+
+// Audition
+"accessibility.hearing" = "Audition";
+"accessibility.mono_audio" = "Audio mono";
+"accessibility.closed_captions" = "Sous-titres codés";
+
+// Motricité & Interaction
+"accessibility.motor" = "Motricité & Interaction";
+"accessibility.shake_undo" = "Secouer pour annuler";
+
+// Accès guidé & Parole
+"accessibility.guided_speech" = "Accès guidé & Parole";
+"accessibility.guided_access" = "Accès guidé";
+"accessibility.speak_screen" = "Énoncer l'écran";
+"accessibility.speak_selection" = "Énoncer la sélection";
+
+// Taille du texte
+"accessibility.text_size" = "Taille du texte";
+"accessibility.text_size.footer" = "La taille du texte est contrôlée dans Réglages iOS > Accessibilité > Affichage et taille du texte";
+"accessibility.dynamic_type" = "Taille de police dynamique";
+
+// Ouvrir les réglages
+"accessibility.open_settings" = "Ouvrir Accessibilité iOS";
+"accessibility.open_settings.footer" = "La plupart des fonctionnalités d'accessibilité sont gérées au niveau système pour assurer la cohérence entre toutes les applications";
+
+// Statut
+"accessibility.status.enabled" = "Activé";
+"accessibility.status.disabled" = "Désactivé";
+
+// MARK: - Paramètres de sécurité (Amélioré)
+"security.title" = "Sécurité";
+"security.authentication" = "Authentification";
+"security.authentication.footer" = "Le verrouillage automatique nécessite une nouvelle authentification après le délai spécifié";
+"security.biometric" = "Face ID / Touch ID";
+"security.biometric.description" = "Utiliser la biométrie pour la connexion à l'app";
+"security.biometric.label" = "Authentification Face ID ou Touch ID";
+"security.biometric.hint" = "Activer l'authentification biométrique pour un accès sécurisé à l'app";
+"security.autolock" = "Verrouillage auto";
+"security.autolock.30s" = "30 secondes";
+"security.autolock.1m" = "1 minute";
+"security.autolock.5m" = "5 minutes";
+"security.autolock.never" = "Jamais";
+"security.autolock.label" = "Délai de verrouillage auto : %@";
+
+// Protection des données
+"security.data_protection" = "Protection des données";
+"security.data_protection.footer" = "Toutes les sauvegardes sont chiffrées et stockées en toute sécurité";
+"security.encrypt_local" = "Chiffrer les données locales";
+"security.encrypt_local.description" = "Toutes les données sont chiffrées avec AES-256";
+"security.encrypt_local.label" = "Chiffrer les données locales : Toujours activé. Toutes les données sont chiffrées avec AES-256";
+"security.cloud_backup" = "Sauvegarde cloud sécurisée";
+"security.cloud_backup.description" = "Sauvegarde chiffrée dans iCloud";
+"security.cloud_backup.hint" = "Activer la sauvegarde chiffrée dans iCloud";
+
+// Sécurité du compte
+"security.account" = "Sécurité du compte";
+"security.change_password" = "Changer le mot de passe";
+"security.change_password.hint" = "Mettre à jour votre mot de passe de compte";
+"security.change_password.alert.title" = "Changer le mot de passe";
+"security.change_password.alert.message" = "Les changements de mot de passe doivent être effectués via les paramètres de votre compte dans le portail web";
+"security.activity_log" = "Journal d'activité de sécurité";
+"security.activity_log.hint" = "Voir les événements de sécurité récents";
+"security.activity_log.alert.title" = "Journal de sécurité";
+"security.activity_log.alert.message" = "La journalisation des activités de sécurité sera disponible dans une future mise à jour";
+
+// Fonctionnalités de sécurité
+"security.features" = "Fonctionnalités de sécurité";
+"security.encryption" = "Chiffrement des données";
+"security.encryption.e2e" = "• Chiffrement de bout en bout pour toutes les données";
+"security.encryption.aes" = "• Chiffrement AES-256 au repos";
+"security.encryption.tls" = "• Chiffrement TLS 1.3 en transit";
+
+// MARK: - Signaler un problème
+"report.title" = "Signaler un problème";
+"report.type" = "Type de problème";
+"report.type.bug" = "Bug";
+"report.type.feature" = "Demande de fonctionnalité";
+"report.type.performance" = "Performance";
+"report.type.other" = "Autre";
+"report.type.label" = "Type de problème : %@";
+"report.description" = "Description";
+"report.description.hint" = "Décrivez le problème que vous rencontrez";
+"report.description.footer" = "Veuillez fournir autant de détails que possible";
+"report.email" = "Contact (Optionnel)";
+"report.email.placeholder" = "votre.email@exemple.com";
+"report.email.hint" = "E-mail de contact optionnel pour le suivi";
+"report.email.footer" = "Nous pourrions vous contacter si nous avons besoin de plus d'informations";
+"report.submit" = "Envoyer le rapport";
+"report.submit.hint.empty" = "Description requise";
+"report.submit.hint.ready" = "Envoyer votre rapport de problème au support";
+"report.success.title" = "Rapport envoyé";
+"report.success.message" = "Merci pour vos commentaires ! Nous examinerons votre rapport et vous contacterons si nécessaire.";
+"report.error.title" = "Erreur";
+"report.error.message" = "Impossible d'envoyer le rapport. Veuillez réessayer ou envoyer un e-mail directement à support@taxed.ch.";
+"report.email.issue_type" = "Type de problème:";
+"report.email.description" = "Description:";
+"report.email.contact_email" = "E-mail de contact:";
+"report.email.not_provided" = "Non fourni";
+"report.email.device" = "Appareil:";
+"report.email.app_version" = "Version de l'app:";
+
+// MARK: - Profil (Amélioré)
+"profile.person1.name" = "Personne 1 - Nom complet";
+"profile.person1.name.placeholder" = "p.ex. Hans Müller";
+"profile.person1.ahv" = "Personne 1 - Numéro AVS/AHV";
+"profile.person1.ahv.short" = "Personne 1 - AVS";
+"profile.person2.name" = "Personne 2 - Nom complet (Conjoint/Partenaire)";
+"profile.person2.name.short" = "Personne 2 - Nom (Conjoint/Partenaire)";
+"profile.person2.name.placeholder" = "p.ex. Maria Müller";
+"profile.person2.ahv" = "Personne 2 - Numéro AVS/AHV";
+"profile.person2.ahv.short" = "Personne 2 - AVS";
+"profile.person2.ahv.placeholder" = "756.9876.5432.10";
+
+// Adresse
+"profile.address" = "Adresse";
+"profile.address.info" = "Informations d'adresse";
+"profile.street" = "Rue";
+"profile.street.placeholder" = "Rue et numéro";
+"profile.postal_code" = "Code postal";
+"profile.postal_code.placeholder" = "1234";
+"profile.city" = "Ville";
+"profile.city.placeholder" = "Ville";
+
+// Informations fiscales suisses
+"profile.tax_info" = "Informations fiscales suisses";
+"profile.tax_info.footer" = "Ces informations sont nécessaires pour des calculs fiscaux précis et la soumission aux autorités suisses";
+"profile.tax_info.joint.footer" = "Pour les couples mariés ou les partenariats enregistrés, les informations de la Personne 1 et de la Personne 2 sont requises pour la déclaration fiscale commune";
+"profile.ahv" = "Numéro AVS/AHV";
+"profile.ahv.placeholder" = "756.1234.5678.97";
+"profile.municipality" = "Commune";
+"profile.municipality.placeholder" = "p.ex. Zurich";
+"profile.municipality_id" = "ID de commune (numéro OFS)";
+"profile.municipality_id.short" = "ID de commune (OFS)";
+"profile.municipality_id.placeholder" = "p.ex. 261";
+"profile.marital_status" = "État civil";
+"profile.marital_status.not_specified" = "Non spécifié";
+"profile.marital_status.single" = "Célibataire";
+"profile.marital_status.married" = "Marié(e)";
+"profile.marital_status.divorced" = "Divorcé(e)";
+"profile.marital_status.widowed" = "Veuf/Veuve";
+"profile.marital_status.partnership" = "Partenariat enregistré";
+"profile.children" = "Nombre d'enfants";
+"profile.children.placeholder" = "0";
+
+// Complétude du profil
+"profile.completeness.footer" = "Complétez vos informations de profil pour des calculs fiscaux précis";
+
+// MARK: - Menu Plus (Nouvelles sections)
+"more.appearance" = "Apparence";
+"more.appearance.subtitle" = "Personnaliser le thème et l'affichage";
+"more.account_management" = "Gestion du compte";
+"more.account_management.subtitle" = "E-mail, mot de passe et sécurité";
+"more.data_management" = "Gestion des données";
+"more.data_management.subtitle" = "Exporter, supprimer et confidentialité";
+
+// MARK: - Paramètres d'apparence
+"settings.appearance.title" = "Apparence";
+"settings.appearance.theme" = "Thème";
+"settings.appearance.theme.footer" = "Choisissez votre schéma de couleurs préféré";
+"settings.appearance.display" = "Affichage";
+"settings.appearance.display.footer" = "L'app respecte les paramètres système de taille de police et d'accessibilité";
+"settings.appearance.font_size" = "Taille de police";
+"settings.appearance.system_default" = "Par défaut du système";
+
+// MARK: - Gestion des données
+"settings.data.title" = "Gestion des données";
+"settings.data.export" = "Export de données";
+"settings.data.export_data" = "Exporter toutes les données";
+"settings.data.export_data.subtitle" = "Télécharger tous vos documents et données";
+"settings.data.export.footer" = "Obtenez une copie de tous vos documents fiscaux et données au format ZIP";
+"settings.data.export_alert.title" = "Exporter les données?";
+"settings.data.export_alert.message" = "Nous allons créer une archive ZIP avec tous vos documents et données. Cela peut prendre quelques minutes.";
+"settings.data.export_alert.confirm" = "Exporter";
+"settings.data.export_success" = "Export réussi! Le fichier a été enregistré dans Téléchargements.";
+"settings.data.usage" = "Utilisation du stockage";
+"settings.data.storage_usage" = "Stockage utilisé";
+"settings.data.documents_count" = "Nombre de documents";
+"settings.data.calculating" = "Calcul...";
+"settings.data.privacy" = "Confidentialité & Conformité";
+"settings.data.privacy.footer" = "Nous respectons le RGPD et les lois suisses sur la protection des données (LPD)";
+"settings.data.portability" = "Portabilité des données";
+"settings.data.portability.subtitle" = "Votre droit d'accéder et transférer vos données";
+"settings.data.gdpr_info" = "Conformément au RGPD et à la Loi fédérale suisse sur la protection des données (LPD), vous avez le droit de recevoir vos données personnelles dans un format structuré, couramment utilisé et lisible par machine.";
+"settings.data.danger_zone" = "Zone de danger";
+"settings.data.danger_zone.footer" = "Les données de compte ne peuvent pas être récupérées après suppression";
+"settings.data.delete_account" = "Supprimer le compte";
+"settings.data.delete_account.subtitle" = "Supprimer définitivement le compte et toutes les données";
+"settings.data.delete_alert.title" = "Supprimer le compte?";
+"settings.data.delete_alert.message" = "Cette action est irréversible. Tous vos documents, données et informations de compte seront définitivement supprimés.";
+"settings.data.delete_confirmation.title" = "Confirmation requise";
+"settings.data.delete_confirmation.message" = "Tapez '%@' pour confirmer que vous souhaitez supprimer définitivement votre compte.";
+"settings.data.type_delete" = "Tapez DELETE";
+"settings.data.delete" = "Supprimer";
+"settings.data.cancel" = "Annuler";
+"settings.data.continue" = "Continuer";
+
+// MARK: - Gestion du compte
+"settings.account.title" = "Gestion du compte";
+"settings.account.email_section" = "E-mail";
+"settings.account.email" = "Adresse e-mail";
+"settings.account.email_verified" = "E-mail vérifié";
+"settings.account.verify_email" = "Envoyer l'e-mail de vérification";
+"settings.account.change" = "Modifier";
+"settings.account.change_email" = "Modifier l'e-mail";
+"settings.account.current_email" = "E-mail actuel";
+"settings.account.current" = "Actuel";
+"settings.account.new_email" = "Nouvelle adresse e-mail";
+"settings.account.new_email_section" = "Nouvel e-mail";
+"settings.account.password_confirm" = "Mot de passe de confirmation";
+"settings.account.password_required" = "Votre mot de passe est requis pour modifier l'adresse e-mail";
+"settings.account.security" = "Sécurité";
+"settings.account.security.footer" = "Changez votre mot de passe régulièrement pour maintenir la sécurité de votre compte";
+"settings.account.change_password" = "Modifier le mot de passe";
+"settings.account.current_password" = "Mot de passe actuel";
+"settings.account.new_password" = "Nouveau mot de passe";
+"settings.account.new_password_section" = "Nouveau mot de passe";
+"settings.account.confirm_password" = "Confirmer le mot de passe";
+"settings.account.password_requirements" = "Au moins 8 caractères avec lettres et chiffres";
+"settings.account.passwords_must_match" = "Les mots de passe doivent correspondre";
+"settings.account.2fa_section" = "Authentification à deux facteurs";
+"settings.account.2fa" = "Authentification à deux facteurs";
+"settings.account.2fa.subtitle" = "Ajouter une couche de sécurité supplémentaire";
+"settings.account.2fa.footer" = "Protégez votre compte avec une vérification supplémentaire";
+"settings.account.2fa_coming_soon" = "Bientôt disponible";
+"settings.account.2fa_coming_soon.description" = "Nous travaillons à ajouter l'authentification à deux facteurs pour une sécurité de compte supplémentaire.";
+"settings.account.setup" = "Configurer";
+"settings.account.active_sessions" = "Sessions actives";
+"settings.account.devices" = "Gérer les appareils";
+"settings.account.devices.subtitle" = "Voir les sessions de connexion actives";
+"settings.account.sessions.footer" = "Gérez quels appareils peuvent accéder à votre compte";
+"settings.account.this_device" = "Cet appareil";
+"settings.account.active_now" = "Actif maintenant";
+"settings.account.info" = "Informations du compte";
+"settings.account.member_since" = "Membre depuis";
+"settings.account.last_login" = "Dernière connexion";
+"settings.account.update" = "Mettre à jour";
+"settings.account.cancel" = "Annuler";
+"settings.account.done" = "Terminé";
+"settings.account.close" = "Fermer";
+"settings.account.verification_sent" = "E-mail de vérification envoyé!";
+"settings.account.email_changed" = "Adresse e-mail modifiée avec succès";
+"settings.account.password_changed" = "Mot de passe modifié avec succès";
+"profile.marital_status.not_specified" = "Non spécifié";
+"profile.marital_status.single" = "Célibataire";
+"profile.marital_status.married" = "Marié(e)";
+"profile.marital_status.divorced" = "Divorcé(e)";
+"profile.marital_status.widowed" = "Veuf/Veuve";
+"profile.marital_status.partnership" = "Partenariat enregistré";
+"profile.children" = "Nombre d'enfants";
+"profile.children.placeholder" = "0";
+
+// Complétude du profil
+"profile.completeness.footer" = "Complétez vos informations de profil pour des calculs fiscaux précis";
+
+
+// MARK: - Authentification (Supplémentaire)
+"auth.name.label" = "Nom complet";
+"auth.email.label" = "Adresse e-mail";
+"auth.password.label" = "Mot de passe";
+"auth.phone.label" = "Numéro de téléphone";
+"auth.signin.button" = "Se connecter";
+"auth.signin.prompt" = "Vous avez déjà un compte ? Se connecter";
+"auth.signup.prompt" = "Pas encore de compte ? S'inscrire";
+"auth.forgot.password" = "Mot de passe oublié ?";
+
+// Conditions & Confidentialité
+"auth.terms.prefix" = "En vous inscrivant, vous acceptez nos";
+"auth.terms.link" = "Conditions d'utilisation";
+"auth.terms.and" = "et";
+"auth.privacy.link" = "Politique de confidentialité";
+
+// Labels d'accessibilité
+"auth.apple.signin.label" = "Se connecter avec Apple";
+"auth.apple.signin.hint" = "Utilisez votre identifiant Apple pour vous connecter en toute sécurité";
+"auth.password.show" = "Afficher le mot de passe";
+"auth.password.hide" = "Masquer le mot de passe";
+"auth.password.toggle.hint" = "Basculer la visibilité du mot de passe";
+"auth.switch.signin" = "Passer à la connexion";
+"auth.switch.signup" = "Passer à l'inscription";
+"auth.forgot.password.hint" = "Ouvrir les options de réinitialisation du mot de passe";
+"auth.terms.hint" = "Ouvrir les conditions d'utilisation";
+"auth.privacy.hint" = "Ouvrir la politique de confidentialité";
+"auth.terms.privacy.label" = "En utilisant cette application, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité";
+
+// Erreurs de validation
+"auth.validation.email.invalid" = "Format d'e-mail invalide";
+"auth.validation.password.short" = "Le mot de passe doit contenir au moins 6 caractères";
+"auth.validation.name.short" = "Le nom doit contenir au moins 2 caractères";
+"auth.validation.phone.invalid" = "Numéro de téléphone invalide";
+
+// Annonces VoiceOver
+"auth.screen.signup.announce" = "Écran d'inscription. Veuillez saisir vos informations pour créer un compte.";
+"auth.screen.signin.announce" = "Écran de connexion. Veuillez entrer vos identifiants pour accéder à votre compte.";
+"auth.success.announce" = "Authentification réussie. Bienvenue chez TaxedGmbH.";
+
+// Descriptions des champs
+"auth.name.hint" = "Entrez votre nom complet";
+"auth.email.hint" = "Entrez votre adresse e-mail";
+"auth.password.hint" = "Entrez votre mot de passe. Utilisez le bouton 'Afficher le mot de passe' pour basculer la visibilité";
+"auth.password.value.empty" = "Vide";
+"auth.password.value.hidden" = "Masqué";
+"auth.phone.hint" = "Entrez votre numéro de téléphone";
+"auth.submit.hint.valid" = "Soumettre le formulaire d'authentification";
+"auth.submit.hint.invalid" = "Remplissez tous les champs requis pour continuer";
+"auth.loading" = "Chargement";
+
+
+// MARK: - Tax Settings
+"settings.tax.title" = "Paramètres fiscaux";
+"settings.tax.loading_workspace" = "Chargement de l'espace de travail...";
+"settings.tax.error.no_workspace" = "Aucun espace de travail trouvé";
+"settings.tax.error.no_user" = "Aucun utilisateur trouvé. Veuillez vous reconnecter.";
+"settings.tax.error.no_workspace_found" = "Aucun espace de travail trouvé. Veuillez d'abord créer un espace de travail.";
+"settings.tax.create_workspace" = "Créer un espace de travail";
+"settings.tax.cancel" = "Annuler";
+"settings.tax.year_changed" = "Année fiscale modifiée en %@";
+"settings.tax.tax_year" = "Année fiscale";
+"settings.tax.tax_year.subtitle" = "Année de déclaration actuelle";
+"settings.tax.select_year" = "Sélectionner l'année fiscale";
+"settings.tax.no_workspace" = "Aucun espace de travail disponible";
+"settings.tax.workspace_name" = "Nom de l'espace de travail";
+"settings.tax.workspace_type" = "Type d'espace de travail";
+"settings.tax.workspace_members" = "Membres";
+"settings.tax.filing_status" = "Statut de déclaration";
+"settings.tax.filing_status.in_progress" = "En cours";
+"settings.tax.filing_canton" = "Canton de déclaration";

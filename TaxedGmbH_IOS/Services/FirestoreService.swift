@@ -139,6 +139,57 @@ class FirestoreService: ObservableObject {
         }
     }
 
+    /// Get all documents for a workspace (workspace-scoped query)
+    /// Note: Workspace membership validation should be done by the caller (e.g., DocumentManager)
+    /// before calling this method. This method trusts that the workspace access has been validated.
+    /// This also includes legacy documents (without workspaceId) for the workspace owner.
+    func getDocumentsForWorkspace(workspaceId: String, userId: String? = nil) async throws -> [TaxDocument] {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            // Query 1: Get documents with this workspaceId
+            let workspaceSnapshot = try await db.collection(AppConstants.Firebase.Collections.documents)
+                .whereField("workspaceId", isEqualTo: workspaceId)
+                .order(by: "uploadedAt", descending: true)
+                .getDocuments()
+
+            var documents = workspaceSnapshot.documents.compactMap { doc in
+                TaxDocument.fromDictionary(id: doc.documentID, data: doc.data())
+            }
+
+            print("   Found \(documents.count) documents with workspaceId")
+
+            // Query 2: Also get legacy documents (no workspaceId) for the user if userId provided
+            if let userId = userId {
+                let legacySnapshot = try await db.collection(AppConstants.Firebase.Collections.documents)
+                    .whereField("customerId", isEqualTo: userId)
+                    .getDocuments()
+
+                let legacyDocuments = legacySnapshot.documents.compactMap { doc -> TaxDocument? in
+                    let document = TaxDocument.fromDictionary(id: doc.documentID, data: doc.data())
+                    // Only include if it doesn't have a workspaceId (legacy document)
+                    return document?.workspaceId == nil ? document : nil
+                }
+
+                print("   Found \(legacyDocuments.count) legacy documents without workspaceId")
+                documents.append(contentsOf: legacyDocuments)
+            }
+
+            // Sort by upload date
+            documents.sort { $0.uploadedAt > $1.uploadedAt }
+
+            self.documents = documents
+            print("✅ Loaded \(documents.count) total documents for workspace: \(workspaceId)")
+            return documents
+
+        } catch {
+            errorMessage = "Fehler beim Laden der Dokumente: \(error.localizedDescription)"
+            print("❌ Error getting documents for workspace: \(error)")
+            throw error
+        }
+    }
+
     /// Get documents by category
     func getDocumentsByCategory(customerId: String, category: TaxCategory) async throws -> [TaxDocument] {
         do {

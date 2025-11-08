@@ -26,9 +26,9 @@ struct MainTabView: View {
             }
             .tag(1)
 
-            // Tab 3: Documents
+            // Tab 3: All Documents (Unified View)
             NavigationView {
-                DocumentListView()
+                AllDocumentsView()
             }
             .tabItem {
                 Label("tab.documents".localized, systemImage: "doc.fill")

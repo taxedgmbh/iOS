@@ -14,7 +14,7 @@ import LocalAuthentication
 struct AuthenticationView: View {
     @EnvironmentObject var authService: AuthenticationService
     @StateObject private var biometricAuth = BiometricAuthService()
-    @StateObject private var accessibilityManager = AccessibilityManager.shared
+    @ObservedObject private var accessibilityManager = AccessibilityManager.shared
 
     // Form State
     @State private var email = ""
@@ -186,8 +186,8 @@ struct AuthenticationView: View {
         .signInWithAppleButtonStyle(colorSchemeContrast == .increased ? .whiteOutline : .black)
         .frame(height: 50) // Apple HIG recommended height: 44-50pt
         .cornerRadius(AppConstants.UI.cornerRadius)
-        .accessibilityLabel("Sign in with Apple")
-        .accessibilityHint("Use your Apple ID to sign in securely")
+        .accessibilityLabel("auth.apple.signin.label".localized)
+        .accessibilityHint("auth.apple.signin.hint".localized)
         .accessibilityIdentifier("apple_signin_button")
     }
 
@@ -201,7 +201,7 @@ struct AuthenticationView: View {
             Text("auth.divider.or".localized)
                 .font(dynamicFont(.caption))
                 .foregroundColor(accessibleSecondaryColor())
-                .accessibilityLabel("Or alternatively")
+                .accessibilityLabel("auth.divider.or".localized)
 
             VStack { Divider() }
                 .accessibilityHidden(true)
@@ -245,8 +245,8 @@ struct AuthenticationView: View {
                 .autocapitalization(.words)
                 .accessibilityFocused($nameFieldFocused)
                 .accessibleTextField(
-                    label: "Full Name",
-                    hint: "Enter your full name",
+                    label: "auth.name.label".localized,
+                    hint: "auth.name.hint".localized,
                     value: name
                 )
                 .accessibilityIdentifier("name_field")
@@ -277,8 +277,8 @@ struct AuthenticationView: View {
                 .autocapitalization(.none)
                 .accessibilityFocused($emailFieldFocused)
                 .accessibleTextField(
-                    label: "Email Address",
-                    hint: "Enter your email address",
+                    label: "auth.email.label".localized,
+                    hint: "auth.email.hint".localized,
                     value: email
                 )
                 .accessibilityIdentifier("email_field")
@@ -321,14 +321,14 @@ struct AuthenticationView: View {
                             minHeight: accessibilityManager.minimumTouchTargetSize.height
                         )
                 }
-                .accessibilityLabel(showPassword ? "Hide password" : "Show password")
-                .accessibilityHint("Toggle password visibility")
+                .accessibilityLabel(showPassword ? "auth.password.hide".localized : "auth.password.show".localized)
+                .accessibilityHint("auth.password.toggle.hint".localized)
             }
             .accessibilityFocused($passwordFieldFocused)
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Password field")
-            .accessibilityValue(password.isEmpty ? "Empty" : "Hidden")
-            .accessibilityHint("Enter your password. Use the show password button to toggle visibility")
+            .accessibilityLabel("auth.password.label".localized)
+            .accessibilityValue(password.isEmpty ? "auth.password.value.empty".localized : "auth.password.value.hidden".localized)
+            .accessibilityHint("auth.password.hint".localized)
             .accessibilityIdentifier("password_field")
 
             if let error = passwordValidationError {
@@ -353,8 +353,8 @@ struct AuthenticationView: View {
                 .keyboardType(.phonePad)
                 .accessibilityFocused($phoneFieldFocused)
                 .accessibleTextField(
-                    label: "Phone Number",
-                    hint: "Enter your phone number",
+                    label: "auth.phone.label".localized,
+                    hint: "auth.phone.hint".localized,
                     value: phoneNumber
                 )
                 .accessibilityIdentifier("phone_field")
@@ -400,7 +400,7 @@ struct AuthenticationView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(0.8)
-                        .accessibilityLabel("Loading")
+                        .accessibilityLabel("auth.loading".localized)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -420,10 +420,10 @@ struct AuthenticationView: View {
         .disabled(!isFormValid || authService.isLoading)
         .accessibilityFocused($submitButtonFocused)
         .accessibleButton(
-            label: isSignUp ? "Sign Up" : "Sign In",
+            label: isSignUp ? "auth.signup.button".localized : "auth.signin.button".localized,
             hint: isFormValid ?
-                  "Submit authentication form" :
-                  "Complete all required fields to enable"
+                  "auth.submit.hint.valid".localized :
+                  "auth.submit.hint.invalid".localized
         )
         .accessibilityIdentifier("submit_button")
     }
@@ -439,8 +439,8 @@ struct AuthenticationView: View {
                 .font(dynamicFont(.subheadline))
                 .foregroundColor(Color.taxedPrimary)
         }
-        .accessibilityLabel(isSignUp ? "Switch to Sign In" : "Switch to Sign Up")
-        .accessibilityHint("Toggle between sign in and sign up modes")
+        .accessibilityLabel(isSignUp ? "auth.switch.signin".localized : "auth.switch.signup".localized)
+        .accessibilityHint("auth.switch.signup".localized)
         .accessibilityIdentifier("toggle_mode_button")
     }
 
@@ -450,8 +450,8 @@ struct AuthenticationView: View {
                 .font(dynamicFont(.caption))
                 .foregroundColor(Color.taxedPrimary)
         }
-        .accessibilityLabel("Forgot Password")
-        .accessibilityHint("Open password reset options")
+        .accessibilityLabel("auth.forgot.password".localized)
+        .accessibilityHint("auth.forgot.password.hint".localized)
         .accessibilityIdentifier("forgot_password_button")
         .sheet(isPresented: $showPasswordReset) {
             PasswordResetView()
@@ -475,8 +475,8 @@ struct AuthenticationView: View {
                         .foregroundColor(Color.taxedPrimary)
                         .underline()
                 }
-                .accessibilityLabel("Terms of Service")
-                .accessibilityHint("Open terms of service")
+                .accessibilityLabel("auth.terms.link".localized)
+                .accessibilityHint("auth.terms.hint".localized)
 
                 Text("auth.terms.and".localized)
                     .font(dynamicFont(.caption2))
@@ -488,11 +488,11 @@ struct AuthenticationView: View {
                         .foregroundColor(Color.taxedPrimary)
                         .underline()
                 }
-                .accessibilityLabel("Privacy Policy")
-                .accessibilityHint("Open privacy policy")
+                .accessibilityLabel("auth.privacy.link".localized)
+                .accessibilityHint("auth.privacy.hint".localized)
             }
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("By using this app, you agree to our Terms of Service and Privacy Policy")
+            .accessibilityLabel("auth.terms.privacy.label".localized)
         }
         .accessibilitySortPriority(500)
     }
@@ -642,7 +642,7 @@ struct AuthenticationView: View {
         if email.isEmpty {
             emailValidationError = nil
         } else if !email.contains("@") || !email.contains(".") {
-            emailValidationError = "Invalid email format"
+            emailValidationError = "auth.validation.email.invalid".localized
         } else {
             emailValidationError = nil
         }
@@ -652,7 +652,7 @@ struct AuthenticationView: View {
         if password.isEmpty {
             passwordValidationError = nil
         } else if password.count < 6 {
-            passwordValidationError = "Password must be at least 6 characters"
+            passwordValidationError = "auth.validation.password.short".localized
         } else {
             passwordValidationError = nil
         }
@@ -662,7 +662,7 @@ struct AuthenticationView: View {
         if name.isEmpty {
             nameValidationError = nil
         } else if name.count < 2 {
-            nameValidationError = "Name must be at least 2 characters"
+            nameValidationError = "auth.validation.name.short".localized
         } else {
             nameValidationError = nil
         }
@@ -672,7 +672,7 @@ struct AuthenticationView: View {
         if phoneNumber.isEmpty {
             phoneValidationError = nil
         } else if phoneNumber.count < 10 {
-            phoneValidationError = "Invalid phone number"
+            phoneValidationError = "auth.validation.phone.invalid".localized
         } else {
             phoneValidationError = nil
         }
@@ -693,8 +693,8 @@ struct AuthenticationView: View {
     private func announceScreenContext() {
         if accessibilityManager.isVoiceOverRunning {
             let message = isSignUp ?
-                "Sign up screen. Please enter your information to create an account." :
-                "Sign in screen. Please enter your credentials to access your account."
+                "auth.screen.signup.announce".localized :
+                "auth.screen.signin.announce".localized
             AccessibilityAnnouncer.announceScreenChange(message)
         }
     }
@@ -702,7 +702,7 @@ struct AuthenticationView: View {
     private func announceAuthenticationSuccess() {
         if accessibilityManager.isVoiceOverRunning {
             AccessibilityAnnouncer.announce(
-                "Authentication successful. Welcome to TaxedGmbH.",
+                "auth.success.announce".localized,
                 priority: .announcement
             )
         }
@@ -721,7 +721,7 @@ struct AuthenticationView: View {
 // MARK: - Accessible Text Field Style
 
 struct AccessibleTextFieldStyle: TextFieldStyle {
-    @StateObject private var accessibilityManager = AccessibilityManager.shared
+    @ObservedObject private var accessibilityManager = AccessibilityManager.shared
     @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     func _body(configuration: TextField<Self._Label>) -> some View {

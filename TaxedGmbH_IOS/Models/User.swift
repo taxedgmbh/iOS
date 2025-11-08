@@ -18,6 +18,7 @@ enum MaritalStatus: String, Codable {
 struct User: Codable {
     var id: String?
     let email: String
+    var emailVerified: Bool
     let name: String
     let role: UserRole
     var profileImageUrl: String?
@@ -55,12 +56,18 @@ struct User: Codable {
     var profileVersion: Int  // Incremented on profile changes to trigger PDF regeneration
     var profileLastUpdatedAt: Date  // When profile was last modified
 
+    // Workspace Management (Collaborative Tax Filing)
+    var workspaceIds: [String]?  // All workspaces this user is a member of
+    var activeWorkspaceId: String?  // Currently selected workspace for document viewing
+
     let createdAt: Date
     var updatedAt: Date
+    var lastLoginAt: Date?
 
     init(
         id: String? = nil,
         email: String,
+        emailVerified: Bool = false,
         name: String,
         role: UserRole = .customer,
         profileImageUrl: String? = nil,
@@ -85,11 +92,15 @@ struct User: Codable {
         responseTime: Int? = nil,
         profileVersion: Int = 1,
         profileLastUpdatedAt: Date = Date(),
+        workspaceIds: [String]? = nil,
+        activeWorkspaceId: String? = nil,
         createdAt: Date = Date(),
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        lastLoginAt: Date? = nil
     ) {
         self.id = id
         self.email = email
+        self.emailVerified = emailVerified
         self.name = name
         self.role = role
         self.profileImageUrl = profileImageUrl
@@ -114,13 +125,17 @@ struct User: Codable {
         self.responseTime = responseTime
         self.profileVersion = profileVersion
         self.profileLastUpdatedAt = profileLastUpdatedAt
+        self.workspaceIds = workspaceIds
+        self.activeWorkspaceId = activeWorkspaceId
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.lastLoginAt = lastLoginAt
     }
 
     func toDictionary() -> [String: Any] {
         var dict: [String: Any] = [
             "email": email,
+            "emailVerified": emailVerified,
             "name": name,
             "role": role.rawValue,
             "createdAt": Timestamp(date: createdAt),
@@ -152,6 +167,13 @@ struct User: Codable {
         // Profile Versioning
         dict["profileVersion"] = profileVersion
         dict["profileLastUpdatedAt"] = Timestamp(date: profileLastUpdatedAt)
+
+        // Workspace Management
+        if let workspaceIds = workspaceIds { dict["workspaceIds"] = workspaceIds }
+        if let activeWorkspaceId = activeWorkspaceId { dict["activeWorkspaceId"] = activeWorkspaceId }
+
+        // Last Login
+        if let lastLoginAt = lastLoginAt { dict["lastLoginAt"] = Timestamp(date: lastLoginAt) }
 
         return dict
     }
@@ -202,9 +224,19 @@ struct User: Codable {
             profileLastUpdatedAt = Date()
         }
 
+        let lastLoginAt: Date?
+        if let timestamp = dict["lastLoginAt"] as? Timestamp {
+            lastLoginAt = timestamp.dateValue()
+        } else if let date = dict["lastLoginAt"] as? Date {
+            lastLoginAt = date
+        } else {
+            lastLoginAt = nil
+        }
+
         let user = User(
             id: dict["id"] as? String,
             email: email,
+            emailVerified: dict["emailVerified"] as? Bool ?? false,
             name: name,
             role: role,
             profileImageUrl: dict["profileImageUrl"] as? String,
@@ -229,8 +261,11 @@ struct User: Codable {
             responseTime: dict["responseTime"] as? Int,
             profileVersion: profileVersion,
             profileLastUpdatedAt: profileLastUpdatedAt,
+            workspaceIds: dict["workspaceIds"] as? [String],
+            activeWorkspaceId: dict["activeWorkspaceId"] as? String,
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
+            lastLoginAt: lastLoginAt
         )
 
         return user

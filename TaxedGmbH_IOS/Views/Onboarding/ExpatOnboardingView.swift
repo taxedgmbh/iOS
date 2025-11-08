@@ -371,7 +371,7 @@ struct TimelineItem: View {
 struct ExpatChecklistView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject private var localizationService = LocalizationService.shared
-    @StateObject private var checklistService = ChecklistService.shared
+    @ObservedObject private var checklistService = ChecklistService.shared
     @State private var navigateToUpload = false
 
     var body: some View {

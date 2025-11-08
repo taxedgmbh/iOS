@@ -9,7 +9,7 @@ import SwiftUI
 import AVFoundation
 
 struct VoiceInputView: View {
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @ObservedObject private var speechService = SpeechRecognitionService.shared
     @Binding var text: String
     @State private var showingTranscription = false
     @State private var animationScale: CGFloat = 1.0
@@ -119,7 +119,7 @@ struct VoiceInputView: View {
                         onComplete?(speechService.transcribedText)
                         speechService.clearTranscription()
                     }) {
-                        Label("Use Text", systemImage: "checkmark.circle.fill")
+                        Label("speech.use_text".localized, systemImage: "checkmark.circle.fill")
                             .font(.subheadline)
                             .foregroundColor(.white)
                             .padding(.horizontal, 20)
@@ -131,7 +131,7 @@ struct VoiceInputView: View {
                     Button(action: {
                         speechService.clearTranscription()
                     }) {
-                        Label("Clear", systemImage: "xmark.circle")
+                        Label("speech.clear".localized, systemImage: "xmark.circle")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                             .padding(.horizontal, 20)
@@ -163,7 +163,7 @@ struct VoiceInputView: View {
 
 // MARK: - Compact Voice Input Button
 struct CompactVoiceInputButton: View {
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @ObservedObject private var speechService = SpeechRecognitionService.shared
     @State private var showingVoiceInput = false
     @Binding var text: String
 
@@ -188,7 +188,7 @@ struct CompactVoiceInputButton: View {
 struct VoiceInputSheet: View {
     @Binding var text: String
     @Binding var isPresented: Bool
-    @StateObject private var speechService = SpeechRecognitionService.shared
+    @ObservedObject private var speechService = SpeechRecognitionService.shared
 
     var body: some View {
         NavigationView {
@@ -209,7 +209,7 @@ struct VoiceInputSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button("speech.done".localized) {
                         if !speechService.transcribedText.isEmpty {
                             text = speechService.transcribedText
                         }
@@ -218,7 +218,7 @@ struct VoiceInputSheet: View {
                 }
 
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button("speech.cancel".localized) {
                         speechService.clearTranscription()
                         isPresented = false
                     }

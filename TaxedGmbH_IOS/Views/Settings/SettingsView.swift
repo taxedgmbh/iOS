@@ -3,8 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var authService: AuthenticationService
     @ObservedObject private var localizationService = LocalizationService.shared
-    @StateObject private var notificationService = NotificationService.shared
-    @StateObject private var themeManager = ThemeManager.shared
+    @ObservedObject private var notificationService = NotificationService.shared
+    @ObservedObject private var themeManager = ThemeManager.shared
     @State private var showSignOutConfirmation = false
     @State private var refreshID = UUID()
 
@@ -36,12 +36,123 @@ struct SettingsView: View {
                         }
                     }
 
+                    // Address Information
+                    if let street = user.street, let postalCode = user.postalCode, let city = user.city {
+                        LabeledContent {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(street)
+                                    .foregroundStyle(.secondary)
+                                Text("\(postalCode) \(city)")
+                                    .foregroundStyle(.secondary)
+                            }
+                        } label: {
+                            Label("Address", systemImage: "house.fill")
+                        }
+                    }
+
+                    // Swiss Tax Information - Person 1 and Person 2 for joint filing
+                    let isJointFiling = user.maritalStatus == .married || user.maritalStatus == .registered_partnership
+
+                    if isJointFiling {
+                        // Person 1
+                        if let person1Name = user.person1Name {
+                            LabeledContent {
+                                Text(person1Name)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("Person 1 - Name", systemImage: "person.fill")
+                            }
+                        }
+
+                        if let person1Ahv = user.person1AhvNumber {
+                            LabeledContent {
+                                Text(person1Ahv)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("Person 1 - AHV", systemImage: "number.circle.fill")
+                            }
+                        }
+
+                        // Person 2
+                        if let person2Name = user.person2Name {
+                            LabeledContent {
+                                Text(person2Name)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("Person 2 - Name", systemImage: "person.fill")
+                            }
+                        }
+
+                        if let person2Ahv = user.person2AhvNumber {
+                            LabeledContent {
+                                Text(person2Ahv)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("Person 2 - AHV", systemImage: "number.circle.fill")
+                            }
+                        }
+                    } else {
+                        // Single filer
+                        if let person1Ahv = user.person1AhvNumber {
+                            LabeledContent {
+                                Text(person1Ahv)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("AHV Number", systemImage: "number.circle.fill")
+                            }
+                        } else if let ahvNumber = user.ahvNumber {
+                            // Backward compatibility
+                            LabeledContent {
+                                Text(ahvNumber)
+                                    .foregroundStyle(.secondary)
+                            } label: {
+                                Label("AHV Number", systemImage: "number.circle.fill")
+                            }
+                        }
+                    }
+
                     if let canton = user.canton {
                         LabeledContent {
                             Text(canton)
                                 .foregroundStyle(.secondary)
                         } label: {
                             Label("settings.profile.canton".localized, systemImage: "map.fill")
+                        }
+                    }
+
+                    if let municipality = user.municipality {
+                        LabeledContent {
+                            Text(municipality)
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("Municipality", systemImage: "building.2.fill")
+                        }
+                    }
+
+                    if let municipalityId = user.municipalityId {
+                        LabeledContent {
+                            Text(municipalityId)
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("Municipality ID (BFS)", systemImage: "number.square.fill")
+                        }
+                    }
+
+                    if let maritalStatus = user.maritalStatus {
+                        LabeledContent {
+                            Text(maritalStatus.rawValue.capitalized.replacingOccurrences(of: "_", with: " "))
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("Marital Status", systemImage: "heart.circle.fill")
+                        }
+                    }
+
+                    if let numberOfChildren = user.numberOfChildren {
+                        LabeledContent {
+                            Text("\(numberOfChildren)")
+                                .foregroundStyle(.secondary)
+                        } label: {
+                            Label("Number of Children", systemImage: "figure.and.child.holdinghands")
                         }
                     }
 
@@ -54,6 +165,9 @@ struct SettingsView: View {
                 }
             } header: {
                 Text("settings.profile.title".localized)
+            } footer: {
+                Text("Complete your profile information for accurate tax calculations")
+                    .font(.caption)
             }
 
             // Notifications Section (HIG Compliant)
@@ -139,7 +253,7 @@ struct SettingsView: View {
                 }
 
                 NavigationLink {
-                    PrivacyPolicyView()
+                    PrivacyView()
                 } label: {
                     HStack {
                         Image(systemName: "hand.raised.fill")
@@ -150,7 +264,7 @@ struct SettingsView: View {
                 }
 
                 NavigationLink {
-                    TermsOfServiceView()
+                    TermsView()
                 } label: {
                     HStack {
                         Image(systemName: "doc.text.fill")
@@ -259,98 +373,6 @@ struct ProfileRow: View {
     }
 }
 
-// MARK: - Privacy Policy View
-
-struct PrivacyPolicyView: View {
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("privacy.title".localized)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 8)
-
-                PolicySection(
-                    title: "privacy.section1.title".localized,
-                    content: "privacy.section1.content".localized
-                )
-
-                PolicySection(
-                    title: "privacy.section2.title".localized,
-                    content: "privacy.section2.content".localized
-                )
-
-                PolicySection(
-                    title: "privacy.section3.title".localized,
-                    content: "privacy.section3.content".localized
-                )
-
-                PolicySection(
-                    title: "privacy.section4.title".localized,
-                    content: "privacy.section4.content".localized
-                )
-            }
-            .padding()
-        }
-        .navigationTitle("privacy.navigation_title".localized)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-// MARK: - Terms of Service View
-
-struct TermsOfServiceView: View {
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("terms.title".localized)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 8)
-
-                PolicySection(
-                    title: "terms.section1.title".localized,
-                    content: "terms.section1.content".localized
-                )
-
-                PolicySection(
-                    title: "terms.section2.title".localized,
-                    content: "terms.section2.content".localized
-                )
-
-                PolicySection(
-                    title: "terms.section3.title".localized,
-                    content: "terms.section3.content".localized
-                )
-
-                PolicySection(
-                    title: "terms.section4.title".localized,
-                    content: "terms.section4.content".localized
-                )
-            }
-            .padding()
-        }
-        .navigationTitle("terms.navigation_title".localized)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct PolicySection: View {
-    let title: String
-    let content: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.headline)
-                .fontWeight(.semibold)
-
-            Text(content)
-                .font(.body)
-                .foregroundColor(.secondary)
-        }
-    }
-}
 
 // MARK: - Support View
 

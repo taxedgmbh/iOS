@@ -202,6 +202,7 @@ enum DocumentWorkflowStatus: String, Codable {
 struct TaxDocument: Codable, Identifiable {
     var id: String
     var customerId: String
+    var workspaceId: String?  // Workspace this document belongs to
     var expertId: String?
     var caseId: String?
 
@@ -268,6 +269,7 @@ struct TaxDocument: Codable, Identifiable {
     init(
         id: String = UUID().uuidString,
         customerId: String,
+        workspaceId: String? = nil,
         expertId: String? = nil,
         caseId: String? = nil,
         name: String,
@@ -313,6 +315,7 @@ struct TaxDocument: Codable, Identifiable {
     ) {
         self.id = id
         self.customerId = customerId
+        self.workspaceId = workspaceId
         self.expertId = expertId
         self.caseId = caseId
         self.name = name
@@ -370,6 +373,7 @@ struct TaxDocument: Codable, Identifiable {
             "updatedAt": Timestamp(date: updatedAt)
         ]
 
+        if let workspaceId = workspaceId { dict["workspaceId"] = workspaceId }
         if let expertId = expertId { dict["expertId"] = expertId }
         if let caseId = caseId { dict["caseId"] = caseId }
         if let thumbnailUrl = thumbnailUrl { dict["thumbnailUrl"] = thumbnailUrl }
@@ -453,6 +457,7 @@ struct TaxDocument: Codable, Identifiable {
         return TaxDocument(
             id: id,
             customerId: customerId,
+            workspaceId: data["workspaceId"] as? String,
             expertId: data["expertId"] as? String,
             caseId: data["caseId"] as? String,
             name: name,

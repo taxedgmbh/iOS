@@ -133,7 +133,7 @@ struct VoiceControlModifier: ViewModifier {
 // MARK: - Minimum Touch Target
 
 struct MinimumTouchTargetModifier: ViewModifier {
-    @StateObject private var accessibilityManager = AccessibilityManager.shared
+    @ObservedObject private var accessibilityManager = AccessibilityManager.shared
 
     func body(content: Content) -> some View {
         content
@@ -273,7 +273,7 @@ extension View {
         self
             .accessibilityElement(children: .contain)
             .accessibilityHint("\(itemCount) items")
-            .accessibilityValue(currentIndex != nil ? "Item \(currentIndex! + 1) of \(itemCount)" : "")
+            .accessibilityValue(currentIndex.map { "Item \($0 + 1) of \(itemCount)" } ?? "")
     }
 
     // MARK: - Progress Accessibility

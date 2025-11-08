@@ -37,6 +37,10 @@ struct AppConstants {
             static let messages = "messages"
             static let notifications = "notifications"
 
+            // Workspace Management (for collaborative tax filing)
+            static let workspaces = "workspaces"
+            static let workspaceInvitations = "workspaceInvitations"
+
             // Legacy/alternative names (kept for backward compatibility)
             static let conversations = "chats" // Alias for chats
             static let taxCases = "taxCases" // Future use

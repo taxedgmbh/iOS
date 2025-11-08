@@ -59,7 +59,7 @@ enum TaxProcessStage: Int, CaseIterable {
 
 struct ProcessStageView: View {
     @EnvironmentObject var authService: AuthenticationService
-    @StateObject private var firestoreService = FirestoreService.shared
+    @ObservedObject private var firestoreService = FirestoreService.shared
 
     @State private var currentStage: TaxProcessStage = .collecting
     @State private var documents: [TaxDocument] = []
@@ -148,8 +148,10 @@ struct ProcessStageView: View {
         .sheet(isPresented: $showUploadSheet) {
             DocumentUploadView()
         }
-        .navigationDestination(isPresented: $showExpertChat) {
-            ExpertChatView()
+        .sheet(isPresented: $showExpertChat) {
+            NavigationView {
+                ExpertChatView()
+            }
         }
         .task {
             await loadProcessData()
