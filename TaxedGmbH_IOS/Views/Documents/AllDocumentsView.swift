@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseStorage
+import PDFKit
 
 enum DocumentFilter: String, CaseIterable {
     case all = "All"
@@ -45,6 +46,9 @@ struct AllDocumentsView: View {
     @State private var showSortMenu = false
     @State private var packageURL: String?
     @State private var taxYear: Int = Calendar.current.component(.year, from: Date())
+    @State private var showPackagePreview = false
+    @State private var packagePDFDocument: PDFDocument?
+    @State private var isLoadingPackage = false
 
     var filteredDocuments: [TaxDocument] {
         var documents: [TaxDocument]
@@ -85,7 +89,8 @@ struct AllDocumentsView: View {
                             taxYear: taxYear,
                             documentCount: filteredDocuments.count,
                             isRegenerating: pdfRegenerationService.isRegeneratingPackage,
-                            onShare: { sharePackage(url: packageURL) }
+                            isLoading: isLoadingPackage,
+                            onPreview: { previewPackage(url: packageURL) }
                         )
                         .padding(.horizontal)
                         .padding(.vertical, 12)
@@ -191,6 +196,15 @@ struct AllDocumentsView: View {
             .sheet(isPresented: $showUploadSheet) {
                 DocumentUploadView()
             }
+            .sheet(isPresented: $showPackagePreview) {
+                if let pdfDocument = packagePDFDocument {
+                    TaxPackagePreviewView(
+                        pdfDocument: pdfDocument,
+                        taxYear: taxYear,
+                        documentCount: filteredDocuments.count
+                    )
+                }
+            }
             .onAppear {
                 loadDocuments()
                 loadPackageURL()
@@ -272,18 +286,39 @@ struct AllDocumentsView: View {
         }
     }
 
-    private func sharePackage(url: String) {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let viewController = windowScene.windows.first?.rootViewController else {
-            print("❌ Cannot find view controller for share sheet")
+    private func previewPackage(url: String) {
+        guard let packageURL = URL(string: url) else {
+            print("❌ Invalid package URL")
             return
         }
 
+        isLoadingPackage = true
+
         Task {
-            await pdfRegenerationService.downloadAndSharePackage(
-                url: url,
-                presentingViewController: viewController
-            )
+            do {
+                // Download PDF temporarily
+                let (tempURL, _) = try await URLSession.shared.download(from: packageURL)
+
+                // Load PDF document
+                if let pdfDocument = PDFDocument(url: tempURL) {
+                    await MainActor.run {
+                        packagePDFDocument = pdfDocument
+                        isLoadingPackage = false
+                        showPackagePreview = true
+                    }
+                    print("✅ Package loaded for preview: \(pdfDocument.pageCount) pages")
+                } else {
+                    await MainActor.run {
+                        isLoadingPackage = false
+                    }
+                    print("❌ Failed to create PDF document")
+                }
+            } catch {
+                await MainActor.run {
+                    isLoadingPackage = false
+                }
+                print("❌ Failed to download package for preview: \(error)")
+            }
         }
     }
 }
@@ -603,7 +638,8 @@ struct TaxPackageBanner: View {
     let taxYear: Int
     let documentCount: Int
     let isRegenerating: Bool
-    let onShare: () -> Void
+    let isLoading: Bool
+    let onPreview: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -614,9 +650,14 @@ struct TaxPackageBanner: View {
                         .fill(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.12))
                         .frame(width: 56, height: 56)
 
-                    Image(systemName: "doc.on.doc.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color(red: 227/255, green: 30/255, blue: 36/255)))
+                    } else {
+                        Image(systemName: "doc.on.doc.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                    }
                 }
 
                 // Package Info
@@ -645,20 +686,27 @@ struct TaxPackageBanner: View {
                 .padding(.horizontal, 16)
 
             // Action Button
-            Button(action: onShare) {
+            Button(action: onPreview) {
                 HStack {
                     Spacer()
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 15, weight: .semibold))
-                    Text("Download & Share")
-                        .font(.system(size: 15, weight: .semibold))
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: Color(red: 227/255, green: 30/255, blue: 36/255)))
+                        Text("Loading...")
+                            .font(.system(size: 15, weight: .semibold))
+                    } else {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 15, weight: .semibold))
+                        Text("View Package")
+                            .font(.system(size: 15, weight: .semibold))
+                    }
                     Spacer()
                 }
                 .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
                 .padding(.vertical, 14)
             }
-            .disabled(isRegenerating)
-            .opacity(isRegenerating ? 0.5 : 1.0)
+            .disabled(isRegenerating || isLoading)
+            .opacity((isRegenerating || isLoading) ? 0.5 : 1.0)
         }
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(14)
@@ -666,6 +714,172 @@ struct TaxPackageBanner: View {
             RoundedRectangle(cornerRadius: 14)
                 .stroke(Color(.separator).opacity(0.3), lineWidth: 0.5)
         )
+    }
+}
+
+// MARK: - Tax Package Preview View
+
+struct TaxPackagePreviewView: View {
+    @Environment(\.dismiss) private var dismiss
+    let pdfDocument: PDFDocument
+    let taxYear: Int
+    let documentCount: Int
+
+    @State private var currentPage: Int = 0
+    @State private var showShareSheet = false
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Package Info Header
+                VStack(spacing: 8) {
+                    Text("Tax Submission Package \(String(taxYear))")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    HStack(spacing: 12) {
+                        Label("\(documentCount) documents", systemImage: "doc.on.doc")
+                        Label("\(pdfDocument.pageCount) pages", systemImage: "doc.text")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                }
+                .padding()
+                .background(Color(.secondarySystemGroupedBackground))
+
+                Divider()
+
+                // PDF Viewer
+                PDFKitView(document: pdfDocument, currentPage: $currentPage)
+
+                // Page Navigation
+                HStack(spacing: 20) {
+                    Button(action: previousPage) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .frame(width: 44, height: 44)
+                    }
+                    .disabled(currentPage == 0)
+                    .opacity(currentPage == 0 ? 0.3 : 1.0)
+
+                    Text("Page \(currentPage + 1) of \(pdfDocument.pageCount)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .frame(minWidth: 120)
+
+                    Button(action: nextPage) {
+                        Image(systemName: "chevron.right")
+                            .font(.title3)
+                            .frame(width: 44, height: 44)
+                    }
+                    .disabled(currentPage >= pdfDocument.pageCount - 1)
+                    .opacity(currentPage >= pdfDocument.pageCount - 1 ? 0.3 : 1.0)
+                }
+                .padding()
+                .background(Color(.secondarySystemGroupedBackground))
+            }
+            .navigationTitle("Preview")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showShareSheet = true }) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                if let data = pdfDocument.dataRepresentation() {
+                    ShareSheet(items: [data])
+                }
+            }
+        }
+    }
+
+    private func nextPage() {
+        if currentPage < pdfDocument.pageCount - 1 {
+            currentPage += 1
+        }
+    }
+
+    private func previousPage() {
+        if currentPage > 0 {
+            currentPage -= 1
+        }
+    }
+}
+
+// MARK: - PDFKit View
+
+struct PDFKitView: UIViewRepresentable {
+    let document: PDFDocument
+    @Binding var currentPage: Int
+
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.document = document
+        pdfView.autoScales = true
+        pdfView.displayMode = .singlePage
+        pdfView.displayDirection = .vertical
+        pdfView.backgroundColor = UIColor.systemGroupedBackground
+
+        // Set up notification for page changes
+        NotificationCenter.default.addObserver(
+            context.coordinator,
+            selector: #selector(Coordinator.pageChanged(_:)),
+            name: .PDFViewPageChanged,
+            object: pdfView
+        )
+
+        return pdfView
+    }
+
+    func updateUIView(_ pdfView: PDFView, context: Context) {
+        if let page = document.page(at: currentPage), pdfView.currentPage != page {
+            pdfView.go(to: page)
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(currentPage: $currentPage)
+    }
+
+    class Coordinator: NSObject {
+        @Binding var currentPage: Int
+
+        init(currentPage: Binding<Int>) {
+            _currentPage = currentPage
+        }
+
+        @objc func pageChanged(_ notification: Notification) {
+            guard let pdfView = notification.object as? PDFView,
+                  let page = pdfView.currentPage,
+                  let document = pdfView.document else {
+                return
+            }
+            let pageIndex = document.index(for: page)
+            currentPage = pageIndex
+        }
+    }
+}
+
+// MARK: - Share Sheet
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No update needed
     }
 }
 
