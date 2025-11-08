@@ -341,11 +341,12 @@ class PDFRegenerationService: ObservableObject {
             for taxYear in taxYears {
                 do {
                     // Get workspace and user info
-                    guard let workspace = try? await WorkspaceManager.shared.getWorkspace(workspaceId: workspaceId),
-                          let userId = workspace.ownerId else {
-                        print("❌ Cannot regenerate package: workspace or owner not found")
+                    guard let workspace = try? await WorkspaceManager.shared.getWorkspace(workspaceId: workspaceId) else {
+                        print("❌ Cannot regenerate package: workspace not found")
                         continue
                     }
+
+                    let userId = workspace.ownerId
 
                     guard let user = try? await firestoreService.getUserProfile(userId: userId) else {
                         print("❌ Cannot regenerate package: user not found")
