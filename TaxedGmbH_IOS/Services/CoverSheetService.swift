@@ -550,4 +550,384 @@ class CoverSheetService {
         let indicatorRect = CGRect(x: 10, y: y, width: 8, height: 100)
         context.fill(indicatorRect)
     }
+
+    // MARK: - Tax Submission Package Generation
+
+    /// Generate complete tax submission package: Title page + Cover letter + All documents with cover sheets
+    func generateTaxSubmissionPackage(
+        for documents: [TaxDocument],
+        user: User,
+        workspaceId: String,
+        taxYear: Int
+    ) async throws -> URL {
+        print("📦 Starting tax submission package generation")
+        print("   Documents: \(documents.count)")
+        print("   Tax Year: \(taxYear)")
+
+        // Step 1: Generate title page
+        let titlePageURL = try await generateTitlePage(
+            user: user,
+            taxYear: taxYear,
+            documentCount: documents.count
+        )
+
+        // Step 2: Generate cover letter
+        let coverLetterURL = try await generateCoverLetter(
+            user: user,
+            taxYear: taxYear,
+            documentCount: documents.count
+        )
+
+        // Step 3: Collect all processed documents (cover sheet + original)
+        var processedDocuments: [(document: TaxDocument, url: URL)] = []
+
+        for document in documents.sorted(by: {
+            ($0.attachmentNumber ?? "") < ($1.attachmentNumber ?? "")
+        }) {
+            // If processed PDF exists, use it; otherwise generate it
+            if let processedUrl = document.processedDocumentUrl,
+               let url = URL(string: processedUrl) {
+                let tempURL = try await downloadDocument(storageUrl: processedUrl)
+                processedDocuments.append((document, tempURL))
+            } else {
+                // Generate cover sheet and merge with original
+                let coverSheetURL = try await generateCoverSheet(for: document, user: user)
+                let originalURL = try await downloadDocument(storageUrl: document.storageUrl)
+                let mergedURL = try await mergeCoverWithDocument(
+                    coverSheetURL: coverSheetURL,
+                    documentURL: originalURL,
+                    outputFileName: "processed_\(document.id).pdf"
+                )
+                processedDocuments.append((document, mergedURL))
+            }
+        }
+
+        // Step 4: Merge everything into final package
+        let packageURL = try await mergePackage(
+            titlePage: titlePageURL,
+            coverLetter: coverLetterURL,
+            processedDocuments: processedDocuments.map { $0.url }
+        )
+
+        // Step 5: Upload package to storage
+        let packagePath = "workspaces/\(workspaceId)/\(taxYear)/tax_submission_package_\(taxYear).pdf"
+        let packageStorageUrl = try await uploadPDF(
+            fileURL: packageURL,
+            storagePath: packagePath
+        )
+
+        print("✅ Tax submission package generated: \(packageStorageUrl)")
+
+        // Clean up temp files
+        try? FileManager.default.removeItem(at: titlePageURL)
+        try? FileManager.default.removeItem(at: coverLetterURL)
+        for (_, url) in processedDocuments {
+            try? FileManager.default.removeItem(at: url)
+        }
+
+        return packageURL
+    }
+
+    /// Generate title page for tax submission
+    private func generateTitlePage(
+        user: User,
+        taxYear: Int,
+        documentCount: Int
+    ) async throws -> URL {
+        print("📄 Generating title page")
+
+        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8) // A4
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+
+        let pdfData = renderer.pdfData { context in
+            context.beginPage()
+
+            // Swiss flag red background header
+            context.cgContext.setFillColor(red: 227/255, green: 30/255, blue: 36/255, alpha: 1.0)
+            context.cgContext.fill(CGRect(x: 0, y: 0, width: pageRect.width, height: 200))
+
+            // White Swiss cross
+            drawSwissCross(in: CGRect(x: pageRect.width/2 - 40, y: 60, width: 80, height: 80), context: context.cgContext)
+
+            // Main title
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 32, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+            let title = "Steuererklärung \(taxYear)"
+            let titleSize = title.size(withAttributes: titleAttributes)
+            let titleRect = CGRect(
+                x: (pageRect.width - titleSize.width) / 2,
+                y: 160,
+                width: titleSize.width,
+                height: titleSize.height
+            )
+            title.draw(in: titleRect, withAttributes: titleAttributes)
+
+            // User information section
+            var yPosition: CGFloat = 260
+
+            let nameAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 24, weight: .semibold),
+                .foregroundColor: UIColor.black
+            ]
+            let userName = user.name
+            let nameRect = CGRect(x: 80, y: yPosition, width: pageRect.width - 160, height: 30)
+            userName.draw(in: nameRect, withAttributes: nameAttributes)
+            yPosition += 50
+
+            // User details
+            let detailAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+                .foregroundColor: UIColor.darkGray
+            ]
+
+            let details = [
+                "AHV-Nummer: \(user.ahvNumber ?? "Nicht angegeben")",
+                "Kanton: \(user.canton ?? "Nicht angegeben")",
+                "Gemeinde: \(user.municipality ?? "Nicht angegeben")",
+                "E-Mail: \(user.email)"
+            ]
+
+            for detail in details {
+                let detailRect = CGRect(x: 80, y: yPosition, width: pageRect.width - 160, height: 20)
+                detail.draw(in: detailRect, withAttributes: detailAttributes)
+                yPosition += 25
+            }
+
+            // Document summary
+            yPosition += 40
+            let summaryAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 18, weight: .semibold),
+                .foregroundColor: UIColor.black
+            ]
+            let summary = "Eingereichte Dokumente"
+            let summaryRect = CGRect(x: 80, y: yPosition, width: pageRect.width - 160, height: 25)
+            summary.draw(in: summaryRect, withAttributes: summaryAttributes)
+            yPosition += 35
+
+            let countAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 16, weight: .regular),
+                .foregroundColor: UIColor.darkGray
+            ]
+            let countText = "Anzahl der Belege: \(documentCount)"
+            let countRect = CGRect(x: 80, y: yPosition, width: pageRect.width - 160, height: 22)
+            countText.draw(in: countRect, withAttributes: countAttributes)
+
+            // Footer
+            let footerY = pageRect.height - 80
+            let footerAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 10, weight: .regular),
+                .foregroundColor: UIColor.gray
+            ]
+            let footer = "Erstellt mit TAXED.CH am \(formatDate(Date()))"
+            let footerRect = CGRect(x: 80, y: footerY, width: pageRect.width - 160, height: 20)
+            footer.draw(in: footerRect, withAttributes: footerAttributes)
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("title_page_\(taxYear).pdf")
+        try pdfData.write(to: tempURL)
+
+        print("✅ Title page created")
+        return tempURL
+    }
+
+    /// Generate cover letter for customer
+    private func generateCoverLetter(
+        user: User,
+        taxYear: Int,
+        documentCount: Int
+    ) async throws -> URL {
+        print("📄 Generating cover letter")
+
+        let pageRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8) // A4
+        let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+
+        let pdfData = renderer.pdfData { context in
+            context.beginPage()
+
+            var yPosition: CGFloat = 100
+
+            // TAXED.CH Logo/Header
+            let headerAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 20, weight: .bold),
+                .foregroundColor: UIColor(red: 227/255, green: 30/255, blue: 36/255, alpha: 1.0)
+            ]
+            let header = "TAXED.CH"
+            let headerRect = CGRect(x: 60, y: yPosition, width: 200, height: 25)
+            header.draw(in: headerRect, withAttributes: headerAttributes)
+            yPosition += 60
+
+            // Date
+            let dateAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 11, weight: .regular),
+                .foregroundColor: UIColor.darkGray
+            ]
+            let dateText = formatDate(Date())
+            let dateRect = CGRect(x: 60, y: yPosition, width: pageRect.width - 120, height: 20)
+            dateText.draw(in: dateRect, withAttributes: dateAttributes)
+            yPosition += 60
+
+            // Recipient
+            let recipientAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 12, weight: .regular),
+                .foregroundColor: UIColor.black
+            ]
+            let recipient = """
+            \(user.name)
+            \(user.canton ?? "")
+            """
+            let recipientRect = CGRect(x: 60, y: yPosition, width: 300, height: 50)
+            recipient.draw(in: recipientRect, withAttributes: recipientAttributes)
+            yPosition += 80
+
+            // Subject
+            let subjectAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.black
+            ]
+            let subject = "Steuererklärung \(taxYear) - Dokumentenübermittlung"
+            let subjectRect = CGRect(x: 60, y: yPosition, width: pageRect.width - 120, height: 22)
+            subject.draw(in: subjectRect, withAttributes: subjectAttributes)
+            yPosition += 50
+
+            // Letter body
+            let bodyAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 11, weight: .regular),
+                .foregroundColor: UIColor.black,
+                .paragraphStyle: {
+                    let style = NSMutableParagraphStyle()
+                    style.lineSpacing = 6
+                    return style
+                }()
+            ]
+
+            let body = """
+            Sehr geehrte Damen und Herren,
+
+            Anbei übermitteln wir Ihnen die Steuererklärung für das Steuerjahr \(taxYear).
+
+            Das vorliegende Dossier enthält \(documentCount) Belege, die wie folgt organisiert sind:
+
+            • Jeder Beleg ist mit einem Deckblatt versehen
+            • Die Dokumente sind nach Kategorie und Anhang-Nummer sortiert
+            • Alle relevanten Informationen sind auf den Deckblättern ersichtlich
+
+            Die Unterlagen wurden sorgfältig geprüft und kategorisiert. Bei Rückfragen stehen wir Ihnen gerne zur Verfügung.
+
+            Mit freundlichen Grüssen,
+
+            TAXED.CH
+            Ihr digitaler Steuerassistent
+            """
+
+            let bodyRect = CGRect(x: 60, y: yPosition, width: pageRect.width - 120, height: 400)
+            body.draw(in: bodyRect, withAttributes: bodyAttributes)
+
+            // Footer
+            let footerY = pageRect.height - 60
+            context.cgContext.setStrokeColor(UIColor.lightGray.cgColor)
+            context.cgContext.setLineWidth(0.5)
+            context.cgContext.move(to: CGPoint(x: 60, y: footerY))
+            context.cgContext.addLine(to: CGPoint(x: pageRect.width - 60, y: footerY))
+            context.cgContext.strokePath()
+
+            let footerAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 9, weight: .regular),
+                .foregroundColor: UIColor.gray
+            ]
+            let footer = "TAXED.CH | Automatisierte Steuerbelegerstellung | www.taxed.ch"
+            let footerRect = CGRect(x: 60, y: footerY + 10, width: pageRect.width - 120, height: 15)
+            footer.draw(in: footerRect, withAttributes: footerAttributes)
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("cover_letter_\(taxYear).pdf")
+        try pdfData.write(to: tempURL)
+
+        print("✅ Cover letter created")
+        return tempURL
+    }
+
+    /// Merge all PDFs into final package
+    private func mergePackage(
+        titlePage: URL,
+        coverLetter: URL,
+        processedDocuments: [URL]
+    ) async throws -> URL {
+        print("🔗 Merging package PDFs")
+
+        let mergedPDF = PDFDocument()
+        var pageCount = 0
+
+        // Add title page
+        if let titlePDF = PDFDocument(url: titlePage) {
+            for i in 0..<titlePDF.pageCount {
+                if let page = titlePDF.page(at: i) {
+                    mergedPDF.insert(page, at: pageCount)
+                    pageCount += 1
+                }
+            }
+        }
+
+        // Add cover letter
+        if let letterPDF = PDFDocument(url: coverLetter) {
+            for i in 0..<letterPDF.pageCount {
+                if let page = letterPDF.page(at: i) {
+                    mergedPDF.insert(page, at: pageCount)
+                    pageCount += 1
+                }
+            }
+        }
+
+        // Add all processed documents
+        for documentURL in processedDocuments {
+            if let docPDF = PDFDocument(url: documentURL) {
+                for i in 0..<docPDF.pageCount {
+                    if let page = docPDF.page(at: i) {
+                        mergedPDF.insert(page, at: pageCount)
+                        pageCount += 1
+                    }
+                }
+            }
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("tax_package_\(UUID().uuidString).pdf")
+
+        guard mergedPDF.write(to: tempURL) else {
+            throw NSError(domain: "CoverSheetService", code: 1006,
+                         userInfo: [NSLocalizedDescriptionKey: "Failed to write merged package PDF"])
+        }
+
+        print("✅ Package merged with \(pageCount) total pages")
+        return tempURL
+    }
+
+    /// Draw Swiss cross (white cross on transparent background)
+    private func drawSwissCross(in rect: CGRect, context: CGContext) {
+        context.setFillColor(UIColor.white.cgColor)
+
+        let crossWidth = rect.width * 0.25
+        let crossLength = rect.width * 0.8
+
+        // Horizontal bar
+        let horizontalRect = CGRect(
+            x: rect.minX + (rect.width - crossLength) / 2,
+            y: rect.minY + (rect.height - crossWidth) / 2,
+            width: crossLength,
+            height: crossWidth
+        )
+        context.fill(horizontalRect)
+
+        // Vertical bar
+        let verticalRect = CGRect(
+            x: rect.minX + (rect.width - crossWidth) / 2,
+            y: rect.minY + (rect.height - crossLength) / 2,
+            width: crossWidth,
+            height: crossLength
+        )
+        context.fill(verticalRect)
+    }
 }
