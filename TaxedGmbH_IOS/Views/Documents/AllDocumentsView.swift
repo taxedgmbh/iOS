@@ -230,24 +230,63 @@ struct AllDocumentsView: View {
     }
 
     private func loadDocuments() {
-        guard let userId = authService.user?.id else { return }
+        guard let userId = authService.user?.id else {
+            print("❌ No user ID available for loading documents")
+            return
+        }
 
-        // Load workspace documents if workspace exists, otherwise fall back to user documents
+        print("📄 Loading documents for user: \(userId)")
+
         Task {
+            // Try workspace-based loading with timeout
             do {
-                try await workspaceManager.loadUserWorkspaces(for: userId)
+                // Add timeout for workspace loading
+                try await withTimeout(seconds: 5) {
+                    try await workspaceManager.loadUserWorkspaces(for: userId)
+                }
 
                 if let workspaceId = workspaceManager.activeWorkspace?.id {
+                    print("✅ Using workspace: \(workspaceId)")
                     await documentManager.loadDocuments(forWorkspace: workspaceId)
                 } else {
-                    // Fallback to loading all user documents (legacy mode)
+                    print("⚠️ No active workspace, loading user documents directly")
                     await documentManager.loadDocuments(for: userId)
                 }
             } catch {
-                print("❌ Error loading workspaces: \(error)")
-                // Fallback to user documents on error
+                print("❌ Workspace loading failed or timed out: \(error.localizedDescription)")
+                // Always fallback to user documents on any error
                 await documentManager.loadDocuments(for: userId)
             }
+        }
+    }
+
+    /// Execute an async task with a timeout
+    private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            // Add the actual operation
+            group.addTask {
+                try await operation()
+            }
+
+            // Add a timeout task
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                throw TimeoutError()
+            }
+
+            // Return the first one to complete
+            let result = try await group.next()!
+
+            // Cancel the other task
+            group.cancelAll()
+
+            return result
+        }
+    }
+
+    private struct TimeoutError: Error {
+        var localizedDescription: String {
+            return "Operation timed out"
         }
     }
 
@@ -256,21 +295,29 @@ struct AllDocumentsView: View {
     }
 
     private func refreshAsync() async {
-        guard let userId = authService.user?.id else { return }
+        guard let userId = authService.user?.id else {
+            print("❌ No user ID available for refresh")
+            return
+        }
 
-        // Load workspace documents if workspace exists, otherwise fall back to user documents
+        print("🔄 Refreshing documents for user: \(userId)")
+
+        // Try workspace-based loading with timeout
         do {
-            try await workspaceManager.loadUserWorkspaces(for: userId)
+            try await withTimeout(seconds: 5) {
+                try await workspaceManager.loadUserWorkspaces(for: userId)
+            }
 
             if let workspaceId = workspaceManager.activeWorkspace?.id {
+                print("✅ Refreshing workspace: \(workspaceId)")
                 await documentManager.loadDocuments(forWorkspace: workspaceId)
             } else {
-                // Fallback to loading all user documents (legacy mode)
+                print("⚠️ No active workspace, refreshing user documents directly")
                 await documentManager.loadDocuments(for: userId)
             }
         } catch {
-            print("❌ Error loading workspaces: \(error)")
-            // Fallback to user documents on error
+            print("❌ Workspace refresh failed or timed out: \(error.localizedDescription)")
+            // Always fallback to user documents on any error
             await documentManager.loadDocuments(for: userId)
         }
     }

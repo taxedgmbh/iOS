@@ -11,6 +11,8 @@
 		61DDA16F2EAAD078000C96AC /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 61DDA16E2EAAD078000C96AC /* FirebaseFirestore */; };
 		61DDA1712EAAD081000C96AC /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 61DDA1702EAAD081000C96AC /* FirebaseStorage */; };
 		61DDA1732EAAD089000C96AC /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 61DDA1722EAAD089000C96AC /* FirebaseAnalytics */; };
+		61DDA1762EAAD099000C96AC /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 61DDA1752EAAD099000C96AC /* FirebaseFunctions */; };
+		61DDA1782EAAD0A1000C96AC /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 61DDA1772EAAD0A1000C96AC /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 				61DDA16F2EAAD078000C96AC /* FirebaseFirestore in Frameworks */,
 				61DDA1732EAAD089000C96AC /* FirebaseAnalytics in Frameworks */,
 				61DDA1712EAAD081000C96AC /* FirebaseStorage in Frameworks */,
+				61DDA1762EAAD099000C96AC /* FirebaseFunctions in Frameworks */,
+				61DDA1782EAAD0A1000C96AC /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +92,8 @@
 				61DDA16E2EAAD078000C96AC /* FirebaseFirestore */,
 				61DDA1702EAAD081000C96AC /* FirebaseStorage */,
 				61DDA1722EAAD089000C96AC /* FirebaseAnalytics */,
+				61DDA1752EAAD099000C96AC /* FirebaseFunctions */,
+				61DDA1772EAAD0A1000C96AC /* FirebaseMessaging */,
 			);
 			productName = TaxedGmbH_IOS;
 			productReference = 61FD623E2EA9417A0071BB55 /* TaxedGmbH_IOS.app */;
@@ -161,8 +167,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8784L7RY33;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Taxed;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Diese App benötigt Zugriff auf Ihre Kamera, um Dokumente zu scannen.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Diese App benötigt Zugriff auf Ihr Mikrofon für Sprachnotizen und die Kommunikation mit Ihrem Steuerberater.";
@@ -190,7 +198,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.10;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -202,8 +210,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8784L7RY33;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Taxed;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Diese App benötigt Zugriff auf Ihre Kamera, um Dokumente zu scannen.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Diese App benötigt Zugriff auf Ihr Mikrofon für Sprachnotizen und die Kommunikation mit Ihrem Steuerberater.";
@@ -231,7 +241,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.10;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -270,6 +280,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -288,7 +299,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -333,6 +344,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -345,7 +357,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -409,6 +421,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 61DDA16A2EAACFE4000C96AC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		61DDA1752EAAD099000C96AC /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61DDA16A2EAACFE4000C96AC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		61DDA1772EAAD0A1000C96AC /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 61DDA16A2EAACFE4000C96AC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

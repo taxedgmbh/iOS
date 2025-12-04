@@ -55,7 +55,7 @@ class BiometricAuthService: ObservableObject {
 
     // MARK: - Biometric Authentication
 
-    func authenticateWithBiometric(completion: @escaping (Bool, String?) -> Void) {
+    func authenticateWithBiometric(completion: @escaping @Sendable (Bool, String?) -> Void) {
         let reason = biometricType == .faceID ?
             "Mit Face ID bei Taxed anmelden" :
             "Mit Touch ID bei Taxed anmelden"

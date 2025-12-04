@@ -51,14 +51,46 @@ class StorageService: ObservableObject {
 
     /// Delete a document from Firebase Storage
     func deleteDocument(storageUrl: String) async throws {
-        let storageRef = storage.reference(forURL: storageUrl)
+        guard !storageUrl.isEmpty else {
+            print("❌ Empty storage URL for deletion")
+            throw StorageError.invalidURL
+        }
+
+        // Determine if it's a full URL or a storage path
+        let storageRef: StorageReference
+        if let url = URL(string: storageUrl),
+           let scheme = url.scheme,
+           ["gs", "http", "https"].contains(scheme) {
+            // Full URL with scheme
+            storageRef = storage.reference(forURL: storageUrl)
+        } else {
+            // Storage path
+            storageRef = storage.reference().child(storageUrl)
+        }
+
         try await storageRef.delete()
         print("✅ Document deleted: \(storageUrl)")
     }
 
     /// Get file size from storage URL
     func getFileSize(storageUrl: String) async throws -> Int64 {
-        let storageRef = storage.reference(forURL: storageUrl)
+        guard !storageUrl.isEmpty else {
+            print("❌ Empty storage URL for getFileSize")
+            throw StorageError.invalidURL
+        }
+
+        // Determine if it's a full URL or a storage path
+        let storageRef: StorageReference
+        if let url = URL(string: storageUrl),
+           let scheme = url.scheme,
+           ["gs", "http", "https"].contains(scheme) {
+            // Full URL with scheme
+            storageRef = storage.reference(forURL: storageUrl)
+        } else {
+            // Storage path
+            storageRef = storage.reference().child(storageUrl)
+        }
+
         let metadata = try await storageRef.getMetadata()
         return metadata.size
     }

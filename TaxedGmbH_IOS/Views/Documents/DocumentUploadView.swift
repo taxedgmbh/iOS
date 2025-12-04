@@ -444,7 +444,7 @@ struct DocumentUploadView: View {
                 DocumentPicker(documentURL: $selectedDocumentURL)
             }
             .sheet(isPresented: $showCategoryPicker) {
-                SimpleCategoryPickerView(selectedCategory: $manualCategory)
+                CategorySelectorSheet(selectedCategory: $manualCategory)
             }
             .task {
                 // Load workspaces when view appears to ensure activeWorkspace is set
@@ -939,6 +939,8 @@ struct DocumentUploadView: View {
             return .deduction
         case .assets:
             return .wealth
+        case .liabilities:
+            return .deduction
         case .swissSpecific:
             // Map Swiss specific categories
             switch categoryType {
@@ -961,6 +963,8 @@ struct DocumentUploadView: View {
             return "deduction"
         case .assets:
             return "wealth"
+        case .liabilities:
+            return "liabilities"
         case .swissSpecific:
             return "pillar"
         }
@@ -1061,57 +1065,3 @@ struct SimpleCategoryPickerView: View {
 }
 
 // MARK: - Category Option Button
-struct CategoryOptionButton: View {
-    let category: TaxCategoryType
-    let isSelected: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(isSelected ? category.color.opacity(0.15) : Color(UIColor.systemGray6))
-                        .frame(height: 80)
-
-                    VStack(spacing: 6) {
-                        Image(systemName: category.icon)
-                            .font(.system(size: 24))
-                            .foregroundColor(category.color)
-
-                        Text(category.displayName)
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(.primary)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                    }
-                    .padding(6)
-
-                    if isSelected {
-                        VStack {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-                                    .font(.title3)
-                            }
-                            Spacer()
-                        }
-                        .padding(8)
-                    }
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(isSelected ? Color(red: 227/255, green: 30/255, blue: 36/255) : Color.clear, lineWidth: 2)
-                )
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-#Preview {
-    DocumentUploadView()
-        .environmentObject(AuthenticationService())
-}

@@ -21,7 +21,7 @@ struct DocumentDetailView: View {
     @State private var coverGenerationSuccess = false
     @State private var coverGenerationError: String?
     @State private var showRemapSheet = false
-    @State private var showCoverSheet = false
+    @State private var showOriginal = false  // Default to showing processed version
     @State private var showDeleteConfirmation = false
     @State private var documentNotes: String = ""
     @State private var isSavingNotes = false
@@ -44,81 +44,94 @@ struct DocumentDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // PDF Preview Section
+                // PDF Preview Section - Enhanced with Liquid Glass
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("document_detail.preview".localized)
                             .font(.headline)
                         Spacer()
-                        if document.coverSheetUrl != nil {
-                            Button(action: { showCoverSheet.toggle() }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: showCoverSheet ? "doc.text" : "doc.badge.plus")
+                    }
+
+                    ZStack(alignment: .topTrailing) {
+                        // Main PDF Viewer with Glass Card
+                        ZStack {
+                            // Always show PDFViewer (don't destroy/recreate it)
+                            PDFViewerRepresentable(
+                                url: showOriginal ? document.storageUrl : (document.processedDocumentUrl ?? document.storageUrl),
+                                isLoading: $isLoadingPDF
+                            )
+                            .frame(height: 500)  // Increased from 400px to 500px
+                            .glassCard(cornerRadius: 24, borderColor: categoryColor.opacity(0.5))
+
+                            // Show loading overlay on top
+                            if isLoadingPDF {
+                                VStack(spacing: 12) {
+                                    ProgressView()
+                                        .scaleEffect(1.2)
+                                    Text("document_detail.loading_pdf".localized)
                                         .font(.caption)
-                                    Text(showCoverSheet ? "document_detail.original".localized : "document_detail.cover_sheet".localized)
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(24)
+                            }
+                        }
+
+                        // Floating Action Buttons - Top Right
+                        if document.processedDocumentUrl != nil {
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    showOriginal.toggle()
+                                }
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: showOriginal ? "doc.badge.plus" : "doc.text")
+                                        .font(.system(size: 14, weight: .semibold))
+                                    Text(showOriginal ? "Cover" : "Original")
                                         .font(.caption)
-                                        .fontWeight(.medium)
+                                        .fontWeight(.semibold)
                                 }
                                 .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.1))
-                                .cornerRadius(8)
                             }
+                            .floatingButton()
+                            .padding([.top, .trailing], 16)
                         }
                     }
-
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.systemGray6))
-                            .frame(height: 400)
-
-                        // Always show PDFViewer (don't destroy/recreate it)
-                        PDFViewerRepresentable(
-                            url: (showCoverSheet ? document.coverSheetUrl : nil) ?? document.storageUrl,
-                            isLoading: $isLoadingPDF
-                        )
-                        .cornerRadius(12)
-                        .frame(height: 400)
-
-                        // Show loading overlay on top
-                        if isLoadingPDF {
-                            VStack(spacing: 12) {
-                                ProgressView()
-                                    .scaleEffect(1.2)
-                                Text("document_detail.loading_pdf".localized)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color(.systemGray6).opacity(0.9))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
                 }
 
                 // Status Card
                 StatusCard(status: document.status)
 
-                // Category Card - Prominent Display
+                // Category Card - Enhanced with Liquid Glass & Glow
                 VStack(alignment: .leading, spacing: 16) {
-                    // Large Category Badge
+                    // Large Category Badge with Status
                     HStack(spacing: 16) {
-                        // Large colored icon circle
+                        // Large colored icon circle with glow
                         ZStack {
                             Circle()
                                 .fill(categoryColor.opacity(0.15))
-                                .frame(width: 60, height: 60)
+                                .frame(width: 70, height: 70)
 
                             Circle()
-                                .stroke(categoryColor, lineWidth: 2)
-                                .frame(width: 60, height: 60)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            categoryColor,
+                                            categoryColor.opacity(0.6)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 2.5
+                                )
+                                .frame(width: 70, height: 70)
 
                             Image(systemName: document.category.icon)
-                                .font(.system(size: 20, weight: .medium))
+                                .font(.system(size: 24, weight: .semibold))
                                 .foregroundColor(categoryColor)
                         }
+                        .glow(color: categoryColor, radius: 12)
 
                         VStack(alignment: .leading, spacing: 6) {
                             Text("document_detail.category".localized)
@@ -127,117 +140,142 @@ struct DocumentDetailView: View {
                                 .textCase(.uppercase)
 
                             Text(document.category.displayName)
-                                .font(.title3)
+                                .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(categoryColor)
 
                             if let subcategory = document.subcategory {
-                                Text(subcategory.capitalized)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "tag.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.secondary)
+                                    Text(subcategory.capitalized)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
 
                         Spacer()
+
+                        // Status Badge
+                        StatusPill(status: document.status)
                     }
 
-                    // Attachment Number & Tax Info Row
-                    HStack(spacing: 12) {
+                    Divider()
+                        .background(categoryColor.opacity(0.2))
+
+                    // Quick Stats Row - 3 Column Grid
+                    HStack(spacing: 16) {
                         if let attachmentNum = document.attachmentNumber {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("document_detail.attachment".localized)
-                                    .font(.caption2)
-                                    .foregroundColor(.gray)
-                                    .textCase(.uppercase)
-                                Text(attachmentNum)
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(categoryColor)
-                                    .cornerRadius(6)
-                            }
+                            QuickStatItem(
+                                icon: "paperclip",
+                                label: "document_detail.attachment".localized,
+                                value: attachmentNum,
+                                color: categoryColor
+                            )
                         }
 
                         Divider()
-                            .frame(height: 30)
+                            .frame(height: 40)
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("document_detail.tax_year".localized)
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                                .textCase(.uppercase)
-                            Text("\(document.taxYear)")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                        }
+                        QuickStatItem(
+                            icon: "calendar",
+                            label: "document_detail.tax_year".localized,
+                            value: "\(document.taxYear)",
+                            color: .blue
+                        )
 
                         if let canton = document.canton {
                             Divider()
-                                .frame(height: 30)
+                                .frame(height: 40)
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("document_detail.canton".localized)
-                                    .font(.caption2)
-                                    .foregroundColor(.gray)
-                                    .textCase(.uppercase)
-                                Text(canton)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                            }
+                            QuickStatItem(
+                                icon: "building.columns",
+                                label: "document_detail.canton".localized,
+                                value: canton,
+                                color: .red
+                            )
                         }
 
                         Spacer()
                     }
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemBackground))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(categoryColor.opacity(0.3), lineWidth: 1)
-                        )
-                )
-                .shadow(color: categoryColor.opacity(0.1), radius: 8, x: 0, y: 2)
 
-                // Document Summary
+                    // Amount Display (if available) with Shimmer
+                    if let amount = document.amount {
+                        Divider()
+                            .background(categoryColor.opacity(0.2))
+
+                        HStack {
+                            Image(systemName: "francsign.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(categoryColor)
+
+                            Text("CHF \(String(format: "%.2f", amount))")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(categoryColor)
+                                .shimmer(duration: 3.0)
+                        }
+                    }
+                }
+                .padding(20)
+                .glassCard(cornerRadius: 24, borderColor: categoryColor, glowColor: categoryColor)
+
+                // AI Summary - Collapsible Glass Card
                 if let summary = document.aiSummary {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("document_detail.summary_label".localized, systemImage: "text.alignleft")
-                            .font(.headline)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .font(.title3)
+                                .foregroundColor(.purple)
+                                .glow(color: .purple, radius: 8)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("AI Insights")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+
+                                if let confidence = document.aiConfidence {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 10))
+                                            .foregroundColor(.green)
+                                        Text("\(Int(confidence * 100))% Confidence")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+
+                            Spacer()
+                        }
+
+                        Divider()
+                            .background(Color.purple.opacity(0.2))
 
                         Text(summary)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .lineSpacing(4)
                     }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(radius: 2)
+                    .padding(16)
+                    .glassCard(cornerRadius: 20, borderColor: .purple, glowColor: .purple.opacity(0.3))
                 }
 
-                // Amount (if available)
-                if let amount = document.amount {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("document_detail.amount".localized, systemImage: "francsign.circle")
-                            .font(.headline)
-
-                        Text("CHF \(String(format: "%.2f", amount))")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                    }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(12)
-                    .shadow(radius: 2)
-                }
-
-                // Document Info
+                // Document Info - Glass Card
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("document_detail.document_info".localized, systemImage: "info.circle")
-                        .font(.headline)
+                    HStack {
+                        Image(systemName: "info.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.blue)
+                        Text("document_detail.document_info".localized)
+                            .font(.headline)
+                        Spacer()
+                    }
+
+                    Divider()
+                        .background(Color.blue.opacity(0.2))
 
                     InfoRow(label: "document_detail.filename".localized, value: document.name)
                     InfoRow(label: "document_detail.tax_year".localized, value: "\(document.taxYear)")
@@ -258,44 +296,67 @@ struct DocumentDetailView: View {
                         )
                     }
                 }
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
+                .padding(16)
+                .glassCard(cornerRadius: 20, borderColor: .blue.opacity(0.5))
 
-                // Expert Notes (if available)
+                // Expert Notes (if available) - Glass Banner
                 if let expertNotes = document.expertNotes, !expertNotes.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("document_detail.expert_notes".localized, systemImage: "note.text")
-                            .font(.headline)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "person.badge.shield.checkmark.fill")
+                                .font(.title3)
+                                .foregroundColor(.orange)
+                                .glow(color: .orange, radius: 8)
+
+                            Text("document_detail.expert_notes".localized)
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Spacer()
+
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+
+                        Divider()
+                            .background(Color.orange.opacity(0.2))
 
                         Text(expertNotes)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .lineSpacing(4)
                     }
-                    .padding()
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(12)
+                    .padding(16)
+                    .glassCard(cornerRadius: 20, borderColor: .orange, glowColor: .orange.opacity(0.3))
                 }
 
-                // User Comments Section with Voice Input
+                // User Comments Section - Enhanced with Glass
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Label("document_detail.add_comment".localized, systemImage: "text.bubble")
+                        Image(systemName: "text.bubble.fill")
+                            .font(.title3)
+                            .foregroundColor(.cyan)
+                        Text("document_detail.add_comment".localized)
                             .font(.headline)
                         Spacer()
                         CompactVoiceInputButton(text: $documentNotes)
+                            .floatingButton()
                     }
+
+                    Divider()
+                        .background(Color.cyan.opacity(0.2))
 
                     // Text Editor for notes
                     TextEditor(text: $documentNotes)
-                        .frame(minHeight: 80)
-                        .padding(8)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .cornerRadius(8)
+                        .frame(minHeight: 100)  // Increased from 80
+                        .padding(12)
+                        .scrollContentBackground(.hidden)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.cyan.opacity(0.3), lineWidth: 1.5)
                         )
 
                     if !documentNotes.isEmpty || notesSaveSuccess {
@@ -304,57 +365,64 @@ struct DocumentDetailView: View {
                                 await saveNotes()
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 if isSavingNotes {
                                     ProgressView()
-                                        .scaleEffect(0.8)
+                                        .scaleEffect(0.9)
+                                        .tint(.white)
                                     Text("document_detail.saving".localized)
                                 } else if notesSaveSuccess {
                                     Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 16, weight: .semibold))
                                     Text("document_detail.saved".localized)
                                 } else {
-                                    Image(systemName: "checkmark.circle.fill")
+                                    Image(systemName: "square.and.arrow.down.fill")
+                                        .font(.system(size: 16, weight: .semibold))
                                     Text("document_detail.save_comment".localized)
                                 }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(notesSaveSuccess ? Color.green : Color(red: 227/255, green: 30/255, blue: 36/255))
+                            .padding(.vertical, 14)
+                            .background(
+                                notesSaveSuccess ?
+                                LinearGradient(colors: [.green, .green.opacity(0.8)], startPoint: .leading, endPoint: .trailing) :
+                                LinearGradient(colors: [Color(red: 227/255, green: 30/255, blue: 36/255), Color(red: 200/255, green: 20/255, blue: 30/255)], startPoint: .leading, endPoint: .trailing)
+                            )
                             .foregroundColor(.white)
-                            .cornerRadius(10)
+                            .cornerRadius(12)
+                            .shadow(color: (notesSaveSuccess ? .green : Color(red: 227/255, green: 30/255, blue: 36/255)).opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isSavingNotes)
                     }
                 }
-                .padding()
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(12)
+                .padding(16)
+                .glassCard(cornerRadius: 20, borderColor: .cyan.opacity(0.5))
 
-                // Cover Sheet Section
+                // Cover Sheet Section - Glass Action Card
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("document_detail.tax_office_submission".localized, systemImage: "doc.badge.checkmark")
-                        .font(.headline)
+                    HStack {
+                        Image(systemName: "doc.badge.checkmark.fill")
+                            .font(.title3)
+                            .foregroundColor(.mint)
+                        Text("document_detail.tax_office_submission".localized)
+                            .font(.headline)
+                        Spacer()
+                    }
+
+                    Divider()
+                        .background(Color.mint.opacity(0.2))
 
                     if document.coverSheetGenerated == true {
                         // Show cover sheet info
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.seal.fill")
                                     .foregroundColor(.green)
+                                    .glow(color: .green, radius: 6)
                                 Text("document_detail.cover_generated".localized)
                                     .font(.subheadline)
-                                    .fontWeight(.medium)
-                            }
-
-                            if let coverUrl = document.coverSheetUrl {
-                                Button(action: {
-                                    if let url = URL(string: coverUrl) {
-                                        UIApplication.shared.open(url)
-                                    }
-                                }) {
-                                    Label("document_detail.view_cover".localized, systemImage: "arrow.up.right.square")
-                                        .font(.caption)
-                                }
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.green)
                             }
 
                             if let processedUrl = document.processedDocumentUrl {
@@ -363,14 +431,26 @@ struct DocumentDetailView: View {
                                         UIApplication.shared.open(url)
                                     }
                                 }) {
-                                    Label("document_detail.view_processed".localized, systemImage: "arrow.up.right.square")
-                                        .font(.caption)
+                                    HStack {
+                                        Image(systemName: "arrow.up.right.square.fill")
+                                            .font(.system(size: 14, weight: .semibold))
+                                        Text("document_detail.view_processed".localized)
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                    }
+                                    .padding(12)
+                                    .background(.thinMaterial)
+                                    .cornerRadius(10)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.mint.opacity(0.3), lineWidth: 1)
+                                    )
                                 }
                             }
                         }
-                        .padding()
-                        .background(Color.green.opacity(0.1))
-                        .cornerRadius(8)
                     } else {
                         // Generate cover sheet button
                         Button(action: {
@@ -378,13 +458,15 @@ struct DocumentDetailView: View {
                                 await generateCoverSheet()
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: 10) {
                                 if isGeneratingCover {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle())
-                                        .scaleEffect(0.8)
+                                        .scaleEffect(0.9)
+                                        .tint(.white)
                                 } else {
-                                    Image(systemName: "doc.badge.plus")
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 16, weight: .semibold))
                                 }
 
                                 Text(isGeneratingCover ? "document_detail.generating".localized : "document_detail.generate_cover".localized)
@@ -393,47 +475,58 @@ struct DocumentDetailView: View {
                                 Spacer()
 
                                 Image(systemName: "chevron.right")
-                                    .font(.caption)
+                                    .font(.system(size: 14, weight: .semibold))
                             }
-                            .padding()
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 16)
+                            .background(
+                                LinearGradient(
+                                    colors: [.mint, .mint.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .shadow(color: .mint.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isGeneratingCover)
 
                         Text("document_detail.generate_cover_desc".localized)
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
 
                     // Success/Error messages
                     if coverGenerationSuccess {
-                        HStack {
+                        HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                             Text("document_detail.cover_success".localized)
                                 .font(.caption)
                                 .foregroundColor(.green)
                         }
-                        .padding(.vertical, 4)
+                        .padding(8)
+                        .background(Color.green.opacity(0.1))
+                        .cornerRadius(8)
                     }
 
                     if let error = coverGenerationError {
-                        HStack {
+                        HStack(spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.red)
                             Text(error)
                                 .font(.caption)
                                 .foregroundColor(.red)
                         }
-                        .padding(.vertical, 4)
+                        .padding(8)
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(8)
                     }
                 }
-                .padding()
-                .background(Color(.systemBackground))
-                .cornerRadius(12)
-                .shadow(radius: 2)
+                .padding(16)
+                .glassCard(cornerRadius: 20, borderColor: .mint.opacity(0.5))
             }
             .padding()
         }
@@ -647,6 +740,78 @@ struct InfoRow: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
+        }
+    }
+}
+
+// MARK: - Status Pill (Compact Badge)
+struct StatusPill: View {
+    let status: DocumentStatus
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: statusIcon)
+                .font(.system(size: 10, weight: .bold))
+            Text(status.displayName)
+                .font(.caption2)
+                .fontWeight(.bold)
+        }
+        .foregroundColor(statusColor)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(statusColor.opacity(0.15))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(statusColor.opacity(0.3), lineWidth: 1)
+        )
+    }
+
+    private var statusIcon: String {
+        switch status {
+        case .uploading, .processing: return "arrow.clockwise.circle.fill"
+        case .pending: return "clock.fill"
+        case .reviewed: return "eye.fill"
+        case .approved: return "checkmark.circle.fill"
+        case .rejected: return "xmark.circle.fill"
+        }
+    }
+
+    private var statusColor: Color {
+        switch status {
+        case .uploading, .processing: return .blue
+        case .pending: return .orange
+        case .reviewed: return .cyan
+        case .approved: return .green
+        case .rejected: return .red
+        }
+    }
+}
+
+// MARK: - Quick Stat Item
+struct QuickStatItem: View {
+    let icon: String
+    let label: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(color)
+                Text(label)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
+            }
+
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+                .lineLimit(1)
         }
     }
 }

@@ -561,7 +561,7 @@ class AuthenticationService: ObservableObject {
     private struct TimeoutError: Error {}
 
     /// Execute an async task with a timeout
-    private func withTimeout<T>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
+    private func withTimeout<T: Sendable>(seconds: TimeInterval, operation: @escaping () async throws -> T) async throws -> T {
         try await withThrowingTaskGroup(of: T.self) { group in
             // Add the actual operation
             group.addTask {

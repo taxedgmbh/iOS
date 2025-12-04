@@ -59,7 +59,29 @@ struct PDFViewerRepresentable: UIViewRepresentable {
                 }
 
                 do {
-                    let storageRef = Storage.storage().reference(forURL: url)
+                    guard !url.isEmpty else {
+                        print("❌ Empty storage URL for PDF viewer")
+                        await MainActor.run {
+                            isLoading.wrappedValue = false
+                            self.isLoading = false
+                        }
+                        return
+                    }
+
+                    // Determine if it's a full URL or a storage path
+                    let storageRef: StorageReference
+                    if let urlObject = URL(string: url),
+                       let scheme = urlObject.scheme,
+                       ["gs", "http", "https"].contains(scheme) {
+                        // Full URL with scheme - use reference(forURL:)
+                        print("📄 Loading PDF from URL: \(url)")
+                        storageRef = Storage.storage().reference(forURL: url)
+                    } else {
+                        // Storage path - use reference().child()
+                        print("📄 Loading PDF from path: \(url)")
+                        storageRef = Storage.storage().reference().child(url)
+                    }
+
                     let maxSize: Int64 = 50 * 1024 * 1024 // 50MB
                     let data = try await storageRef.data(maxSize: maxSize)
 
@@ -155,8 +177,24 @@ struct PDFViewerRepresentable: UIViewRepresentable {
 // Thumbnail generator for list view
 struct PDFThumbnailGenerator {
     static func generateThumbnail(from url: String, size: CGSize = CGSize(width: 140, height: 140)) async -> UIImage? {
+        guard !url.isEmpty else {
+            print("❌ Empty storage URL for thumbnail")
+            return nil
+        }
+
         do {
-            let storageRef = Storage.storage().reference(forURL: url)
+            // Determine if it's a full URL or a storage path
+            let storageRef: StorageReference
+            if let urlObject = URL(string: url),
+               let scheme = urlObject.scheme,
+               ["gs", "http", "https"].contains(scheme) {
+                // Full URL with scheme
+                storageRef = Storage.storage().reference(forURL: url)
+            } else {
+                // Storage path
+                storageRef = Storage.storage().reference().child(url)
+            }
+
             let maxSize: Int64 = 10 * 1024 * 1024 // 10MB
             let data = try await storageRef.data(maxSize: maxSize)
 

@@ -16,6 +16,7 @@ struct RemapDocumentSheet: View {
     @State private var selectedCategory: TaxCategoryType?
     @State private var regenerateAttachment = true
     @State private var isRemapping = false
+    @State private var showCategorySelector = false
 
     var body: some View {
         NavigationView {
@@ -60,23 +61,25 @@ struct RemapDocumentSheet: View {
 
                 // New Category Section
                 Section(header: Text("Select New Category")) {
-                    Picker("Category", selection: $selectedCategory) {
-                        Text("Choose a category...").tag(TaxCategoryType?.none)
-
-                        ForEach(CategoryGroup.allCases, id: \.self) { group in
-                            Section(header: Text(group.displayName)) {
-                                ForEach(TaxCategoryType.allCases.filter { $0.categoryGroup == group }, id: \.self) { category in
-                                    HStack {
-                                        Image(systemName: category.icon)
-                                            .foregroundColor(category.color)
-                                        Text(category.displayName)
-                                    }
-                                    .tag(TaxCategoryType?.some(category))
-                                }
+                    Button(action: { showCategorySelector = true }) {
+                        HStack {
+                            if let selected = selectedCategory {
+                                Image(systemName: selected.icon)
+                                    .foregroundColor(selected.color)
+                                Text(selected.displayName)
+                                    .foregroundColor(.primary)
+                            } else {
+                                Image(systemName: "folder")
+                                    .foregroundColor(.gray)
+                                Text("Choose a category...")
+                                    .foregroundColor(.gray)
                             }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                     }
-                    .pickerStyle(.navigationLink)
                 }
 
                 // Options Section
@@ -158,6 +161,9 @@ struct RemapDocumentSheet: View {
                     .disabled(selectedCategory == nil || isRemapping)
                 }
             }
+        }
+        .sheet(isPresented: $showCategorySelector) {
+            CategorySelectorSheet(selectedCategory: $selectedCategory)
         }
     }
 

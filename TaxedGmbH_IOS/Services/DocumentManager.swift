@@ -365,6 +365,8 @@ class DocumentManager: ObservableObject {
             return .deduction
         case .assets:
             return .wealth
+        case .liabilities:
+            return .deduction
         case .swissSpecific:
             switch categoryType {
             case .pillar2, .pillar3a:
@@ -382,6 +384,7 @@ class DocumentManager: ObservableObject {
         case .income: return "income"
         case .deductions: return "deduction"
         case .assets: return "wealth"
+        case .liabilities: return "liabilities"
         case .swissSpecific: return "pillar"
         }
     }

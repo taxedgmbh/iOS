@@ -113,6 +113,24 @@
 "dashboard.expat_guide" = "New to Switzerland?";
 "dashboard.expat_guide_subtitle" = "Start expat tax guide";
 "dashboard.category_documents" = "%d documents";
+"dashboard.welcome_name" = "Welcome back, %@";
+"dashboard.completion_percentage" = "%@ percent complete";
+"dashboard.progress_card" = "Tax document progress card";
+"dashboard.done" = "Done";
+"dashboard.edit" = "Edit";
+"dashboard.done_editing" = "Done editing categories";
+"dashboard.edit_categories" = "Edit categories";
+"dashboard.edit_hint" = "Tap to toggle edit mode for categories";
+"dashboard.add_category" = "Add Category";
+"dashboard.add_category_button" = "Add category button";
+"dashboard.add_category_hint" = "Tap to add a new category";
+"dashboard.remove_category" = "Remove %@";
+"dashboard.document" = "document";
+"dashboard.documents" = "documents";
+"dashboard.view_all_documents" = "View all documents";
+"dashboard.step" = "Step %@: %@. %@";
+"empty_state.welcome.get_started" = "Get Started";
+"empty_state.welcome.get_started_hint" = "Tap to upload your first document";
 
 // MARK: - Settings
 "settings.title" = "Settings";
@@ -514,6 +532,30 @@
 "process.help.title" = "Need Help?";
 "process.help.description" = "Our tax expert team is available to you at any time.";
 "process.help.button" = "Contact Expert";
+"process.help.accessibility_hint" = "Opens chat with tax expert";
+
+// Progress
+"process.header.logo" = "Taxed logo with progress indicator";
+"process.header.accessibility" = "Tax return process";
+"process.progress.step" = "Step";
+"process.progress.accessibility" = "Step %d of %d";
+
+// Timeline
+"process.timeline.title" = "Process Timeline";
+
+// Quick Actions
+"process.quick_actions.title" = "Quick Actions";
+"process.quick_action.upload" = "Upload Document";
+"process.quick_action.contact_expert" = "Contact Expert";
+"process.quick_action.view_documents" = "View Documents";
+
+// Action Hints
+"process.action.hint" = "Tap to proceed with this step";
+
+// Accessibility States
+"process.accessibility.completed" = "Completed";
+"process.accessibility.active" = "Active";
+"process.accessibility.pending" = "Pending";
 
 // MARK: - Expert Chat
 "expert_chat.title" = "Chat with Expert";
@@ -1432,4 +1474,78 @@
 "auth.submit.hint.valid" = "Submit authentication form";
 "auth.submit.hint.invalid" = "Complete all required fields to enable";
 "auth.loading" = "Loading";
+
+"document_detail.with_cover" = "With Cover Sheet";
+
+// MARK: - Unified Profile
+"profile.title" = "Profile";
+"profile.edit" = "Edit";
+"profile.save" = "Save";
+"profile.sign_out" = "Sign Out";
+
+// Personal Information
+"profile.section.personal_info" = "Personal Information";
+"profile.field.name" = "Name";
+"profile.field.email" = "Email";
+"profile.field.phone" = "Phone";
+
+// Location & Address
+"profile.section.location" = "Location & Address";
+"profile.field.canton" = "Canton";
+"profile.field.select_canton" = "Select Canton";
+"profile.field.municipality" = "Municipality";
+"profile.field.street" = "Street";
+"profile.field.postal_code" = "Postal Code";
+"profile.field.city" = "City";
+
+// Tax Information
+"profile.section.tax_info" = "Tax Information";
+"profile.field.marital_status" = "Marital Status";
+"profile.field.children" = "Children";
+
+// Joint Filing
+"profile.section.joint_filing" = "Joint Filing";
+"profile.joint_filing.person1" = "Person 1";
+"profile.joint_filing.person2" = "Person 2";
+"profile.joint_filing.ahv" = "AHV Number";
+
+// Tax Year
+"profile.section.tax_year" = "Tax Year";
+"profile.field.workspace" = "Workspace";
+
+// Workspace Collaboration
+"profile.section.collaboration" = "Workspace Collaboration";
+"profile.collaboration.type" = "Workspace Type";
+"profile.collaboration.type.personal" = "Personal";
+"profile.collaboration.type.joint" = "Joint (Spouse/Partner)";
+"profile.collaboration.type.family" = "Family";
+"profile.collaboration.type.business" = "Business";
+"profile.collaboration.invite_button" = "Invite Spouse/Partner";
+"profile.collaboration.info" = "Share tax documents and collaborate with your spouse or partner";
+
+// Workspace Members
+"profile.section.members" = "Workspace Members";
+"profile.members.owner" = "Owner";
+"profile.members.admin" = "Admin";
+"profile.members.member" = "Member";
+"profile.members.viewer" = "Viewer";
+
+// Invitations
+"profile.section.invitations" = "Pending Invitations";
+"profile.invitation.from" = "Invited by %@";
+"profile.invitation.accept" = "Accept";
+"profile.invitation.decline" = "Decline";
+
+// Invite Sheet
+"profile.invite.title" = "Invite to Workspace";
+"profile.invite.subtitle" = "Share your tax workspace with spouse or partner";
+"profile.invite.email_label" = "Email Address";
+"profile.invite.email_placeholder" = "spouse@example.com";
+"profile.invite.send_button" = "Send Invitation";
+
+// Messages
+"profile.updated_success" = "Profile updated successfully";
+"profile.invitation_sent" = "Invitation sent successfully";
+"profile.invitation_accepted" = "Joined workspace successfully";
+"profile.member_removed" = "Member removed successfully";
 

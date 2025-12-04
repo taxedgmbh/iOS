@@ -179,7 +179,9 @@ extension Country {
     ]
 
     /// Default country (Switzerland)
-    nonisolated static let `default` = all.first { $0.id == "CH" }!
+    static var `default`: Country {
+        all.first { $0.id == "CH" }!
+    }
 
     /// Find country by ISO code
     static func find(byCode code: String) -> Country? {
