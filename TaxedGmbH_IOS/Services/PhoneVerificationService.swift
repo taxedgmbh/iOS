@@ -90,8 +90,10 @@ class PhoneVerificationService: ObservableObject {
     }
 
     /// Formats phone number for display (+41 79 123 45 67)
-    func formatForDisplay(_ phone: String, country: Country = .default) -> String {
-        let e164 = formatToE164(phone, country: country)
+    @MainActor
+    func formatForDisplay(_ phone: String, country: Country? = nil) -> String {
+        let actualCountry = country ?? .default
+        let e164 = formatToE164(phone, country: actualCountry)
 
         // Format: +41 79 123 45 67
         if e164.hasPrefix("+41") && e164.count == 12 {

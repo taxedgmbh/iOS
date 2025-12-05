@@ -152,7 +152,7 @@ class BiometricAuthService: ObservableObject {
         return await withCheckedContinuation { continuation in
             authenticateWithBiometric { success, error in
                 if success {
-                    Task {
+                    Task { @MainActor in
                         await authService.signIn(
                             email: credentials.email,
                             password: credentials.password

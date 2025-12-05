@@ -608,7 +608,7 @@ class CoverSheetService {
         pageRect: CGRect,
         context: CGContext
     ) -> CGFloat {
-        var y = startY
+        let y = startY
         let leftMargin: CGFloat = 60
         let boxHeight: CGFloat = 90
         let boxRect = CGRect(x: leftMargin, y: y, width: pageRect.width - 2 * leftMargin, height: boxHeight)
@@ -624,7 +624,7 @@ class CoverSheetService {
 
         // Line 1: "Ziffer [index] · Person [1/2] · [person name]"
         let line1Text: String
-        if let index = taxIndex, let canton = user.canton {
+        if let index = taxIndex, let _ = user.canton {
             let personName = user.person1Name ?? user.name
             line1Text = "Ziffer \(index.index) · Person 1 · \(personName)"
         } else {
@@ -1049,7 +1049,7 @@ class CoverSheetService {
         }) {
             // If processed PDF exists, use it; otherwise generate it
             if let processedUrl = document.processedDocumentUrl,
-               let url = URL(string: processedUrl) {
+               let _ = URL(string: processedUrl) {
                 let tempURL = try await downloadDocument(storageUrl: processedUrl)
                 processedDocuments.append((document, tempURL))
             } else {
@@ -1457,11 +1457,6 @@ class CoverSheetService {
         context.strokePath()
 
         // Confidentiality notice
-        let disclaimerAttributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 8, weight: .regular),
-            .foregroundColor: UIColor.darkGray
-        ]
-
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = 2
         paragraphStyle.alignment = .justified

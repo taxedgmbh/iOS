@@ -52,7 +52,7 @@ struct TaxSettingsView: View {
             CreateWorkspaceView()
                 .environmentObject(authService)
         }
-        .onChange(of: showCreateWorkspace) { newValue in
+        .onChange(of: showCreateWorkspace) { _, newValue in
             // Reload workspace when create sheet is dismissed
             if !newValue {
                 Task {
@@ -275,20 +275,13 @@ struct TaxSettingsView: View {
             return
         }
 
-        do {
-            await workspaceManager.loadCurrentWorkspace(userId: userId)
-            await MainActor.run {
-                isLoadingWorkspace = false
+        await workspaceManager.loadCurrentWorkspace(userId: userId)
+        await MainActor.run {
+            isLoadingWorkspace = false
 
-                // If no workspace found, show error
-                if workspaceManager.currentWorkspace == nil {
-                    errorMessage = "settings.tax.error.no_workspace_found".localized
-                }
-            }
-        } catch {
-            await MainActor.run {
-                isLoadingWorkspace = false
-                errorMessage = error.localizedDescription
+            // If no workspace found, show error
+            if workspaceManager.currentWorkspace == nil {
+                errorMessage = "settings.tax.error.no_workspace_found".localized
             }
         }
     }

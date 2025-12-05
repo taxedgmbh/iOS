@@ -31,15 +31,13 @@ class DocumentManager: ObservableObject {
         let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date()) ?? Date()
         return allDocuments
             .filter { document in
-                // Show if uploaded recently OR updated recently
+                // Show if uploaded recently OR updated recently (both are non-optional)
                 document.uploadedAt >= thirtyDaysAgo ||
-                (document.updatedAt ?? document.uploadedAt) >= thirtyDaysAgo
+                document.updatedAt >= thirtyDaysAgo
             }
             .sorted { doc1, doc2 in
-                // Sort by most recently modified first
-                let date1 = doc1.updatedAt ?? doc1.uploadedAt
-                let date2 = doc2.updatedAt ?? doc2.uploadedAt
-                return date1 > date2
+                // Sort by most recently modified first (updatedAt is always set)
+                return doc1.updatedAt > doc2.updatedAt
             }
     }
 
