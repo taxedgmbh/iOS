@@ -96,11 +96,11 @@ struct PasswordResetView_LiquidGlass: View {
                             .glow(color: .blue, radius: 20)
 
                             VStack(spacing: 8) {
-                                Text("Reset Password")
+                                Text("auth.reset.title".localized)
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
 
-                                Text("Choose your preferred method to reset your password")
+                                Text("auth.reset.choose_method".localized)
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
@@ -110,8 +110,8 @@ struct PasswordResetView_LiquidGlass: View {
 
                         // Reset Method Picker in Glass
                         Picker("Method", selection: $resetMethod) {
-                            Text("Email").tag(ResetMethod.email)
-                            Text("Phone").tag(ResetMethod.phone)
+                            Text("auth.reset.method.email".localized).tag(ResetMethod.email)
+                            Text("auth.reset.method.phone".localized).tag(ResetMethod.phone)
                         }
                         .pickerStyle(.segmented)
                         .padding(4)
@@ -196,7 +196,7 @@ struct PasswordResetView_LiquidGlass: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "arrow.left")
                                     .font(.caption)
-                                Text("Back to Login")
+                                Text("auth.reset.back_to_login".localized)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                             }
@@ -230,21 +230,21 @@ struct PasswordResetView_LiquidGlass: View {
 
     private var emailResetSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Email Address")
+            Text("auth.reset.email.label".localized)
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundColor(.secondary)
 
             GlassTextField(
                 text: $email,
-                placeholder: "Enter your email",
+                placeholder: "auth.reset.email.placeholder".localized,
                 icon: "envelope.fill",
                 keyboardType: .emailAddress,
                 textContentType: .emailAddress
             )
             .autocapitalization(.none)
 
-            Text("We'll send you a password reset link")
+            Text("auth.reset.email.link_sent".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -264,7 +264,7 @@ struct PasswordResetView_LiquidGlass: View {
                         .frame(width: 20)
 
                     if phoneNumber.isEmpty {
-                        Text("Enter Phone Number")
+                        Text("auth.reset.phone.enter".localized)
                             .foregroundColor(.secondary)
                     } else {
                         Text(phoneNumber)
@@ -285,26 +285,26 @@ struct PasswordResetView_LiquidGlass: View {
             }
             .glassCard(cornerRadius: 16, borderColor: .blue.opacity(0.2))
 
-            Text("Verify your phone to reset password")
+            Text("auth.reset.phone.verify_to_reset".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             // New Password Fields (after phone verification)
             if showNewPasswordFields {
                 VStack(spacing: 16) {
-                    Text("Set New Password")
+                    Text("auth.reset.new_password.title".localized)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     GlassSecureField(
                         text: $newPassword,
-                        placeholder: "New Password",
+                        placeholder: "auth.reset.new_password.placeholder".localized,
                         showPassword: $showNewPassword
                     )
 
                     GlassSecureField(
                         text: $confirmPassword,
-                        placeholder: "Confirm Password",
+                        placeholder: "auth.reset.confirm_password.placeholder".localized,
                         showPassword: $showConfirmPassword
                     )
 
@@ -312,7 +312,7 @@ struct PasswordResetView_LiquidGlass: View {
                         HStack(spacing: 4) {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .font(.caption2)
-                            Text("Passwords don't match")
+                            Text("auth.reset.passwords_dont_match".localized)
                                 .font(.caption2)
                         }
                         .foregroundColor(.red)

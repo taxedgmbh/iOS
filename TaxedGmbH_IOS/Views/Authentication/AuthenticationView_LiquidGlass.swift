@@ -265,7 +265,7 @@ struct AuthenticationView_LiquidGlass: View {
             if isSignUp {
                 GlassTextField(
                     text: $name,
-                    placeholder: "Full Name",
+                    placeholder: "auth.name.placeholder".localized,
                     icon: "person.fill",
                     keyboardType: .default,
                     textContentType: .name,
@@ -277,7 +277,7 @@ struct AuthenticationView_LiquidGlass: View {
             // Email Field
             GlassTextField(
                 text: $email,
-                placeholder: "Email Address",
+                placeholder: "auth.email.placeholder".localized,
                 icon: "envelope.fill",
                 keyboardType: .emailAddress,
                 textContentType: .emailAddress,
@@ -290,7 +290,7 @@ struct AuthenticationView_LiquidGlass: View {
             // Password Field
             GlassSecureField(
                 text: $password,
-                placeholder: "Password",
+                placeholder: "auth.password.placeholder".localized,
                 showPassword: $showPassword,
                 errorMessage: passwordValidationError
             )
@@ -424,21 +424,21 @@ struct AuthenticationView_LiquidGlass: View {
 
             // Terms and Privacy
             HStack(spacing: 4) {
-                Text("By continuing, you agree to our")
+                Text("auth.terms.agreement".localized)
                     .font(.caption2)
                     .foregroundColor(.secondary)
 
-                Button("Terms") {
+                Button("auth.terms.button".localized) {
                     // Open terms
                 }
                 .font(.caption2)
                 .foregroundColor(.taxedPrimary)
 
-                Text("and")
+                Text("auth.terms.and".localized)
                     .font(.caption2)
                     .foregroundColor(.secondary)
 
-                Button("Privacy Policy") {
+                Button("auth.privacy.button".localized) {
                     // Open privacy
                 }
                 .font(.caption2)

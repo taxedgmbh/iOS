@@ -42,6 +42,10 @@
 "auth.phone.title" = "Telefon verifizieren";
 "auth.phone.send_code" = "Code senden";
 "auth.phone.verify_code" = "Verifizieren";
+"auth.terms.agreement" = "Mit Fortfahren stimmen Sie unseren";
+"auth.terms.and" = "und";
+"auth.terms.button" = "Bedingungen";
+"auth.privacy.button" = "Datenschutzerklärung";
 
 // MARK: - Documents
 "documents.upload.title" = "Dokument hochladen";
@@ -459,6 +463,13 @@
 "auth.reset.back_to_login" = "Zurück zur Anmeldung";
 "auth.reset.email.success" = "Passwort-Rücksetz-E-Mail an %@ gesendet. Bitte überprüfen Sie Ihren Posteingang.";
 "auth.reset.phone.success" = "Passwort-Rücksetz-SMS an %@ gesendet. Bitte überprüfen Sie Ihre Nachrichten.";
+"auth.reset.choose_method" = "Wählen Sie Ihre bevorzugte Methode zum Zurücksetzen Ihres Passworts";
+"auth.reset.email.label" = "E-Mail-Adresse";
+"auth.reset.email.placeholder" = "E-Mail eingeben";
+"auth.reset.email.link_sent" = "Wir senden Ihnen einen Link zum Zurücksetzen des Passworts";
+"auth.reset.phone.enter" = "Telefonnummer eingeben";
+"auth.reset.phone.verify_to_reset" = "Verifizieren Sie Ihr Telefon, um Ihr Passwort zurückzusetzen";
+"auth.reset.new_password.title" = "Neues Passwort festlegen";
 
 // MARK: - Profile
 "profile.personal_info" = "Persönliche Informationen";
@@ -697,6 +708,19 @@
 "common.version" = "Version %@";
 "common.error" = "Fehler";
 
+// MARK: - Error Messages
+"error.authentication.prefix" = "Authentifizierung";
+"error.authentication.recovery" = "Bitte überprüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut.";
+"error.network.prefix" = "Netzwerk";
+"error.network.recovery" = "Bitte überprüfen Sie Ihre Internetverbindung.";
+"error.validation.prefix" = "Validierung";
+"error.validation.recovery" = "Bitte überprüfen Sie Ihre Eingaben.";
+"error.firebase.prefix" = "Firebase";
+"error.firebase.recovery" = "Ein Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+"error.storage.prefix" = "Speicher";
+"error.storage.recovery" = "Fehler beim Hochladen. Bitte versuchen Sie es erneut.";
+"error.unknown.recovery" = "Ein unbekannter Fehler ist aufgetreten.";
+
 // MARK: - Language Names
 "language.english" = "Englisch";
 "language.german" = "Deutsch";
@@ -780,6 +804,17 @@
 "speech.clear" = "Löschen";
 "speech.done" = "Fertig";
 "speech.cancel" = "Abbrechen";
+
+// MARK: - Document Remap
+"document.remap.title" = "Dokument neu zuordnen";
+"document.remap.current_category" = "Aktuelle Kategorie";
+"document.remap.select_new_category" = "Neue Kategorie wählen";
+"document.remap.choose_category" = "Kategorie auswählen...";
+"document.remap.regenerate_attachment" = "Anhangsnummer neu generieren";
+"document.remap.regenerate_attachment_desc" = "Neue Anhangsnummer passend zur neuen Kategorie erstellen";
+"document.remap.preview" = "Vorschau";
+"document.remap.cancel" = "Abbrechen";
+"document.remap.remap" = "Neu zuordnen";
 
 // MARK: - Phone Verification
 "phone_verification.enter_code" = "Code eingeben";
@@ -870,6 +905,12 @@
 "category.military_service" = "Militärdienst";
 "category.tax_treaty" = "Doppelbesteuerungsabkommen";
 "category.other" = "Andere Dokumente";
+
+// Category Groups
+"group.income" = "Einkommen";
+"group.deductions" = "Abzüge";
+"group.assets" = "Vermögen & Besitz";
+"group.swiss_specific" = "Schweizer Besonderheiten";
 
 // MARK: - Barrierefreiheitseinstellungen (Erweitert)
 "accessibility.active_features" = "Aktive Systemfunktionen";

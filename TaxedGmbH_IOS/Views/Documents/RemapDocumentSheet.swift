@@ -22,7 +22,7 @@ struct RemapDocumentSheet: View {
         NavigationView {
             Form {
                 // Current Category Section
-                Section(header: Text("Current Category")) {
+                Section(header: Text("document.remap.current_category".localized)) {
                     HStack(spacing: 12) {
                         ZStack {
                             Circle()
@@ -60,7 +60,7 @@ struct RemapDocumentSheet: View {
                 }
 
                 // New Category Section
-                Section(header: Text("Select New Category")) {
+                Section(header: Text("document.remap.select_new_category".localized)) {
                     Button(action: { showCategorySelector = true }) {
                         HStack {
                             if let selected = selectedCategory {
@@ -71,7 +71,7 @@ struct RemapDocumentSheet: View {
                             } else {
                                 Image(systemName: "folder")
                                     .foregroundColor(.gray)
-                                Text("Choose a category...")
+                                Text("document.remap.choose_category".localized)
                                     .foregroundColor(.gray)
                             }
                             Spacer()
@@ -86,9 +86,9 @@ struct RemapDocumentSheet: View {
                 Section {
                     Toggle(isOn: $regenerateAttachment) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Regenerate Attachment Number")
+                            Text("document.remap.regenerate_attachment".localized)
                                 .font(.subheadline)
-                            Text("Create a new attachment number matching the new category")
+                            Text("document.remap.regenerate_attachment_desc".localized)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -97,7 +97,7 @@ struct RemapDocumentSheet: View {
 
                 // Preview Section
                 if let selected = selectedCategory {
-                    Section(header: Text("Preview")) {
+                    Section(header: Text("document.remap.preview".localized)) {
                         HStack(spacing: 12) {
                             ZStack {
                                 Circle()
@@ -138,11 +138,11 @@ struct RemapDocumentSheet: View {
                     }
                 }
             }
-            .navigationTitle("Remap Document")
+            .navigationTitle("document.remap.title".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button("common.cancel".localized) {
                         onComplete()
                     }
                     .disabled(isRemapping)
@@ -154,7 +154,7 @@ struct RemapDocumentSheet: View {
                             ProgressView()
                                 .scaleEffect(0.8)
                         } else {
-                            Text("Remap")
+                            Text("document.remap.remap".localized)
                                 .fontWeight(.semibold)
                         }
                     }

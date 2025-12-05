@@ -22,15 +22,15 @@ enum AppError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .authentication(let message):
-            return "Authentifizierung: \(message)"
+            return "\("error.authentication.prefix".localized): \(message)"
         case .network(let message):
-            return "Netzwerk: \(message)"
+            return "\("error.network.prefix".localized): \(message)"
         case .validation(let message):
-            return "Validierung: \(message)"
+            return "\("error.validation.prefix".localized): \(message)"
         case .firebase(let message):
-            return "Firebase: \(message)"
+            return "\("error.firebase.prefix".localized): \(message)"
         case .storage(let message):
-            return "Speicher: \(message)"
+            return "\("error.storage.prefix".localized): \(message)"
         case .unknown(let message):
             return message
         }
@@ -39,17 +39,17 @@ enum AppError: LocalizedError {
     var recoverySuggestion: String? {
         switch self {
         case .authentication:
-            return "Bitte überprüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut."
+            return "error.authentication.recovery".localized
         case .network:
-            return "Bitte überprüfen Sie Ihre Internetverbindung."
+            return "error.network.recovery".localized
         case .validation:
-            return "Bitte überprüfen Sie Ihre Eingaben."
+            return "error.validation.recovery".localized
         case .firebase:
-            return "Ein Serverfehler ist aufgetreten. Bitte versuchen Sie es später erneut."
+            return "error.firebase.recovery".localized
         case .storage:
-            return "Fehler beim Hochladen. Bitte versuchen Sie es erneut."
+            return "error.storage.recovery".localized
         case .unknown:
-            return "Ein unbekannter Fehler ist aufgetreten."
+            return "error.unknown.recovery".localized
         }
     }
 }
@@ -87,12 +87,12 @@ struct ErrorAlertModifier: ViewModifier {
         content
             .alert(isPresented: $errorHandler.showError) {
                 Alert(
-                    title: Text("Fehler"),
+                    title: Text("common.error".localized),
                     message: Text(errorHandler.currentError?.localizedDescription ?? .genericError),
-                    primaryButton: .default(Text("OK")) {
+                    primaryButton: .default(Text("common.ok".localized)) {
                         errorHandler.clear()
                     },
-                    secondaryButton: .cancel(Text("Abbrechen")) {
+                    secondaryButton: .cancel(Text("common.cancel".localized)) {
                         errorHandler.clear()
                     }
                 )

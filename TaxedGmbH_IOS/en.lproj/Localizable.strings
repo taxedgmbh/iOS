@@ -42,6 +42,10 @@
 "auth.phone.title" = "Verify Phone";
 "auth.phone.send_code" = "Send Code";
 "auth.phone.verify_code" = "Verify";
+"auth.terms.agreement" = "By continuing, you agree to our";
+"auth.terms.and" = "and";
+"auth.terms.button" = "Terms";
+"auth.privacy.button" = "Privacy Policy";
 
 // MARK: - Documents
 "documents.upload.title" = "Upload Document";
@@ -462,6 +466,13 @@
 "auth.reset.back_to_login" = "Back to Sign In";
 "auth.reset.email.success" = "Password reset email sent to %@. Please check your inbox.";
 "auth.reset.phone.success" = "Password reset SMS sent to %@. Please check your messages.";
+"auth.reset.choose_method" = "Choose your preferred method to reset your password";
+"auth.reset.email.label" = "Email Address";
+"auth.reset.email.placeholder" = "Enter your email";
+"auth.reset.email.link_sent" = "We'll send you a password reset link";
+"auth.reset.phone.enter" = "Enter Phone Number";
+"auth.reset.phone.verify_to_reset" = "Verify your phone to reset password";
+"auth.reset.new_password.title" = "Set New Password";
 
 // MARK: - Profile
 "profile.personal_info" = "Personal Information";
@@ -714,6 +725,19 @@
 "common.version" = "Version %@";
 "common.error" = "Error";
 
+// MARK: - Error Messages
+"error.authentication.prefix" = "Authentication";
+"error.authentication.recovery" = "Please check your credentials and try again.";
+"error.network.prefix" = "Network";
+"error.network.recovery" = "Please check your internet connection.";
+"error.validation.prefix" = "Validation";
+"error.validation.recovery" = "Please check your input.";
+"error.firebase.prefix" = "Firebase";
+"error.firebase.recovery" = "A server error occurred. Please try again later.";
+"error.storage.prefix" = "Storage";
+"error.storage.recovery" = "Upload failed. Please try again.";
+"error.unknown.recovery" = "An unknown error occurred.";
+
 // MARK: - Language Names
 "language.english" = "English";
 "language.german" = "German";
@@ -769,6 +793,17 @@
 "document_detail.delete_confirmation" = "Are you sure you want to delete this document? This action cannot be undone.";
 "document_detail.user_not_found" = "User not found";
 "document_detail.cover_error" = "Failed to generate cover sheet:";
+
+// MARK: - Document Remap
+"document.remap.title" = "Remap Document";
+"document.remap.current_category" = "Current Category";
+"document.remap.select_new_category" = "Select New Category";
+"document.remap.choose_category" = "Choose a category...";
+"document.remap.regenerate_attachment" = "Regenerate Attachment Number";
+"document.remap.regenerate_attachment_desc" = "Create a new attachment number matching the new category";
+"document.remap.preview" = "Preview";
+"document.remap.cancel" = "Cancel";
+"document.remap.remap" = "Remap";
 
 // MARK: - Document Upload
 "document_upload.add_voice_note" = "Add Voice Note";

@@ -42,6 +42,10 @@
 "auth.phone.title" = "Vérifier le téléphone";
 "auth.phone.send_code" = "Envoyer le code";
 "auth.phone.verify_code" = "Vérifier";
+"auth.terms.agreement" = "En continuant, vous acceptez nos";
+"auth.terms.and" = "et";
+"auth.terms.button" = "Conditions";
+"auth.privacy.button" = "Politique de confidentialité";
 
 // MARK: - Documents
 "documents.upload.title" = "Télécharger un document";
@@ -459,6 +463,13 @@
 "auth.reset.back_to_login" = "Retour à la connexion";
 "auth.reset.email.success" = "E-mail de réinitialisation du mot de passe envoyé à %@. Veuillez vérifier votre boîte de réception.";
 "auth.reset.phone.success" = "SMS de réinitialisation du mot de passe envoyé au %@. Veuillez vérifier vos messages.";
+"auth.reset.choose_method" = "Choisissez votre méthode préférée pour réinitialiser votre mot de passe";
+"auth.reset.email.label" = "Adresse e-mail";
+"auth.reset.email.placeholder" = "Entrez votre e-mail";
+"auth.reset.email.link_sent" = "Nous vous enverrons un lien de réinitialisation du mot de passe";
+"auth.reset.phone.enter" = "Entrer le numéro de téléphone";
+"auth.reset.phone.verify_to_reset" = "Vérifiez votre téléphone pour réinitialiser le mot de passe";
+"auth.reset.new_password.title" = "Définir un nouveau mot de passe";
 
 // MARK: - Profile
 "profile.personal_info" = "Informations personnelles";
@@ -709,6 +720,19 @@
 "common.version" = "Version %@";
 "common.error" = "Erreur";
 
+// MARK: - Error Messages
+"error.authentication.prefix" = "Authentification";
+"error.authentication.recovery" = "Veuillez vérifier vos identifiants et réessayer.";
+"error.network.prefix" = "Réseau";
+"error.network.recovery" = "Veuillez vérifier votre connexion internet.";
+"error.validation.prefix" = "Validation";
+"error.validation.recovery" = "Veuillez vérifier votre saisie.";
+"error.firebase.prefix" = "Firebase";
+"error.firebase.recovery" = "Une erreur serveur s'est produite. Veuillez réessayer plus tard.";
+"error.storage.prefix" = "Stockage";
+"error.storage.recovery" = "Échec du téléchargement. Veuillez réessayer.";
+"error.unknown.recovery" = "Une erreur inconnue s'est produite.";
+
 // MARK: - Language Names
 "language.english" = "Anglais";
 "language.german" = "Allemand";
@@ -792,6 +816,17 @@
 "speech.clear" = "Effacer";
 "speech.done" = "Terminé";
 "speech.cancel" = "Annuler";
+
+// MARK: - Document Remap
+"document.remap.title" = "Réattribuer le document";
+"document.remap.current_category" = "Catégorie actuelle";
+"document.remap.select_new_category" = "Sélectionner une nouvelle catégorie";
+"document.remap.choose_category" = "Choisir une catégorie...";
+"document.remap.regenerate_attachment" = "Régénérer le numéro d'annexe";
+"document.remap.regenerate_attachment_desc" = "Créer un nouveau numéro d'annexe correspondant à la nouvelle catégorie";
+"document.remap.preview" = "Aperçu";
+"document.remap.cancel" = "Annuler";
+"document.remap.remap" = "Réattribuer";
 
 // MARK: - Phone Verification
 "phone_verification.enter_code" = "Saisir le code";
@@ -882,6 +917,12 @@
 "category.military_service" = "Service militaire";
 "category.tax_treaty" = "Convention fiscale";
 "category.other" = "Autres documents";
+
+// Category Groups
+"group.income" = "Revenus";
+"group.deductions" = "Déductions";
+"group.assets" = "Actifs & Patrimoine";
+"group.swiss_specific" = "Spécificités suisses";
 
 // MARK: - Paramètres d'accessibilité (Amélioré)
 "accessibility.active_features" = "Fonctionnalités système actives";
