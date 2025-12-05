@@ -16,6 +16,17 @@ struct MoreView: View {
     var body: some View {
         NavigationView {
             List {
+                // Profile Section
+                Section(header: Text("more.profile.header".localized)) {
+                    MoreMenuItem(
+                        icon: "person.circle.fill",
+                        iconColor: .blue,
+                        title: "more.profile".localized,
+                        subtitle: "more.profile.subtitle".localized,
+                        destination: AnyView(UnifiedProfileView())
+                    )
+                }
+
                 // Feedback Section
                 Section(header: Text("more.feedback.header".localized)) {
                     MoreMenuItem(
