@@ -1629,3 +1629,18 @@
 "profile.invitation_accepted" = "Arbeitsbereich erfolgreich beigetreten";
 "profile.member_removed" = "Mitglied erfolgreich entfernt";
 
+// Profile - Tax Management Section
+"profile.section.tax_management" = "Steuerverwaltung";
+"profile.tax_management.deadlines" = "Steuertermine";
+"profile.tax_management.expert" = "Expertenverbindung";
+
+// Profile - Accessibility Section
+"profile.section.accessibility" = "Bedienungshilfen";
+"profile.accessibility.title" = "Einstellungen für Bedienungshilfen";
+"profile.accessibility.subtitle" = "VoiceOver, Dynamische Schrift, Bewegung reduzieren";
+
+// Profile - Security & Privacy Section
+"profile.section.security_privacy" = "Sicherheit & Datenschutz";
+"profile.security.account" = "Kontosicherheit";
+"profile.security.data" = "Datenverwaltung";
+

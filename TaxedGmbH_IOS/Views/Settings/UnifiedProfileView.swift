@@ -753,7 +753,7 @@ struct UnifiedProfileView: View {
     private var taxManagementSection: some View {
         VStack(spacing: 16) {
             SectionHeaderView(
-                title: "Tax Management",
+                title: "profile.section.tax_management".localized,
                 systemImage: "calendar.badge.clock"
             )
             .foregroundColor(.blue)
@@ -764,7 +764,7 @@ struct UnifiedProfileView: View {
                 NavigationLink(destination: TaxDeadlinesView()) {
                     GlassNavigationRow(
                         icon: "calendar.badge.exclamationmark",
-                        title: "Tax Deadlines",
+                        title: "profile.tax_management.deadlines".localized,
                         color: .orange
                     )
                 }
@@ -774,7 +774,7 @@ struct UnifiedProfileView: View {
                 NavigationLink(destination: ExpertConnectionView()) {
                     GlassNavigationRow(
                         icon: "person.2.circle.fill",
-                        title: "Expert Connection",
+                        title: "profile.tax_management.expert".localized,
                         color: .green
                     )
                 }
@@ -792,7 +792,7 @@ struct UnifiedProfileView: View {
         NavigationLink(destination: AccessibilitySettingsView()) {
             VStack(spacing: 16) {
                 SectionHeaderView(
-                    title: "Accessibility",
+                    title: "profile.section.accessibility".localized,
                     systemImage: "accessibility"
                 )
                 .foregroundColor(.purple)
@@ -806,10 +806,10 @@ struct UnifiedProfileView: View {
                         .background(Circle().fill(.purple.opacity(0.15)))
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Accessibility Settings")
+                        Text("profile.accessibility.title".localized)
                             .font(.headline)
                             .foregroundColor(.primary)
-                        Text("VoiceOver, Dynamic Type, Reduce Motion")
+                        Text("profile.accessibility.subtitle".localized)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -838,7 +838,7 @@ struct UnifiedProfileView: View {
     private var securityPrivacySection: some View {
         VStack(spacing: 16) {
             SectionHeaderView(
-                title: "Security & Privacy",
+                title: "profile.section.security_privacy".localized,
                 systemImage: "lock.shield.fill"
             )
             .foregroundColor(.red)
@@ -849,7 +849,7 @@ struct UnifiedProfileView: View {
                 NavigationLink(destination: AccountSecurityView()) {
                     GlassNavigationRow(
                         icon: "person.badge.key.fill",
-                        title: "Account Security",
+                        title: "profile.security.account".localized,
                         color: .blue
                     )
                 }
@@ -859,7 +859,7 @@ struct UnifiedProfileView: View {
                 NavigationLink(destination: DataManagementView()) {
                     GlassNavigationRow(
                         icon: "externaldrive.fill",
-                        title: "Data Management",
+                        title: "profile.security.data".localized,
                         color: .green
                     )
                 }

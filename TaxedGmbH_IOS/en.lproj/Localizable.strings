@@ -1584,3 +1584,18 @@
 "profile.invitation_accepted" = "Joined workspace successfully";
 "profile.member_removed" = "Member removed successfully";
 
+// Profile - Tax Management Section
+"profile.section.tax_management" = "Tax Management";
+"profile.tax_management.deadlines" = "Tax Deadlines";
+"profile.tax_management.expert" = "Expert Connection";
+
+// Profile - Accessibility Section
+"profile.section.accessibility" = "Accessibility";
+"profile.accessibility.title" = "Accessibility Settings";
+"profile.accessibility.subtitle" = "VoiceOver, Dynamic Type, Reduce Motion";
+
+// Profile - Security & Privacy Section
+"profile.section.security_privacy" = "Security & Privacy";
+"profile.security.account" = "Account Security";
+"profile.security.data" = "Data Management";
+

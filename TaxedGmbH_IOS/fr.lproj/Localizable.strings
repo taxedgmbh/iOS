@@ -1649,3 +1649,18 @@
 "profile.invitation_accepted" = "Espace de travail rejoint avec succès";
 "profile.member_removed" = "Membre supprimé avec succès";
 
+// Profile - Tax Management Section
+"profile.section.tax_management" = "Gestion fiscale";
+"profile.tax_management.deadlines" = "Échéances fiscales";
+"profile.tax_management.expert" = "Connexion expert";
+
+// Profile - Accessibility Section
+"profile.section.accessibility" = "Accessibilité";
+"profile.accessibility.title" = "Réglages d'accessibilité";
+"profile.accessibility.subtitle" = "VoiceOver, Taille de texte dynamique, Réduire les animations";
+
+// Profile - Security & Privacy Section
+"profile.section.security_privacy" = "Sécurité et confidentialité";
+"profile.security.account" = "Sécurité du compte";
+"profile.security.data" = "Gestion des données";
+
