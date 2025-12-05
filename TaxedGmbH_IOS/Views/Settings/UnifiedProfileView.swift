@@ -117,33 +117,45 @@ struct UnifiedProfileView: View {
                                 .opacity(sectionAppearances[8] == true ? 1 : 0)
                         }
 
-                        // Divider between profile/workspace and app settings
-                        sectionDivider
+                        // Tax Management
+                        taxManagementSection
                             .opacity(sectionAppearances[9] == true ? 1 : 0)
+
+                        // Accessibility
+                        accessibilitySection
+                            .opacity(sectionAppearances[10] == true ? 1 : 0)
+
+                        // Security & Privacy
+                        securityPrivacySection
+                            .opacity(sectionAppearances[11] == true ? 1 : 0)
+
+                        // Divider between user settings and app settings
+                        sectionDivider
+                            .opacity(sectionAppearances[12] == true ? 1 : 0)
 
                         // Notifications Settings
                         notificationsSection
-                            .opacity(sectionAppearances[10] == true ? 1 : 0)
+                            .opacity(sectionAppearances[13] == true ? 1 : 0)
 
                         // Language Selection
                         languageSection
-                            .opacity(sectionAppearances[11] == true ? 1 : 0)
+                            .opacity(sectionAppearances[14] == true ? 1 : 0)
 
                         // Appearance/Theme
                         appearanceSection
-                            .opacity(sectionAppearances[12] == true ? 1 : 0)
+                            .opacity(sectionAppearances[15] == true ? 1 : 0)
 
                         // App Information
                         appInformationSection
-                            .opacity(sectionAppearances[13] == true ? 1 : 0)
+                            .opacity(sectionAppearances[16] == true ? 1 : 0)
 
                         // Support
                         supportSection
-                            .opacity(sectionAppearances[14] == true ? 1 : 0)
+                            .opacity(sectionAppearances[17] == true ? 1 : 0)
 
                         // Sign Out Button
                         signOutButton
-                            .opacity(sectionAppearances[15] == true ? 1 : 0)
+                            .opacity(sectionAppearances[18] == true ? 1 : 0)
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 40)
@@ -732,6 +744,129 @@ struct UnifiedProfileView: View {
             }
             .padding(20)
             .glassCard(cornerRadius: 20, borderColor: .yellow.opacity(0.2))
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Tax Management Section
+
+    private var taxManagementSection: some View {
+        VStack(spacing: 16) {
+            SectionHeaderView(
+                title: "Tax Management",
+                systemImage: "calendar.badge.clock"
+            )
+            .foregroundColor(.blue)
+            .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 12) {
+                // Tax Deadlines
+                NavigationLink(destination: TaxDeadlinesView()) {
+                    GlassNavigationRow(
+                        icon: "calendar.badge.exclamationmark",
+                        title: "Tax Deadlines",
+                        color: .orange
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+
+                // Expert Connection
+                NavigationLink(destination: ExpertConnectionView()) {
+                    GlassNavigationRow(
+                        icon: "person.2.circle.fill",
+                        title: "Expert Connection",
+                        color: .green
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(20)
+            .glassCard(cornerRadius: 20, borderColor: .blue.opacity(0.2))
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Accessibility Section
+
+    private var accessibilitySection: some View {
+        NavigationLink(destination: AccessibilitySettingsView()) {
+            VStack(spacing: 16) {
+                SectionHeaderView(
+                    title: "Accessibility",
+                    systemImage: "accessibility"
+                )
+                .foregroundColor(.purple)
+                .accessibilityAddTraits(.isHeader)
+
+                HStack {
+                    Image(systemName: "accessibility")
+                        .font(.title2)
+                        .foregroundColor(.purple)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(.purple.opacity(0.15)))
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Accessibility Settings")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Text("VoiceOver, Dynamic Type, Reduce Motion")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(minHeight: 44)
+                .padding(16)
+                .background(.ultraThinMaterial)
+                .cornerRadius(16)
+            }
+            .padding(20)
+            .glassCard(cornerRadius: 20, borderColor: .purple.opacity(0.2))
+        }
+        .buttonStyle(ScaleButtonStyle())
+        .accessibilityLabel("Accessibility Settings")
+        .accessibilityHint("Tap to manage accessibility features")
+    }
+
+    // MARK: - Security & Privacy Section
+
+    private var securityPrivacySection: some View {
+        VStack(spacing: 16) {
+            SectionHeaderView(
+                title: "Security & Privacy",
+                systemImage: "lock.shield.fill"
+            )
+            .foregroundColor(.red)
+            .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 12) {
+                // Account Security
+                NavigationLink(destination: AccountSecurityView()) {
+                    GlassNavigationRow(
+                        icon: "person.badge.key.fill",
+                        title: "Account Security",
+                        color: .blue
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+
+                // Data Management
+                NavigationLink(destination: DataManagementView()) {
+                    GlassNavigationRow(
+                        icon: "externaldrive.fill",
+                        title: "Data Management",
+                        color: .green
+                    )
+                }
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(20)
+            .glassCard(cornerRadius: 20, borderColor: .red.opacity(0.2))
         }
         .accessibilityElement(children: .contain)
     }
