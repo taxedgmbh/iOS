@@ -245,9 +245,9 @@ struct AllDocumentsView: View {
                     try await workspaceManager.loadUserWorkspaces(for: userId)
                 }
 
-                if let workspaceId = workspaceManager.activeWorkspace?.id {
-                    print("✅ Using workspace: \(workspaceId)")
-                    await documentManager.loadDocuments(forWorkspace: workspaceId)
+                if let workspace = workspaceManager.activeWorkspace {
+                    print("✅ Using workspace: \(workspace.name) (tax year: \(workspace.taxYear))")
+                    await documentManager.loadDocuments(forWorkspace: workspace)
                 } else {
                     print("⚠️ No active workspace, loading user documents directly")
                     await documentManager.loadDocuments(for: userId)
@@ -308,9 +308,9 @@ struct AllDocumentsView: View {
                 try await workspaceManager.loadUserWorkspaces(for: userId)
             }
 
-            if let workspaceId = workspaceManager.activeWorkspace?.id {
-                print("✅ Refreshing workspace: \(workspaceId)")
-                await documentManager.loadDocuments(forWorkspace: workspaceId)
+            if let workspace = workspaceManager.activeWorkspace {
+                print("✅ Refreshing workspace: \(workspace.name) (tax year: \(workspace.taxYear))")
+                await documentManager.loadDocuments(forWorkspace: workspace)
             } else {
                 print("⚠️ No active workspace, refreshing user documents directly")
                 await documentManager.loadDocuments(for: userId)

@@ -11,6 +11,12 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
+
+    // Helper function to check if user is a member of a workspace
+    function isWorkspaceMember(workspaceId) {
+      return workspaceId != null &&
+             request.auth.uid in get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.memberIds;
+    }
     
     // Users collection
     match /users/{userId} {
@@ -27,16 +33,35 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && isOwner(customerId);
     }
     
-    // Documents collection - CRITICAL FOR UPLOAD
+    // Documents collection - CRITICAL FOR SECURITY
+    // Tax documents contain highly sensitive financial data and MUST be protected
     match /documents/{documentId} {
-      // Allow get (single document read)
-      allow get: if isAuthenticated() && isOwner(resource.data.customerId);
+      // Allow get (single document read) - user must own document OR be workspace member
+      allow get: if isAuthenticated() && (
+        isOwner(resource.data.customerId) ||
+        (resource.data.workspaceId != null && isWorkspaceMember(resource.data.workspaceId))
+      );
 
-      // Allow list (queries) - user can query their own documents
-      allow list: if isAuthenticated();
+      // Allow list (queries) - STRICT enforcement of ownership or workspace membership
+      // This prevents ANY authenticated user from querying ALL documents
+      allow list: if isAuthenticated() && (
+        // User is querying their own documents (legacy single-user mode)
+        (request.query.where.customerId == request.auth.uid) ||
+        // User is querying workspace documents where they are a member
+        (request.query.where.workspaceId != null && isWorkspaceMember(request.query.where.workspaceId))
+      );
 
-      allow create: if isAuthenticated() && isOwner(request.resource.data.customerId);
-      allow update, delete: if isAuthenticated() && isOwner(resource.data.customerId);
+      // Allow create - user must own document AND (if workspace) be a member
+      allow create: if isAuthenticated() &&
+                      isOwner(request.resource.data.customerId) &&
+                      (request.resource.data.workspaceId == null ||
+                       isWorkspaceMember(request.resource.data.workspaceId));
+
+      // Allow update/delete - user must own document OR be workspace member
+      allow update, delete: if isAuthenticated() && (
+        isOwner(resource.data.customerId) ||
+        (resource.data.workspaceId != null && isWorkspaceMember(resource.data.workspaceId))
+      );
     }
     
     // Chats collection - Real-time chat between customer and expert
@@ -139,6 +164,18 @@ service cloud.firestore {
       // Delete: Only inviter can delete
       allow delete: if isAuthenticated() &&
                       resource.data.invitedByUserId == request.auth.uid;
+    }
+
+    // Tax Indexes collection - Read-only reference data
+    // Contains canton-specific tax return index numbers, legal references, and deductibility rules
+    match /taxIndexes/{indexId} {
+      // Read: All authenticated users can read tax indexes
+      // This is reference data needed for tax document categorization
+      allow read: if isAuthenticated();
+
+      // Write: Only server-side operations can write
+      // Data is uploaded via Firebase Admin SDK (not from client apps)
+      allow write: if false;
     }
   }
 }

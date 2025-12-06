@@ -90,7 +90,8 @@ class URLCleanupUtility {
 
         do {
             let documents = try await FirestoreService.shared.getDocumentsForWorkspace(
-                workspaceId: workspaceId
+                workspaceId: workspaceId,
+                taxYear: taxYear
             )
             var cleanedCount = 0
 

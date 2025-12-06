@@ -67,17 +67,27 @@ class DocumentManager: ObservableObject {
 
     // MARK: - Load Documents
 
-    /// Load documents for a specific workspace (preferred method for workspace-centric architecture)
+    /// Load documents for a specific workspace and tax year (preferred method for workspace-centric architecture)
     /// Note: This method assumes the calling code has already verified workspace access.
     /// For security, views should ensure users can only load documents from their workspaces.
-    func loadDocuments(forWorkspace workspaceId: String) async {
+    /// CRITICAL: Filters by BOTH workspaceId AND taxYear to ensure strict year separation
+    func loadDocuments(forWorkspace workspace: Workspace) async {
+        guard let workspaceId = workspace.id else {
+            print("❌ Cannot load documents: Workspace has no ID")
+            self.error = "Workspace ID is missing"
+            return
+        }
+
         isLoading = true
         error = nil
 
         do {
-            let documents = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId)
+            let documents = try await firestoreService.getDocumentsForWorkspace(
+                workspaceId: workspaceId,
+                taxYear: workspace.taxYear  // ✅ CRITICAL: Pass tax year for filtering
+            )
             allDocuments = documents.sorted { $0.uploadedAt > $1.uploadedAt }
-            print("✅ Loaded \(documents.count) documents for workspace")
+            print("✅ Loaded \(documents.count) documents for workspace \(workspace.name) (tax year: \(workspace.taxYear))")
         } catch {
             self.error = error.localizedDescription
             print("❌ Failed to load documents for workspace: \(error)")

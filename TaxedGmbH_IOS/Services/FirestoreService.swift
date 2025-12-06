@@ -139,16 +139,18 @@ class FirestoreService: ObservableObject {
         }
     }
 
-    /// Get all documents for a workspace (workspace-scoped query)
+    /// Get all documents for a workspace and tax year (workspace-scoped query)
     /// Note: Workspace membership validation should be done by the caller (e.g., DocumentManager)
     /// before calling this method. This method trusts that the workspace access has been validated.
-    func getDocumentsForWorkspace(workspaceId: String) async throws -> [TaxDocument] {
+    /// IMPORTANT: Filters by BOTH workspaceId AND taxYear to ensure strict year separation
+    func getDocumentsForWorkspace(workspaceId: String, taxYear: Int) async throws -> [TaxDocument] {
         isLoading = true
         defer { isLoading = false }
 
         do {
             let snapshot = try await db.collection(AppConstants.Firebase.Collections.documents)
                 .whereField("workspaceId", isEqualTo: workspaceId)
+                .whereField("taxYear", isEqualTo: taxYear)  // ✅ CRITICAL: Filter by tax year
                 .order(by: "uploadedAt", descending: true)
                 .getDocuments()
 
@@ -157,7 +159,7 @@ class FirestoreService: ObservableObject {
             }
 
             self.documents = documents
-            print("✅ Loaded \(documents.count) documents for workspace: \(workspaceId)")
+            print("✅ Loaded \(documents.count) documents for workspace: \(workspaceId), tax year: \(taxYear)")
             return documents
 
         } catch {

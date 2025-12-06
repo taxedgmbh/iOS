@@ -356,8 +356,10 @@ class PDFRegenerationService: ObservableObject {
                     }
 
                     // Get all documents for this workspace/year
-                    let allDocuments = try await firestoreService.getDocumentsForWorkspace(workspaceId: workspaceId)
-                    let yearDocuments = allDocuments.filter { $0.taxYear == taxYear }
+                    let yearDocuments = try await firestoreService.getDocumentsForWorkspace(
+                        workspaceId: workspaceId,
+                        taxYear: taxYear
+                    )
 
                     guard !yearDocuments.isEmpty else {
                         print("⚠️ No documents found for workspace \(workspaceId), year \(taxYear)")

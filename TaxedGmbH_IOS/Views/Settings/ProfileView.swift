@@ -967,9 +967,7 @@ struct ProfileView: View {
             try await workspaceManager.updateWorkspace(updatedWorkspace)
 
             // CRITICAL: Reload documents with the new tax year filter
-            if let workspaceId = updatedWorkspace.id {
-                await DocumentManager.shared.loadDocuments(forWorkspace: workspaceId)
-            }
+            await DocumentManager.shared.loadDocuments(forWorkspace: updatedWorkspace)
 
             successMessage = "profile.tax_year.changed".localized(with: String(year))
             showYearPicker = false
