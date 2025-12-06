@@ -480,6 +480,7 @@ struct DocumentUploadView: View {
                 .padding(.paddingRelaxed)
             }
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("Upload Document")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("documents.upload.cancel".localized) {
@@ -623,8 +624,9 @@ struct DocumentUploadView: View {
             // Tax category type for organized storage
             let taxCategoryType = effectiveCategory?.rawValue
 
-            // Get current tax year
-            let taxYear = Calendar.current.component(.year, from: Date())
+            // Get tax year from workspace (NOT current calendar year)
+            let taxYear = workspaceManager.activeWorkspace?.taxYear ?? Calendar.current.component(.year, from: Date())
+            print("📅 Using tax year from workspace: \(taxYear)")
 
             // Generate attachment number for file labeling
             let uploadDate = Date()

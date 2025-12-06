@@ -77,6 +77,7 @@ struct CreateWorkspaceView: View {
             }
             .navigationTitle("Create Workspace")
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("Create Workspace")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

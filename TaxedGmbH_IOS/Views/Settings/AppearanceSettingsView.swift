@@ -61,6 +61,7 @@ struct AppearanceSettingsView: View {
         }
         .navigationTitle("settings.appearance.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Appearance")
     }
 }
 

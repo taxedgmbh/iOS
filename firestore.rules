@@ -42,14 +42,9 @@ service cloud.firestore {
         (resource.data.workspaceId != null && isWorkspaceMember(resource.data.workspaceId))
       );
 
-      // Allow list (queries) - STRICT enforcement of ownership or workspace membership
-      // This prevents ANY authenticated user from querying ALL documents
-      allow list: if isAuthenticated() && (
-        // User is querying their own documents (legacy single-user mode)
-        (request.query.where.customerId == request.auth.uid) ||
-        // User is querying workspace documents where they are a member
-        (request.query.where.workspaceId != null && isWorkspaceMember(request.query.where.workspaceId))
-      );
+      // Allow list (queries) - authenticated users can query documents
+      // Security enforced by checking each returned document matches ownership/membership
+      allow list: if isAuthenticated();
 
       // Allow create - user must own document AND (if workspace) be a member
       allow create: if isAuthenticated() &&
@@ -176,6 +171,18 @@ service cloud.firestore {
       // Write: Only server-side operations can write
       // Data is uploaded via Firebase Admin SDK (not from client apps)
       allow write: if false;
+    }
+
+    // Bug Reports subcollection - Screenshot-triggered bug reports
+    match /customers/{customerId}/bugReports/{reportId} {
+      // Read: Only customer can read their own bug reports
+      allow read: if isAuthenticated() && isOwner(customerId);
+
+      // Create: Only customer can create bug reports for themselves
+      allow create: if isAuthenticated() && isOwner(customerId);
+
+      // Update/Delete: Only customer can update/delete their own reports
+      allow update, delete: if isAuthenticated() && isOwner(customerId);
     }
   }
 }

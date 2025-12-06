@@ -57,6 +57,7 @@ struct ExpertChatView: View {
         }
         .navigationTitle("expert_chat.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Chat")
         .task {
             await loadChat()
         }

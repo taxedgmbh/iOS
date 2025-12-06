@@ -320,6 +320,7 @@ struct AboutView_HIGCompliant: View {
         }
         .navigationTitle("more.about".localized)
         .navigationBarTitleDisplayMode(.large)
+        .trackScreen("About")
     }
 
     // MARK: - Computed Properties

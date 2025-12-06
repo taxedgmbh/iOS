@@ -208,6 +208,7 @@ struct ExpertConnectionView: View {
         }
         .navigationTitle("settings.expert.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Expert Connection")
         .sheet(isPresented: $showBookingSheet) {
             NavigationView {
                 Form {

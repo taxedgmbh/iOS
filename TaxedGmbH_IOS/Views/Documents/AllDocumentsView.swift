@@ -177,6 +177,7 @@ struct AllDocumentsView: View {
             }
             .navigationTitle("Documents")
             .navigationBarTitleDisplayMode(.large)
+            .trackScreen("All Documents")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showUploadSheet = true }) {

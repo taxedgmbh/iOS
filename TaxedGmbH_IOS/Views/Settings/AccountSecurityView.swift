@@ -1,14 +1,14 @@
 //
-//  AccountManagementView.swift
+//  AccountSecurityView.swift
 //  TaxedGmbH_IOS
 //
-//  Account security and authentication management
+//  Account security and authentication management (consolidated Account + Security settings)
 //
 
 import SwiftUI
 import FirebaseAuth
 
-struct AccountManagementView: View {
+struct AccountSecurityView: View {
     @EnvironmentObject var authService: AuthenticationService
     @State private var showChangeEmail = false
     @State private var showChangePassword = false
@@ -198,7 +198,7 @@ struct AccountManagementView: View {
         }
         .navigationTitle("settings.account.title".localized)
         .navigationBarTitleDisplayMode(.inline)
-        .trackScreen("Account Management")
+        .trackScreen("Security")
         .sheet(isPresented: $showChangeEmail) {
             ChangeEmailSheet(
                 currentEmail: authService.user?.email ?? "",
@@ -288,202 +288,3 @@ struct AccountManagementView: View {
 
 // MARK: - Change Email Sheet
 
-struct ChangeEmailSheet: View {
-    @Environment(\.dismiss) var dismiss
-    let currentEmail: String
-    let onComplete: (String) -> Void
-
-    @State private var newEmail = ""
-    @State private var password = ""
-
-    var body: some View {
-        NavigationView {
-            Form {
-                Section {
-                    TextField("settings.account.current_email".localized, text: .constant(currentEmail))
-                        .disabled(true)
-                        .foregroundColor(.secondary)
-                } header: {
-                    Text("settings.account.current".localized)
-                }
-
-                Section {
-                    TextField("settings.account.new_email".localized, text: $newEmail)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-
-                    SecureField("settings.account.password_confirm".localized, text: $password)
-                        .textContentType(.password)
-                } header: {
-                    Text("settings.account.new_email_section".localized)
-                } footer: {
-                    Text("settings.account.password_required".localized)
-                }
-            }
-            .navigationTitle("settings.account.change_email".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("settings.account.cancel".localized) {
-                        dismiss()
-                    }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("settings.account.update".localized) {
-                        onComplete(newEmail)
-                        dismiss()
-                    }
-                    .disabled(newEmail.isEmpty || password.isEmpty)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Change Password Sheet
-
-struct ChangePasswordSheet: View {
-    @Environment(\.dismiss) var dismiss
-    let onComplete: (String, String) -> Void
-
-    @State private var currentPassword = ""
-    @State private var newPassword = ""
-    @State private var confirmPassword = ""
-
-    var body: some View {
-        NavigationView {
-            Form {
-                Section {
-                    SecureField("settings.account.current_password".localized, text: $currentPassword)
-                        .textContentType(.password)
-                } header: {
-                    Text("settings.account.current".localized)
-                }
-
-                Section {
-                    SecureField("settings.account.new_password".localized, text: $newPassword)
-                        .textContentType(.newPassword)
-
-                    SecureField("settings.account.confirm_password".localized, text: $confirmPassword)
-                        .textContentType(.newPassword)
-                } header: {
-                    Text("settings.account.new_password_section".localized)
-                } footer: {
-                    Text("settings.account.password_requirements".localized)
-                }
-
-                if !newPassword.isEmpty && newPassword != confirmPassword {
-                    Section {
-                        Label("settings.account.passwords_must_match".localized, systemImage: "exclamationmark.triangle")
-                            .foregroundColor(.red)
-                    }
-                }
-            }
-            .navigationTitle("settings.account.change_password".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("settings.account.cancel".localized) {
-                        dismiss()
-                    }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("settings.account.update".localized) {
-                        onComplete(currentPassword, newPassword)
-                        dismiss()
-                    }
-                    .disabled(currentPassword.isEmpty || newPassword.isEmpty || newPassword != confirmPassword)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Two-Factor Auth Setup Sheet
-
-struct TwoFactorAuthSetupSheet: View {
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 24) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 72))
-                    .foregroundColor(.green)
-                    .padding(.top, 40)
-
-                Text("settings.account.2fa_coming_soon".localized)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .multilineTextAlignment(.center)
-
-                Text("settings.account.2fa_coming_soon.description".localized)
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-
-                Spacer()
-
-                Button("settings.account.close".localized) {
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-                .padding(.bottom, 40)
-            }
-            .navigationTitle("settings.account.2fa".localized)
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-// MARK: - Session Management Sheet
-
-struct SessionManagementSheet: View {
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationView {
-            List {
-                Section {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("settings.account.this_device".localized)
-                                .font(.headline)
-                            Text("settings.account.active_now".localized)
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
-                        Spacer()
-                        Label("settings.account.current".localized, systemImage: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    }
-                } header: {
-                    Text("settings.account.active_sessions".localized)
-                } footer: {
-                    Text("settings.account.sessions.footer".localized)
-                }
-            }
-            .navigationTitle("settings.account.devices".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("settings.account.done".localized) {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
-
-#Preview {
-    NavigationView {
-        AccountManagementView()
-            .environmentObject(AuthenticationService())
-    }
-}

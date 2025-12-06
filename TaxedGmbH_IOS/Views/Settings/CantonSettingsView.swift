@@ -175,6 +175,7 @@ struct CantonSettingsView: View {
         }
         .navigationTitle("settings.canton.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Canton Settings")
         .sheet(isPresented: $showCantonPicker) {
             NavigationView {
                 List {

@@ -49,6 +49,7 @@ struct UnifiedExpatCenterView: View {
             }
             .navigationTitle(tabTitle)
             .navigationBarTitleDisplayMode(.large)
+            .trackScreen("Expat Center")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {

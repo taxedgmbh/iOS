@@ -54,6 +54,7 @@ struct LanguagePickerView: View {
         }
         .navigationTitle("settings.language".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Language")
     }
 
     // Get native language name

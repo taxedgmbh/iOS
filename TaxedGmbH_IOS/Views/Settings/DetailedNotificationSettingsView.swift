@@ -217,6 +217,7 @@ struct DetailedNotificationSettingsView: View {
         }
         .navigationTitle("Notification Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Notifications")
         .onAppear {
             notificationService.checkNotificationStatus()
         }

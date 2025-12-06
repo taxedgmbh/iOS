@@ -140,6 +140,7 @@ struct RemapDocumentSheet: View {
             }
             .navigationTitle("document.remap.title".localized)
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("Remap Document")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common.cancel".localized) {

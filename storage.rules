@@ -81,6 +81,22 @@ service firebase.storage {
       allow delete: if isAuthenticated();
     }
 
+    // Bug reports: bugReports/{userId}/{reportId}/{fileName}
+    // Screenshot-triggered bug reports for TestFlight and production
+    match /bugReports/{userId}/{reportId}/{fileName} {
+      // Users can read their own bug reports
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can upload bug report screenshots
+      allow write: if isAuthenticated() &&
+                      request.auth.uid == userId &&
+                      isValidSize() &&
+                      request.resource.contentType.matches('image/.*');
+
+      // Users can delete their own bug reports
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
     // Deny all other paths by default
     match /{allPaths=**} {
       allow read, write: if false;

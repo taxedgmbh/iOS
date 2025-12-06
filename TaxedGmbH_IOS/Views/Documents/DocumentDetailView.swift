@@ -567,6 +567,7 @@ struct DocumentDetailView: View {
         }
         .navigationTitle("document_detail.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Document Detail")
         .onAppear {
             // Load existing notes when view appears
             documentNotes = document.userNotes ?? ""

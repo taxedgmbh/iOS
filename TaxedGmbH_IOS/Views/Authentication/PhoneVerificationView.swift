@@ -37,6 +37,7 @@ struct PhoneVerificationView: View {
             }
             .navigationTitle(showCodeInput ? "phone_verification.enter_code".localized : "phone_verification.verify_phone".localized)
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("Phone Verification")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("common.cancel".localized) {

@@ -137,6 +137,7 @@ struct ProcessStageView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Process")
         .sheet(isPresented: $showUploadSheet) {
             DocumentUploadView()
         }

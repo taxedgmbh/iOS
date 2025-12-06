@@ -84,6 +84,7 @@ struct DashboardView: View {
         }
         .navigationTitle("dashboard.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Dashboard")
         .sheet(isPresented: $showExpatHub) {
             UnifiedExpatCenterView()
         }

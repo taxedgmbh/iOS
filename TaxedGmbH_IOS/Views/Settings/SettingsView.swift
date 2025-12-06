@@ -332,6 +332,7 @@ struct SettingsView: View {
         }
         .navigationTitle("settings.title".localized)
         .navigationBarTitleDisplayMode(.large)
+        .trackScreen("Settings")
         .id(localizationService.currentLanguage)
         .alert("settings.signout.alert.title".localized, isPresented: $showSignOutConfirmation) {
             Button("settings.signout.alert.cancel".localized, role: .cancel) {}

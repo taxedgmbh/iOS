@@ -154,11 +154,22 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct TaxedGmbH_IOS: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authService = AuthenticationService()
+    @StateObject private var screenshotHandler = ScreenshotHandler()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(authService)
+                .environmentObject(screenshotHandler)
+                .sheet(isPresented: $screenshotHandler.showBugReportSheet) {
+                    if let screenshot = screenshotHandler.capturedScreenshot {
+                        BugReportSheet(
+                            screenshot: screenshot,
+                            screenName: screenshotHandler.capturedScreenName
+                        )
+                        .environmentObject(authService)
+                    }
+                }
         }
     }
 }

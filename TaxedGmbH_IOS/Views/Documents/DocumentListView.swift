@@ -10,6 +10,7 @@ import SwiftUI
 struct DocumentListView: View {
     @EnvironmentObject var authService: AuthenticationService
     @ObservedObject private var firestoreService = FirestoreService.shared
+    @ObservedObject private var workspaceManager = WorkspaceManager.shared
 
     @State private var documents: [TaxDocument] = []
     @State private var isLoading = false
@@ -136,6 +137,7 @@ struct DocumentListView: View {
             }
             .navigationTitle("tab.documents".localized)
             .navigationBarTitleDisplayMode(.large)
+            .trackScreen("Documents")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showUploadSheet = true }) {
@@ -149,6 +151,9 @@ struct DocumentListView: View {
                 DocumentUploadView()
             }
             .task {
+                // Load workspace first, then documents
+                guard let userId = authService.user?.id else { return }
+                await workspaceManager.loadCurrentWorkspace(userId: userId)
                 await loadDocuments()
                 observeDocuments()
             }
@@ -350,13 +355,22 @@ struct DocumentListView: View {
     // MARK: - Data Loading
 
     private func loadDocuments() async {
-        guard let userId = authService.user?.id else { return }
+        guard let workspace = workspaceManager.activeWorkspace,
+              let workspaceId = workspace.id else {
+            print("⚠️ No active workspace found")
+            isLoading = false
+            return
+        }
 
         isLoading = true
         do {
-            documents = try await firestoreService.getDocumentsForCustomer(customerId: userId)
+            documents = try await firestoreService.getDocumentsForWorkspace(
+                workspaceId: workspaceId,
+                taxYear: workspace.taxYear
+            )
             currentIndex = 0
             cardOffsets.removeAll()
+            print("✅ Loaded \(documents.count) documents for workspace: \(workspace.name)")
         } catch {
             print("❌ Error loading documents: \(error)")
         }
@@ -364,9 +378,16 @@ struct DocumentListView: View {
     }
 
     private func observeDocuments() {
-        guard let userId = authService.user?.id else { return }
+        guard let workspace = workspaceManager.activeWorkspace,
+              let workspaceId = workspace.id else {
+            print("⚠️ No active workspace for observation")
+            return
+        }
 
-        firestoreService.observeCustomerDocuments(customerId: userId) { updatedDocs in
+        firestoreService.observeWorkspaceDocuments(
+            workspaceId: workspaceId,
+            taxYear: workspace.taxYear
+        ) { updatedDocs in
             // Only update if we're at the end or haven't started
             if currentIndex >= documents.count || documents.isEmpty {
                 documents = updatedDocs

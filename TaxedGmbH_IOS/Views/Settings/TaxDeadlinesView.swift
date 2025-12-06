@@ -269,6 +269,7 @@ struct TaxDeadlinesView: View {
         }
         .navigationTitle("settings.deadlines.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Tax Deadlines")
         .task {
             if let userId = authService.user?.id {
                 await workspaceManager.loadCurrentWorkspace(userId: userId)

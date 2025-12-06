@@ -163,6 +163,7 @@ struct UnifiedProfileView: View {
             }
         }
         .navigationBarHidden(true)
+        .trackScreen("Profile")
         .onAppear {
             loadUserData()
             loadWorkspaceData()

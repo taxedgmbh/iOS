@@ -45,6 +45,7 @@ struct TaxSettingsView: View {
         }
         .navigationTitle("settings.tax.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .trackScreen("Tax Settings")
         .sheet(isPresented: $showYearPicker) {
             yearPickerSheet
         }

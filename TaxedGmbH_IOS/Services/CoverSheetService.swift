@@ -21,6 +21,13 @@ class CoverSheetService {
 
     private init() {}
 
+    // MARK: - Localization Helper
+
+    /// Get localized string for cover sheet
+    private func localized(_ key: String) -> String {
+        return NSLocalizedString(key, comment: "")
+    }
+
     // MARK: - Cover Sheet Generation
 
     /// Generate a PDF cover sheet for a tax document following Swiss tax office requirements
@@ -348,6 +355,9 @@ class CoverSheetService {
            let taxCategoryType = document.taxCategoryType,
            let categoryType = TaxCategoryType(rawValue: taxCategoryType) {
             do {
+                // Clear cache to ensure we get fresh data from Firebase
+                TaxIndexService.shared.clearCache()
+
                 taxIndex = try await TaxIndexService.shared.getIndexMapping(
                     canton: canton,
                     category: categoryType,
@@ -394,24 +404,24 @@ class CoverSheetService {
 
             // Build document information items
             var documentItems: [(String, String)] = [
-                ("Dokument Name", document.name),
-                ("Kategorie", categoryDisplayName),
-                ("Anhang-Nummer", attachmentNumber)
+                (localized("cover_sheet.document_name"), document.name),
+                (localized("cover_sheet.category"), categoryDisplayName),
+                (localized("cover_sheet.attachment_number"), attachmentNumber)
             ]
 
             // Add tax index if available
             if let index = taxIndex,
                let canton = user.canton {
-                documentItems.append(("Steuerindex", "\(canton)-\(index.index)"))
+                documentItems.append((localized("cover_sheet.tax_index"), "\(canton)-\(index.index)"))
             }
 
             documentItems.append(contentsOf: [
-                ("Steuerjahr", String(document.taxYear)),
-                ("Hochgeladen am", formatDate(document.uploadedAt))
+                (localized("cover_sheet.tax_year"), String(document.taxYear)),
+                (localized("cover_sheet.uploaded_on"), formatDate(document.uploadedAt))
             ])
 
             yPosition = drawSection(
-                title: "DOCUMENT INFORMATION",
+                title: localized("cover_sheet.section.document_info"),
                 items: documentItems,
                 startY: yPosition,
                 pageRect: pageRect,
@@ -427,27 +437,27 @@ class CoverSheetService {
             // Person 1 (always present)
             let person1Name = user.person1Name ?? user.name
             let person1AHV = user.person1AhvNumber ?? user.ahvNumber ?? "N/A"
-            customerItems.append(("Person 1", "\(person1Name) - AHV: \(person1AHV)"))
+            customerItems.append((String(format: localized("cover_sheet.person"), 1), "\(person1Name) - AHV: \(person1AHV)"))
 
             // Person 2 (if joint filing)
             if let person2Name = user.person2Name, !person2Name.isEmpty {
                 let person2AHV = user.person2AhvNumber ?? "N/A"
-                customerItems.append(("Person 2", "\(person2Name) - AHV: \(person2AHV)"))
+                customerItems.append((String(format: localized("cover_sheet.person"), 2), "\(person2Name) - AHV: \(person2AHV)"))
             }
 
             // Address
             let addressLine = "\(user.street ?? ""), \(user.postalCode ?? "") \(user.city ?? "") (\(user.canton ?? ""))"
-            customerItems.append(("Adresse", addressLine))
+            customerItems.append((localized("cover_sheet.address"), addressLine))
 
             // Other info
-            customerItems.append(("Gemeinde", user.municipality ?? "Nicht angegeben"))
-            customerItems.append(("E-Mail", user.email))
+            customerItems.append((localized("cover_sheet.municipality"), user.municipality ?? localized("cover_sheet.not_specified")))
+            customerItems.append((localized("cover_sheet.email"), user.email))
             if let phone = user.phone, !phone.isEmpty {
-                customerItems.append(("Telefon", phone))
+                customerItems.append((localized("cover_sheet.phone"), phone))
             }
 
             yPosition = drawSection(
-                title: "CUSTOMER INFORMATION",
+                title: localized("cover_sheet.section.customer_info"),
                 items: customerItems,
                 startY: yPosition,
                 pageRect: pageRect,
@@ -460,13 +470,13 @@ class CoverSheetService {
             var detailItems: [(String, String)] = []
 
             if let purpose = document.purpose {
-                detailItems.append(("Zweck", purpose))
+                detailItems.append((localized("cover_sheet.purpose"), purpose))
             }
 
             if let amount = document.amount {
                 let currency = document.currency ?? "CHF"
                 let formattedAmount = String(format: "%.2f %@", amount, currency)
-                detailItems.append(("Betrag", formattedAmount))
+                detailItems.append((localized("cover_sheet.amount"), formattedAmount))
             }
 
             if let documentDate = document.documentDate {
@@ -557,7 +567,7 @@ class CoverSheetService {
             .font: UIFont.systemFont(ofSize: 12, weight: .regular),
             .foregroundColor: UIColor.white.withAlphaComponent(0.9)
         ]
-        let subtitle = "Generiert durch TAXED.CH - \(formatDate(Date()))"
+        let subtitle = "\(localized("cover_sheet.generated_by")) - \(formatDate(Date()))"
         let subtitleRect = CGRect(
             x: 40,
             y: 52,
@@ -610,7 +620,10 @@ class CoverSheetService {
     ) -> CGFloat {
         let y = startY
         let leftMargin: CGFloat = 60
-        let boxHeight: CGFloat = 90
+        // Increased height to accommodate legal references (4 lines instead of 3)
+        // Only use taller box if legal references are available
+        let hasLegalRefs = taxIndex?.legalReferenceCanton != nil && taxIndex?.legalReferenceFederal != nil
+        let boxHeight: CGFloat = hasLegalRefs ? 115 : 90
         let boxRect = CGRect(x: leftMargin, y: y, width: pageRect.width - 2 * leftMargin, height: boxHeight)
 
         // Draw white background
@@ -626,9 +639,9 @@ class CoverSheetService {
         let line1Text: String
         if let index = taxIndex, let _ = user.canton {
             let personName = user.person1Name ?? user.name
-            line1Text = "Ziffer \(index.index) · Person 1 · \(personName)"
+            line1Text = "\(localized("cover_sheet.index_number")) \(index.index) · \(String(format: localized("cover_sheet.person"), 1)) · \(personName)"
         } else {
-            line1Text = "Person 1 · \(user.person1Name ?? user.name)"
+            line1Text = "\(String(format: localized("cover_sheet.person"), 1)) · \(user.person1Name ?? user.name)"
         }
 
         let line1Attributes: [NSAttributedString.Key: Any] = [
@@ -638,9 +651,11 @@ class CoverSheetService {
         let line1Rect = CGRect(x: leftMargin + 15, y: y + 15, width: boxRect.width - 30, height: 25)
         line1Text.draw(in: line1Rect, withAttributes: line1Attributes)
 
-        // Line 2: "[Category Group] · [Category Name]"
+        // Line 2: "[Category Group] · [Subcategory or Category Name]"
         let categoryGroup = getCategoryGroup(document)
-        let line2Text = "\(categoryGroup) · \(categoryDisplayName)"
+        // Use tax index subcategory if available, otherwise fall back to category display name
+        let subcategoryText = taxIndex?.subCategory ?? categoryDisplayName
+        let line2Text = "\(categoryGroup) · \(subcategoryText)"
         let line2Attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 15, weight: .regular),
             .foregroundColor: UIColor.darkGray
@@ -648,14 +663,29 @@ class CoverSheetService {
         let line2Rect = CGRect(x: leftMargin + 15, y: y + 42, width: boxRect.width - 30, height: 20)
         line2Text.draw(in: line2Rect, withAttributes: line2Attributes)
 
-        // Line 3: "Formtyp: Hauptformular    Periode: [year]"
-        let line3Text = "Formtyp: Hauptformular    Periode: \(document.taxYear)"
-        let line3Attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13, weight: .regular),
+        // Line 3: Legal references (only if tax index is available)
+        var currentY: CGFloat = y + 64
+        if let index = taxIndex,
+           let cantonRef = index.legalReferenceCanton,
+           let federalRef = index.legalReferenceFederal {
+            let line3Text = "\(cantonRef) | \(federalRef)"
+            let line3Attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 11, weight: .medium),
+                .foregroundColor: UIColor.systemGray
+            ]
+            let line3Rect = CGRect(x: leftMargin + 15, y: currentY, width: boxRect.width - 30, height: 16)
+            line3Text.draw(in: line3Rect, withAttributes: line3Attributes)
+            currentY += 20
+        }
+
+        // Line 4 (or 3 if no legal refs): "Formtyp: Hauptformular    Periode: [year]"
+        let lineFormText = "\(localized("cover_sheet.form_type")): \(localized("cover_sheet.form_type_main"))    \(localized("cover_sheet.period")): \(document.taxYear)"
+        let lineFormAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 12, weight: .regular),
             .foregroundColor: UIColor.gray
         ]
-        let line3Rect = CGRect(x: leftMargin + 15, y: y + 64, width: boxRect.width - 30, height: 18)
-        line3Text.draw(in: line3Rect, withAttributes: line3Attributes)
+        let lineFormRect = CGRect(x: leftMargin + 15, y: currentY, width: boxRect.width - 30, height: 18)
+        lineFormText.draw(in: lineFormRect, withAttributes: lineFormAttributes)
 
         return y + boxHeight + 10
     }
@@ -826,7 +856,9 @@ class CoverSheetService {
     }
 
     private func drawFooter(in rect: CGRect, context: CGContext) {
-        let footerY = rect.height - 120
+        // Position footer below the bottom section (QR + barcode)
+        // Bottom section starts at height-180, barcode is ~65px tall, add 10px spacing
+        let footerY = rect.height - 105
 
         // Separator line
         context.setStrokeColor(UIColor.lightGray.cgColor)

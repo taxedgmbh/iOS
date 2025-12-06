@@ -84,6 +84,7 @@ struct MoreView: View {
             }
             .navigationTitle("more.title".localized)
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("More")
         }
     }
 

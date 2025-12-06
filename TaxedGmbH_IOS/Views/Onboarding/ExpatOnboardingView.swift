@@ -93,6 +93,7 @@ struct ExpatOnboardingView: View {
             }
             .navigationTitle("onboarding.title".localized)
             .navigationBarTitleDisplayMode(.inline)
+            .trackScreen("Expat Onboarding")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {

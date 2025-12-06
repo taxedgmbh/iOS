@@ -277,6 +277,43 @@ class FirestoreService: ObservableObject {
         documentListeners[listenerId] = listener
     }
 
+    /// Listen to workspace documents for real-time updates
+    /// Filters by both workspaceId and taxYear for strict year separation
+    func observeWorkspaceDocuments(workspaceId: String, taxYear: Int, completion: @escaping ([TaxDocument]) -> Void) {
+        let listenerId = "workspace_\(workspaceId)_\(taxYear)"
+        documentListeners[listenerId]?.remove()
+
+        let listener = db.collection(AppConstants.Firebase.Collections.documents)
+            .whereField("workspaceId", isEqualTo: workspaceId)
+            .whereField("taxYear", isEqualTo: taxYear)
+            .order(by: "uploadedAt", descending: true)
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    print("❌ Error observing workspace documents: \(error)")
+                    completion([])
+                    return
+                }
+
+                guard let snapshot = snapshot else {
+                    completion([])
+                    return
+                }
+
+                let documents = snapshot.documents.compactMap { doc in
+                    TaxDocument.fromDictionary(id: doc.documentID, data: doc.data())
+                }
+
+                Task { @MainActor in
+                    self.documents = documents
+                }
+
+                print("🔄 Workspace documents updated: \(documents.count) docs")
+                completion(documents)
+            }
+
+        documentListeners[listenerId] = listener
+    }
+
     /// Stop observing a document
     func stopObserving(documentId: String) {
         documentListeners[documentId]?.remove()
