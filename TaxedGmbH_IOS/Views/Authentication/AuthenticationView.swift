@@ -132,6 +132,10 @@ struct AuthenticationView: View {
                 biometricLoginButton
             }
 
+            // TODO: Uncomment after adding GoogleSignIn Swift Package
+            // Google Sign-In with Accessibility
+            // googleSignInButton
+
             // Apple Sign-In with Accessibility
             appleSignInButton
         }
@@ -170,6 +174,44 @@ struct AuthenticationView: View {
         )
         .accessibilityIdentifier("biometric_login_button")
     }
+
+    // TODO: Uncomment after adding GoogleSignIn Swift Package
+    /*
+    private var googleSignInButton: some View {
+        Button(action: performGoogleSignIn) {
+            HStack(spacing: dynamicSpacing(12)) {
+                Image(systemName: "g.circle.fill")
+                    .font(dynamicFont(.title3))
+                    .foregroundColor(.white)
+                    .accessibilityHidden(true)
+
+                Text("auth.google.signin".localized)
+                    .font(dynamicFont(.headline))
+                    .foregroundColor(.white)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: accessibilityManager.minimumTouchTargetSize.height)
+            .background(
+                LinearGradient(
+                    colors: [Color(red: 0.26, green: 0.52, blue: 0.96), Color(red: 0.22, green: 0.45, blue: 0.82)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(AppConstants.UI.cornerRadius)
+            .overlay(
+                showButtonShapes ?
+                RoundedRectangle(cornerRadius: AppConstants.UI.cornerRadius)
+                    .stroke(Color.white, lineWidth: 2) : nil
+            )
+        }
+        .accessibleButton(
+            label: "auth.google.signin.label".localized,
+            hint: "auth.google.signin.hint".localized
+        )
+        .accessibilityIdentifier("google_signin_button")
+    }
+    */
 
     private var appleSignInButton: some View {
         SignInWithAppleButton(
@@ -616,6 +658,21 @@ struct AuthenticationView: View {
             }
         }
     }
+
+    // TODO: Uncomment after adding GoogleSignIn Swift Package
+    /*
+    private func performGoogleSignIn() {
+        Task {
+            await authService.handleSignInWithGoogle()
+
+            if authService.isAuthenticated {
+                announceAuthenticationSuccess()
+            } else if let error = authService.errorMessage {
+                announceError(error)
+            }
+        }
+    }
+    */
 
     private func resetForm() {
         email = ""

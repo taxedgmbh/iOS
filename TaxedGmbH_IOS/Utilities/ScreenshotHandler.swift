@@ -20,6 +20,7 @@ class ScreenshotHandler: ObservableObject {
     private var screenTracker: ScreenTracker
 
     init(screenTracker: ScreenTracker? = nil) {
+        // Access MainActor-isolated shared property from MainActor context
         self.screenTracker = screenTracker ?? ScreenTracker.shared
         setupScreenshotNotification()
     }

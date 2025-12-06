@@ -10,9 +10,8 @@ import Foundation
 import SwiftUI
 import Combine
 
-@MainActor
 class ScreenTracker: ObservableObject {
-    static let shared = ScreenTracker()
+    @MainActor static let shared = ScreenTracker()
 
     @Published var currentScreen: String = "Unknown Screen"
 
@@ -20,6 +19,7 @@ class ScreenTracker: ObservableObject {
 
     /// Update the current screen name
     /// Call this from each view's .onAppear() modifier
+    @MainActor
     func setScreen(_ screenName: String) {
         currentScreen = screenName
         print("📍 Screen tracked: \(screenName)")

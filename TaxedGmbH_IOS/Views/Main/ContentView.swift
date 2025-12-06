@@ -27,8 +27,8 @@ struct ContentView: View {
                 // Show Main Tab View when authenticated
                 MainTabView()
             } else {
-                // Show Liquid Glass Authentication when not logged in
-                AuthenticationView_LiquidGlass()
+                // Show Authentication when not logged in
+                AuthenticationView()
             }
         }
         .applyTheme()

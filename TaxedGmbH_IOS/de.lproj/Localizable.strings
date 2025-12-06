@@ -1673,3 +1673,8 @@
 "cover_sheet.purpose" = "Zweck";
 "cover_sheet.amount" = "Betrag";
 
+
+// Google Sign-In
+"auth.google.signin" = "Mit Google anmelden";
+"auth.google.signin.label" = "Mit Google-Konto anmelden";
+"auth.google.signin.hint" = "Authentifizierung mit Ihrem Google-Konto";

@@ -36,7 +36,7 @@ struct DashboardView: View {
         ZStack {
             // Animated Glass Background
             if !reduceTransparency {
-                AnimatedGlassBackground()
+                EnhancedAnimatedGlassBackground()
             } else {
                 (colorScheme == .dark ? Color.black : Color.white)
                     .ignoresSafeArea()

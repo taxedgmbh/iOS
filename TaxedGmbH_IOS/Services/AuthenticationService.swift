@@ -4,6 +4,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import AuthenticationServices
 import CryptoKit
+// TODO: Uncomment after adding GoogleSignIn Swift Package via Xcode
+// import GoogleSignIn
 
 // MARK: - Auth Errors
 
@@ -229,6 +231,113 @@ class AuthenticationService: ObservableObject {
             print("❌ Apple Sign-In error: \(error)")
         }
     }
+
+    // MARK: - Google Sign-In
+
+    // TODO: Uncomment after adding GoogleSignIn Swift Package and OAuth Client ID
+    /*
+    /// Start Google Sign-In flow
+    func handleSignInWithGoogle() async {
+        isLoading = true
+        errorMessage = nil
+
+        defer {
+            isLoading = false
+        }
+
+        do {
+            // Get the client ID from GoogleService-Info.plist
+            guard let clientID = FirebaseApp.app()?.options.clientID else {
+                throw AuthError.unknown("Google Client ID not found")
+            }
+
+            // Configure Google Sign-In
+            let config = GIDConfiguration(clientID: clientID)
+            GIDSignIn.sharedInstance.configuration = config
+
+            // Get the presenting view controller
+            guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootViewController = await windowScene.windows.first?.rootViewController else {
+                throw AuthError.unknown("Could not find root view controller")
+            }
+
+            // Sign in with Google
+            let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+            let user = result.user
+
+            guard let idToken = user.idToken?.tokenString else {
+                throw AuthError.invalidToken
+            }
+
+            let accessToken = user.accessToken.tokenString
+
+            // Create Firebase credential with Google tokens
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: idToken,
+                accessToken: accessToken
+            )
+
+            // Sign in to Firebase with Google credential
+            let authResult = try await Auth.auth().signIn(with: credential)
+
+            // Check if user document exists, if not create one
+            let userId = authResult.user.uid
+            let userDoc = try await firestore.collection(AppConstants.Firebase.Collections.users).document(userId).getDocument()
+
+            if !userDoc.exists {
+                // Create new user document
+                let profile = user.profile
+                let fullName = profile?.name ?? ""
+                let email = profile?.email ?? authResult.user.email ?? "no-email@google.com"
+
+                let newUser = User(
+                    id: userId,
+                    email: email,
+                    name: fullName.isEmpty ? "Google User" : fullName,
+                    role: .customer
+                )
+
+                try await firestore.collection(AppConstants.Firebase.Collections.users).document(userId).setData(newUser.toDictionary())
+
+                // Create default workspace for new user
+                let currentYear = Calendar.current.component(.year, from: Date())
+                do {
+                    let defaultWorkspace = try await WorkspaceManager.shared.createWorkspace(
+                        name: "Personal Taxes",
+                        type: .personal,
+                        taxYear: currentYear,
+                        owner: newUser,
+                        description: "Your personal tax documents and filings"
+                    )
+                    print("✅ Created default workspace: \(defaultWorkspace.name)")
+                } catch {
+                    print("⚠️ Warning: Failed to create default workspace: \(error)")
+                    print("⚠️ User can create workspace manually later")
+                }
+
+                self.user = newUser
+                self.isAuthenticated = true
+            } else {
+                // Load existing user data
+                await loadUserData(userId: userId)
+            }
+
+            print("✅ Google Sign-In successful")
+
+        } catch {
+            // Check if user canceled
+            let nsError = error as NSError
+            if nsError.domain == "com.google.GIDSignIn" && nsError.code == -5 {
+                // User canceled - don't show error message
+                print("ℹ️ Google Sign-In canceled by user")
+                return
+            }
+
+            errorMessage = handleAuthError(error)
+            print("❌ Google Sign-In error: \(error)")
+        }
+    }
+    */
 
     // MARK: - Email/Password Authentication
 

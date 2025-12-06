@@ -67,7 +67,7 @@ struct UnifiedProfileView: View {
     var body: some View {
         ZStack {
             // Animated Glass Background
-            AnimatedGlassBackground()
+            EnhancedAnimatedGlassBackground()
 
             VStack(spacing: 0) {
                 // Top Bar
@@ -1187,7 +1187,7 @@ struct UnifiedProfileView: View {
 
     private var inviteSpouseSheet: some View {
         ZStack {
-            AnimatedGlassBackground()
+            EnhancedAnimatedGlassBackground()
 
             VStack(spacing: 24) {
                 // Header
@@ -1216,14 +1216,17 @@ struct UnifiedProfileView: View {
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
 
-                    GlassTextField(
-                        text: $inviteEmail,
-                        placeholder: "profile.invite.email_placeholder".localized,
-                        icon: "envelope.fill",
-                        keyboardType: .emailAddress,
-                        textContentType: .emailAddress
-                    )
-                    .autocapitalization(.none)
+                    HStack {
+                        Image(systemName: "envelope.fill")
+                            .foregroundColor(.secondary)
+                        TextField("profile.invite.email_placeholder".localized, text: $inviteEmail)
+                            .keyboardType(.emailAddress)
+                            .textContentType(.emailAddress)
+                            .autocapitalization(.none)
+                    }
+                    .padding()
+                    .background(Color.secondary.opacity(0.1))
+                    .cornerRadius(10)
                 }
                 .padding(20)
                 .glassCard(cornerRadius: 20, borderColor: .pink.opacity(0.2))
@@ -1282,7 +1285,7 @@ struct UnifiedProfileView: View {
     private var cantonPickerSheet: some View {
         NavigationView {
             ZStack {
-                AnimatedGlassBackground()
+                EnhancedAnimatedGlassBackground()
 
                 ScrollView {
                     VStack(spacing: 12) {

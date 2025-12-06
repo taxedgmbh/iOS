@@ -1693,3 +1693,8 @@
 "cover_sheet.purpose" = "Objectif";
 "cover_sheet.amount" = "Montant";
 
+
+// Google Sign-In
+"auth.google.signin" = "Se connecter avec Google";
+"auth.google.signin.label" = "Se connecter avec un compte Google";
+"auth.google.signin.hint" = "Authentification avec votre compte Google";

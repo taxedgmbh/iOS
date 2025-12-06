@@ -1693,3 +1693,8 @@
 "cover_sheet.purpose" = "Scopo";
 "cover_sheet.amount" = "Importo";
 
+
+// Google Sign-In
+"auth.google.signin" = "Accedi con Google";
+"auth.google.signin.label" = "Accedi con account Google";
+"auth.google.signin.hint" = "Autenticazione con il tuo account Google";
