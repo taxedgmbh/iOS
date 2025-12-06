@@ -364,7 +364,7 @@ struct DocumentDetailView: View {
                     .glassCard(cornerRadius: 20, borderColor: .orange, glowColor: .orange.opacity(0.3))
                 }
 
-                // User Comments Section - Enhanced with Glass
+                // User Comments Section - Enhanced with Glass + Inline Voice
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Image(systemName: "text.bubble.fill")
@@ -374,27 +374,19 @@ struct DocumentDetailView: View {
                         Text("document_detail.add_comment".localized)
                             .font(.headline)
                         Spacer()
-                        CompactVoiceInputButton(text: $documentNotes)
-                            .frame(minWidth: 44, minHeight: 44)
-                            .floatingButton()
                     }
 
                     Divider()
                         .background(Color.cyan.opacity(0.2))
 
-                    // Text Editor for notes
-                    TextEditor(text: $documentNotes)
-                        .frame(minHeight: 100)  // Increased from 80
-                        .padding(12)
-                        .scrollContentBackground(.hidden)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.cyan.opacity(0.3), lineWidth: 1.5)
-                        )
-                        .accessibilityLabel("document_detail.notes_field".localized)
-                        .accessibilityHint("document_detail.notes_hint".localized)
+                    // Inline Voice-Enabled Text Editor
+                    InlineVoiceTextEditor(
+                        text: $documentNotes,
+                        placeholder: "document_detail.notes_field".localized,
+                        minHeight: 100,
+                        cornerRadius: 12,
+                        borderColor: Color.cyan.opacity(0.3)
+                    )
 
                     if !documentNotes.isEmpty || notesSaveSuccess {
                         Button(action: {
