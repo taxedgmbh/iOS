@@ -40,19 +40,64 @@ struct DocumentScannerPicker: UIViewControllerRepresentable {
             print("📄 Document scan completed successfully")
             print("   - Number of pages: \(scan.pageCount)")
 
-            // Get the first scanned page (most common use case for tax documents)
-            if scan.pageCount > 0 {
+            guard scan.pageCount > 0 else {
+                print("⚠️ No pages scanned")
+                parent.dismiss()
+                return
+            }
+
+            if scan.pageCount == 1 {
+                // Single page - use directly
                 let scannedImage = scan.imageOfPage(at: 0)
                 parent.image = scannedImage
-
-                print("✅ Document scanned:")
-                print("   - Size: \(scannedImage.size.width) x \(scannedImage.size.height)")
-                print("   - Scale: \(scannedImage.scale)")
+                print("✅ Single page scanned: \(scannedImage.size.width) x \(scannedImage.size.height)")
             } else {
-                print("⚠️ No pages scanned")
+                // Multiple pages - combine into single vertical image
+                print("📄 Combining \(scan.pageCount) pages into single image...")
+                let combinedImage = combinePages(from: scan)
+                parent.image = combinedImage
+                print("✅ Combined \(scan.pageCount) pages: \(combinedImage?.size.width ?? 0) x \(combinedImage?.size.height ?? 0)")
             }
 
             parent.dismiss()
+        }
+
+        /// Combine multiple scanned pages into a single vertical image
+        private func combinePages(from scan: VNDocumentCameraScan) -> UIImage? {
+            var images: [UIImage] = []
+
+            // Collect all scanned pages
+            for pageIndex in 0..<scan.pageCount {
+                let pageImage = scan.imageOfPage(at: pageIndex)
+                images.append(pageImage)
+            }
+
+            guard !images.isEmpty else { return nil }
+
+            // Calculate total height and max width
+            let maxWidth = images.map { $0.size.width }.max() ?? 0
+            let totalHeight = images.map { $0.size.height }.reduce(0, +)
+            let spacing: CGFloat = 20 // Space between pages
+            let finalHeight = totalHeight + (CGFloat(images.count - 1) * spacing)
+
+            // Create combined image
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = images[0].scale
+
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: maxWidth, height: finalHeight), format: format)
+
+            let combinedImage = renderer.image { context in
+                var yOffset: CGFloat = 0
+
+                for image in images {
+                    // Center image horizontally if it's narrower than maxWidth
+                    let xOffset = (maxWidth - image.size.width) / 2
+                    image.draw(at: CGPoint(x: xOffset, y: yOffset))
+                    yOffset += image.size.height + spacing
+                }
+            }
+
+            return combinedImage
         }
 
         func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
