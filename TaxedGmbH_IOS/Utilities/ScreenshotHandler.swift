@@ -19,8 +19,8 @@ class ScreenshotHandler: ObservableObject {
 
     private var screenTracker: ScreenTracker
 
-    init(screenTracker: ScreenTracker = ScreenTracker.shared) {
-        self.screenTracker = screenTracker
+    init(screenTracker: ScreenTracker? = nil) {
+        self.screenTracker = screenTracker ?? ScreenTracker.shared
         setupScreenshotNotification()
     }
 

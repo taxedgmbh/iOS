@@ -5,11 +5,11 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>B56TJL3Q75</string>
+    <string>8784L7RY33</string>
     <key>uploadBitcode</key>
     <false/>
     <key>uploadSymbols</key>
-    <true/>
+    <false/>
     <key>compileBitcode</key>
     <false/>
     <key>signingStyle</key>
