@@ -1664,3 +1664,32 @@
 "profile.security.account" = "Sécurité du compte";
 "profile.security.data" = "Gestion des données";
 
+// MARK: - Cover Sheet (Zwischenblatt) PDF
+"cover_sheet.person" = "Personne %d";
+"cover_sheet.index_number" = "Chiffre";
+"cover_sheet.form_type" = "Type de formulaire";
+"cover_sheet.form_type_main" = "Formulaire principal";
+"cover_sheet.form_type_secondary" = "Formulaire secondaire";
+"cover_sheet.period" = "Période";
+"cover_sheet.generated_by" = "Généré par TAXED.CH";
+"cover_sheet.tax_year" = "Année fiscale";
+"cover_sheet.uploaded_on" = "Téléchargé le";
+
+// Cover Sheet Sections
+"cover_sheet.section.document_info" = "INFORMATIONS SUR LE DOCUMENT";
+"cover_sheet.section.customer_info" = "INFORMATIONS CLIENT";
+"cover_sheet.section.document_details" = "DÉTAILS DU DOCUMENT";
+
+// Cover Sheet Fields
+"cover_sheet.document_name" = "Nom du document";
+"cover_sheet.category" = "Catégorie";
+"cover_sheet.attachment_number" = "Numéro de pièce jointe";
+"cover_sheet.tax_index" = "Indice fiscal";
+"cover_sheet.address" = "Adresse";
+"cover_sheet.municipality" = "Commune";
+"cover_sheet.not_specified" = "Non spécifié";
+"cover_sheet.email" = "E-mail";
+"cover_sheet.phone" = "Téléphone";
+"cover_sheet.purpose" = "Objectif";
+"cover_sheet.amount" = "Montant";
+

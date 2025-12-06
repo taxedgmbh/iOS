@@ -47,14 +47,34 @@ struct FieldDefinition: Identifiable, Codable {
 
 /// Tax index mapping from Firestore database
 /// Maps a tax category to its canton-specific index number and required fields
+/// Enhanced with legal references, deductibility rules, and rational explanations
 struct TaxIndexMapping: Codable, Identifiable {
-    var id: String { "\(canton)_\(index)" }
+    var id: String { "\(canton)_\(index)_\(taxYear ?? 2024)" }
 
+    // Core identification
     let canton: String
     let index: String
     let mainCategory: String
     let subCategory: String
     let person: String?
+    let taxYear: Int?
+
+    // Legal references (NEW - Sophisticated approach)
+    let legalReferenceCanton: String?     // e.g., "§ 19 Abs. 1 StG ZH"
+    let legalReferenceFederal: String?    // e.g., "Art. 17 Abs. 1 DBG"
+
+    // Sophisticated explanations (NEW)
+    let rationalExplanation: String?      // Detailed German explanation of what this index means
+    let deductibilityRules: String?       // e.g., "Vollumfänglich steuerbar" or "Abziehbar bis CHF 10'000"
+    let maxDeductible: String?            // e.g., "CHF 10'000 pro Jahr" or "Keine Begrenzung"
+    let limitations: String?              // e.g., "Lohnausweis erforderlich"
+    let calculationMethod: String?        // e.g., "Bruttolohn gemäss Lohnausweis"
+
+    // Source documentation (NEW)
+    let source: String?                   // URL to official Wegleitung
+    let sourceDocument: String?           // e.g., "Wegleitung Steuererklärung 2024 ZH, Seite 12"
+    let lastUpdated: Date?                // Data freshness tracking
+    let verificationStatus: String?       // "verified", "pending", "outdated"
 
     // Field definitions (up to 5 fields)
     let field1Name: String?
@@ -77,7 +97,7 @@ struct TaxIndexMapping: Codable, Identifiable {
     let field5Type: String?
     let field5Required: Bool
 
-    // Metadata
+    // Metadata (existing)
     let currencyRequired: Bool
     let fxRequired: Bool
     let displayFormula: String?
@@ -127,12 +147,32 @@ struct TaxIndexMapping: Codable, Identifiable {
 
     /// Firestore field mapping
     enum CodingKeys: String, CodingKey {
+        // Core identification
         case canton = "Canton"
         case index = "Index"
         case mainCategory = "Main_Category"
         case subCategory = "Sub_Category"
         case person = "Person"
+        case taxYear = "Tax_Year"
 
+        // Legal references (NEW)
+        case legalReferenceCanton = "Legal_Reference_Canton"
+        case legalReferenceFederal = "Legal_Reference_Federal"
+
+        // Sophisticated explanations (NEW)
+        case rationalExplanation = "Rational_Explanation"
+        case deductibilityRules = "Deductibility_Rules"
+        case maxDeductible = "Max_Deductible"
+        case limitations = "Limitations"
+        case calculationMethod = "Calculation_Method"
+
+        // Source documentation (NEW)
+        case source = "Source"
+        case sourceDocument = "Source_Document"
+        case lastUpdated = "Last_Updated"
+        case verificationStatus = "Verification_Status"
+
+        // Field definitions
         case field1Name = "Field1_Name_DE"
         case field1Type = "Field1_Type"
         case field1Required = "Field1_Required"
@@ -153,6 +193,7 @@ struct TaxIndexMapping: Codable, Identifiable {
         case field5Type = "Field5_Type"
         case field5Required = "Field5_Required"
 
+        // Metadata
         case currencyRequired = "Currency_Required"
         case fxRequired = "FX_Required"
         case displayFormula = "Display_Formula"
@@ -162,11 +203,30 @@ struct TaxIndexMapping: Codable, Identifiable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
+        // Core identification
         canton = try container.decode(String.self, forKey: .canton)
         index = try container.decode(String.self, forKey: .index)
         mainCategory = try container.decode(String.self, forKey: .mainCategory)
         subCategory = try container.decode(String.self, forKey: .subCategory)
         person = try container.decodeIfPresent(String.self, forKey: .person)
+        taxYear = try container.decodeIfPresent(Int.self, forKey: .taxYear)
+
+        // Legal references (NEW)
+        legalReferenceCanton = try container.decodeIfPresent(String.self, forKey: .legalReferenceCanton)
+        legalReferenceFederal = try container.decodeIfPresent(String.self, forKey: .legalReferenceFederal)
+
+        // Sophisticated explanations (NEW)
+        rationalExplanation = try container.decodeIfPresent(String.self, forKey: .rationalExplanation)
+        deductibilityRules = try container.decodeIfPresent(String.self, forKey: .deductibilityRules)
+        maxDeductible = try container.decodeIfPresent(String.self, forKey: .maxDeductible)
+        limitations = try container.decodeIfPresent(String.self, forKey: .limitations)
+        calculationMethod = try container.decodeIfPresent(String.self, forKey: .calculationMethod)
+
+        // Source documentation (NEW)
+        source = try container.decodeIfPresent(String.self, forKey: .source)
+        sourceDocument = try container.decodeIfPresent(String.self, forKey: .sourceDocument)
+        lastUpdated = try container.decodeIfPresent(Date.self, forKey: .lastUpdated)
+        verificationStatus = try container.decodeIfPresent(String.self, forKey: .verificationStatus)
 
         field1Name = try container.decodeIfPresent(String.self, forKey: .field1Name)
         field1Type = try container.decodeIfPresent(String.self, forKey: .field1Type)

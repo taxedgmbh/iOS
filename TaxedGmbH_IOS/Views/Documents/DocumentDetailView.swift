@@ -85,15 +85,20 @@ struct DocumentDetailView: View {
                                     showOriginal.toggle()
                                 }
                             }) {
-                                HStack(spacing: 6) {
+                                HStack(spacing: 8) {
                                     Image(systemName: showOriginal ? "doc.badge.plus" : "doc.text")
-                                        .font(.system(size: 14, weight: .semibold))
-                                    Text(showOriginal ? "Cover" : "Original")
-                                        .font(.caption)
+                                        .font(.body)
+                                        .imageScale(.medium)
+                                    Text(showOriginal ? "document_detail.show_cover".localized : "document_detail.show_original".localized)
+                                        .font(.subheadline)
                                         .fontWeight(.semibold)
                                 }
                                 .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                .frame(minWidth: 44, minHeight: 44)
                             }
+                            .accessibilityLabel(showOriginal ? "document_detail.show_cover".localized : "document_detail.show_original".localized)
+                            .accessibilityHint("document_detail.toggle_pdf_view_hint".localized)
+                            .accessibilityAddTraits(.isButton)
                             .floatingButton()
                             .padding([.top, .trailing], 16)
                         }
@@ -103,64 +108,86 @@ struct DocumentDetailView: View {
                 // Status Card
                 StatusCard(status: document.status)
 
-                // Category Card - Enhanced with Liquid Glass & Glow
-                VStack(alignment: .leading, spacing: 16) {
-                    // Large Category Badge with Status
-                    HStack(spacing: 16) {
-                        // Large colored icon circle with glow
-                        ZStack {
-                            Circle()
-                                .fill(categoryColor.opacity(0.15))
-                                .frame(width: 70, height: 70)
+                // Category Card - Enhanced with Liquid Glass & Glow - TAPPABLE
+                Button(action: { showRemapSheet = true }) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Large Category Badge with Status
+                        HStack(spacing: 16) {
+                            // Large colored icon circle with glow
+                            ZStack {
+                                Circle()
+                                    .fill(categoryColor.opacity(0.15))
+                                    .frame(width: 70, height: 70)
 
-                            Circle()
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [
-                                            categoryColor,
-                                            categoryColor.opacity(0.6)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 2.5
-                                )
-                                .frame(width: 70, height: 70)
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                categoryColor,
+                                                categoryColor.opacity(0.6)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 2.5
+                                    )
+                                    .frame(width: 70, height: 70)
 
-                            Image(systemName: document.category.icon)
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundColor(categoryColor)
-                        }
-                        .glow(color: categoryColor, radius: 12)
+                                Image(systemName: document.category.icon)
+                                    .font(.system(size: 24, weight: .semibold))
+                                    .foregroundColor(categoryColor)
+                                    .accessibilityHidden(true)
+                            }
+                            .glow(color: categoryColor, radius: 12)
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("document_detail.category".localized)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .textCase(.uppercase)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("document_detail.category".localized)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .textCase(.uppercase)
 
-                            Text(document.category.displayName)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(categoryColor)
+                                Text(document.category.displayName)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(categoryColor)
 
-                            if let subcategory = document.subcategory {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "tag.fill")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(.secondary)
-                                    Text(subcategory.capitalized)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                if let subcategory = document.subcategory {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "tag.fill")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                            .accessibilityHidden(true)
+                                        Text(subcategory.capitalized)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
+
+                                // Tap to change indicator
+                                HStack(spacing: 6) {
+                                    Image(systemName: "pencil.circle.fill")
+                                        .font(.caption)
+                                        .foregroundColor(categoryColor)
+                                        .accessibilityHidden(true)
+                                    Text("document_detail.tap_to_change".localized)
+                                        .font(.caption)
+                                        .foregroundColor(categoryColor)
+                                }
+                                .padding(.top, 4)
+                            }
+
+                            Spacer()
+
+                            // Status Badge + Chevron indicator
+                            VStack(spacing: 8) {
+                                StatusPill(status: document.status)
+
+                                Image(systemName: "chevron.right.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(categoryColor)
+                                    .accessibilityHidden(true)
                             }
                         }
-
-                        Spacer()
-
-                        // Status Badge
-                        StatusPill(status: document.status)
-                    }
 
                     Divider()
                         .background(categoryColor.opacity(0.2))
@@ -218,9 +245,15 @@ struct DocumentDetailView: View {
                                 .shimmer(duration: 3.0)
                         }
                     }
+                    }
                 }
+                .buttonStyle(PlainButtonStyle())
                 .padding(20)
                 .glassCard(cornerRadius: 24, borderColor: categoryColor, glowColor: categoryColor)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\("document_detail.category".localized): \(document.category.displayName)\(document.subcategory != nil ? ", \(document.subcategory!)" : "")")
+                .accessibilityHint("document_detail.change_category_hint".localized)
+                .accessibilityAddTraits(.isButton)
 
                 // AI Summary - Collapsible Glass Card
                 if let summary = document.aiSummary {
@@ -337,10 +370,12 @@ struct DocumentDetailView: View {
                         Image(systemName: "text.bubble.fill")
                             .font(.title3)
                             .foregroundColor(.cyan)
+                            .accessibilityHidden(true)
                         Text("document_detail.add_comment".localized)
                             .font(.headline)
                         Spacer()
                         CompactVoiceInputButton(text: $documentNotes)
+                            .frame(minWidth: 44, minHeight: 44)
                             .floatingButton()
                     }
 
@@ -358,6 +393,8 @@ struct DocumentDetailView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(Color.cyan.opacity(0.3), lineWidth: 1.5)
                         )
+                        .accessibilityLabel("document_detail.notes_field".localized)
+                        .accessibilityHint("document_detail.notes_hint".localized)
 
                     if !documentNotes.isEmpty || notesSaveSuccess {
                         Button(action: {
@@ -373,15 +410,17 @@ struct DocumentDetailView: View {
                                     Text("document_detail.saving".localized)
                                 } else if notesSaveSuccess {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.body)
+                                        .imageScale(.medium)
                                     Text("document_detail.saved".localized)
                                 } else {
                                     Image(systemName: "square.and.arrow.down.fill")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.body)
+                                        .imageScale(.medium)
                                     Text("document_detail.save_comment".localized)
                                 }
                             }
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: 44)
                             .padding(.vertical, 14)
                             .background(
                                 notesSaveSuccess ?
@@ -393,6 +432,8 @@ struct DocumentDetailView: View {
                             .shadow(color: (notesSaveSuccess ? .green : Color(red: 227/255, green: 30/255, blue: 36/255)).opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(isSavingNotes)
+                        .accessibilityLabel(notesSaveSuccess ? "document_detail.saved".localized : "document_detail.save_comment".localized)
+                        .accessibilityHint("document_detail.save_notes_hint".localized)
                     }
                 }
                 .padding(16)
@@ -466,7 +507,8 @@ struct DocumentDetailView: View {
                                         .tint(.white)
                                 } else {
                                     Image(systemName: "sparkles")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.body)
+                                        .imageScale(.medium)
                                 }
 
                                 Text(isGeneratingCover ? "document_detail.generating".localized : "document_detail.generate_cover".localized)
@@ -475,9 +517,10 @@ struct DocumentDetailView: View {
                                 Spacer()
 
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.body)
+                                    .imageScale(.small)
                             }
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, minHeight: 44)
                             .padding(.vertical, 14)
                             .padding(.horizontal, 16)
                             .background(
@@ -689,11 +732,13 @@ struct StatusCard: View {
         HStack {
             Image(systemName: statusIcon)
                 .font(.title2)
+                .foregroundColor(iconColor)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("document_detail.status".localized)
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
                 Text(status.displayName)
                     .font(.headline)
                     .fontWeight(.semibold)
@@ -704,6 +749,8 @@ struct StatusCard: View {
         .padding()
         .background(backgroundColor)
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\("document_detail.status".localized): \(status.displayName)")
     }
 
     private var statusIcon: String {
@@ -713,6 +760,16 @@ struct StatusCard: View {
         case .reviewed: return "eye.fill"
         case .approved: return "checkmark.circle.fill"
         case .rejected: return "xmark.circle.fill"
+        }
+    }
+
+    private var iconColor: Color {
+        switch status {
+        case .uploading, .processing: return .blue
+        case .pending: return .orange
+        case .reviewed: return .blue
+        case .approved: return .green
+        case .rejected: return .red
         }
     }
 
@@ -735,12 +792,14 @@ struct InfoRow: View {
         HStack {
             Text(label)
                 .font(.subheadline)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
             Spacer()
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 
@@ -749,11 +808,13 @@ struct StatusPill: View {
     let status: DocumentStatus
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: statusIcon)
-                .font(.system(size: 10, weight: .bold))
+                .font(.caption)
+                .imageScale(.small)
+                .accessibilityHidden(true)
             Text(status.displayName)
-                .font(.caption2)
+                .font(.caption)
                 .fontWeight(.bold)
         }
         .foregroundColor(statusColor)
@@ -765,6 +826,8 @@ struct StatusPill: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(statusColor.opacity(0.3), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(status.displayName)
     }
 
     private var statusIcon: String {
@@ -797,12 +860,14 @@ struct QuickStatItem: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.caption)
+                    .imageScale(.small)
                     .foregroundColor(color)
+                    .accessibilityHidden(true)
                 Text(label)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .textCase(.uppercase)
             }
@@ -813,6 +878,8 @@ struct QuickStatItem: View {
                 .foregroundColor(.primary)
                 .lineLimit(1)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 

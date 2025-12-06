@@ -48,12 +48,13 @@ struct DocumentUploadView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: .paddingSpacious) {
                     // Header
-                    VStack(spacing: 8) {
+                    VStack(spacing: .paddingTight) {
                         Image(systemName: "doc.badge.plus")
                             .font(.system(size: 60))
                             .foregroundColor(.blue)
+                            .accessibilityHidden(true)
 
                         Text("documents.upload.title".localized)
                             .font(.title2)
@@ -61,19 +62,21 @@ struct DocumentUploadView: View {
 
                         Text("documents.upload.subtitle".localized)
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
-                    .padding(.top, 20)
+                    .padding(.top, .paddingSpacious)
+                    .accessibilityElement(children: .combine)
 
                     // Image Preview
                     if let image = selectedImage {
-                        VStack(spacing: 12) {
+                        VStack(spacing: .paddingStandard) {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(maxHeight: 300)
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
                                 .shadow(radius: 4)
+                                .accessibilityLabel("documents.upload.preview_label".localized)
 
                             Button(action: {
                                 selectedImage = nil
@@ -82,90 +85,108 @@ struct DocumentUploadView: View {
                             }) {
                                 Label("documents.upload.change_photo".localized, systemImage: "photo.on.rectangle.angled")
                                     .font(.subheadline)
+                                    .frame(minHeight: 44)
                             }
+                            .accessibilityLabel("documents.upload.change_photo".localized)
+                            .accessibilityHint("documents.upload.change_photo_hint".localized)
                         }
-                        .padding()
+                        .padding(.horizontal, .paddingRelaxed)
                     } else {
                         // Image Selection Buttons
-                        VStack(spacing: 16) {
+                        VStack(spacing: .paddingRelaxed) {
+                            // Primary Action: Document Scanner
                             Button(action: { showCamera = true }) {
-                                HStack {
-                                    Image(systemName: "camera.fill")
+                                HStack(spacing: .paddingStandard) {
+                                    Image(systemName: "doc.text.viewfinder")
                                         .font(.title3)
-                                    Text("documents.upload.camera".localized)
+                                        .accessibilityHidden(true)
+                                    Text("documents.upload.scan_document".localized)
                                         .font(.headline)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding()
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .padding(.vertical, .paddingStandard)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
                             }
+                            .accessibilityLabel("documents.upload.scan_document".localized)
+                            .accessibilityHint("documents.upload.scan_hint".localized)
 
+                            // Secondary Action: Photo Gallery
                             Button(action: { showImagePicker = true }) {
-                                HStack {
+                                HStack(spacing: .paddingStandard) {
                                     Image(systemName: "photo.fill")
                                         .font(.title3)
+                                        .accessibilityHidden(true)
                                     Text("documents.upload.gallery".localized)
                                         .font(.headline)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.gray.opacity(0.2))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .padding(.vertical, .paddingStandard)
+                                .background(Color(.systemGray5))
                                 .foregroundColor(.primary)
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
                             }
+                            .accessibilityLabel("documents.upload.gallery".localized)
+                            .accessibilityHint("documents.upload.gallery_hint".localized)
 
+                            // Tertiary Action: File Browser
                             Button(action: { showDocumentPicker = true }) {
-                                HStack {
+                                HStack(spacing: .paddingStandard) {
                                     Image(systemName: "doc.fill")
                                         .font(.title3)
+                                        .accessibilityHidden(true)
                                     Text("documents.upload.files".localized)
                                         .font(.headline)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.green.opacity(0.2))
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .padding(.vertical, .paddingStandard)
+                                .background(Color.green.opacity(0.15))
                                 .foregroundColor(.primary)
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
                             }
+                            .accessibilityLabel("documents.upload.files".localized)
+                            .accessibilityHint("documents.upload.files_hint".localized)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, .paddingRelaxed)
                     }
 
                     // AI Processing Progress
                     if documentProcessor.isProcessing {
-                        VStack(spacing: 12) {
+                        VStack(spacing: .paddingStandard) {
                             ProgressView(value: documentProcessor.processingProgress, total: 1.0)
                                 .progressViewStyle(LinearProgressViewStyle())
+                                .accessibilityValue("documents.ai.progress".localized(with: Int(documentProcessor.processingProgress * 100)))
 
                             Text("documents.ai.analyzing".localized(with: Int(documentProcessor.processingProgress * 100)))
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.secondary)
 
                             Text("documents.ai.processing".localized)
                                 .font(.caption)
                                 .foregroundColor(.blue)
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityElement(children: .combine)
                     }
 
                     // AI Categorization Result
                     if let category = aiCategory, let confidence = aiConfidence {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
+                        VStack(alignment: .leading, spacing: .paddingStandard) {
+                            HStack(spacing: .paddingTight) {
                                 Image(systemName: "brain.head.profile")
                                     .foregroundColor(.purple)
+                                    .accessibilityHidden(true)
                                 Text("documents.ai.recognition".localized)
                                     .font(.headline)
                                     .foregroundColor(.purple)
                             }
 
                             HStack {
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: .paddingExtraTight) {
                                     Text("documents.ai.document_type".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -176,7 +197,7 @@ struct DocumentUploadView: View {
 
                                 Spacer()
 
-                                VStack(alignment: .trailing, spacing: 4) {
+                                VStack(alignment: .trailing, spacing: .paddingExtraTight) {
                                     Text("documents.ai.accuracy".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -186,29 +207,33 @@ struct DocumentUploadView: View {
                                         .foregroundColor(confidence > 0.7 ? .green : .orange)
                                 }
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("documents.ai.result".localized(with: category.displayName, Int(confidence * 100)))
 
                             if confidence < 0.7 {
-                                HStack(spacing: 6) {
+                                HStack(spacing: .paddingTight) {
                                     Image(systemName: "info.circle")
                                         .font(.caption)
+                                        .accessibilityHidden(true)
                                     Text("documents.ai.low_accuracy".localized)
                                         .font(.caption)
                                 }
                                 .foregroundColor(.orange)
                             }
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color.purple.opacity(0.1))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
                     }
 
                     // Voice Note Section
                     if selectedImage != nil {
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: .paddingStandard) {
                             HStack {
                                 Image(systemName: "mic.fill")
                                     .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                                    .accessibilityHidden(true)
                                 Text("document_upload.add_voice_note".localized)
                                     .font(.headline)
                                 Spacer()
@@ -216,22 +241,25 @@ struct DocumentUploadView: View {
                             }
 
                             if !documentNotes.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
+                                VStack(alignment: .leading, spacing: .paddingTight) {
                                     Text("document_upload.your_note".localized)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                     Text(documentNotes)
                                         .font(.subheadline)
-                                        .padding()
+                                        .padding(.paddingStandard)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .background(Color(UIColor.secondarySystemBackground))
-                                        .cornerRadius(8)
+                                        .cornerRadius(.cornerRadiusMedium)
 
                                     Button(action: { documentNotes = "" }) {
                                         Text("document_upload.clear_note".localized)
                                             .font(.caption)
                                             .foregroundColor(.red)
+                                            .frame(minHeight: 44)
                                     }
+                                    .accessibilityLabel("document_upload.clear_note".localized)
+                                    .accessibilityHint("document_upload.clear_note_hint".localized)
                                 }
                             } else {
                                 Text("document_upload.record_voice_note".localized)
@@ -239,38 +267,41 @@ struct DocumentUploadView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color(red: 227/255, green: 30/255, blue: 36/255).opacity(0.05))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
                     }
 
                     // Upload Progress
                     if isUploading {
-                        VStack(spacing: 12) {
+                        VStack(spacing: .paddingStandard) {
                             ProgressView(value: uploadProgress, total: 1.0)
                                 .progressViewStyle(LinearProgressViewStyle())
+                                .accessibilityValue("documents.upload.progress_value".localized(with: Int(uploadProgress * 100)))
 
                             Text("documents.upload.uploading".localized(with: Int(uploadProgress * 100)))
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.secondary)
 
                             Text("documents.upload.saving".localized)
                                 .font(.caption)
                                 .foregroundColor(.blue)
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color.blue.opacity(0.1))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityElement(children: .combine)
                     }
 
                     // Success Message
                     if uploadSuccess {
-                        VStack(spacing: 12) {
+                        VStack(spacing: .paddingStandard) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 50))
                                 .foregroundColor(.green)
+                                .accessibilityHidden(true)
 
                             Text("documents.upload.success".localized)
                                 .font(.headline)
@@ -278,56 +309,65 @@ struct DocumentUploadView: View {
 
                             Text("documents.upload.success_desc".localized)
                                 .font(.subheadline)
-                                .foregroundColor(.gray)
+                                .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color.green.opacity(0.1))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("documents.upload.success_announcement".localized)
                     }
 
                     // Error Message
                     if let error = errorMessage {
-                        HStack {
+                        HStack(spacing: .paddingStandard) {
                             Image(systemName: "exclamationmark.triangle.fill")
+                                .accessibilityHidden(true)
                             Text(error)
                                 .font(.subheadline)
                         }
                         .foregroundColor(.red)
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color.red.opacity(0.1))
-                        .cornerRadius(8)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusMedium)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("documents.upload.error_announcement".localized(with: error))
                     }
 
                     // Warning Message
                     if let warning = warningMessage {
-                        HStack {
+                        HStack(spacing: .paddingStandard) {
                             Image(systemName: "info.circle.fill")
+                                .accessibilityHidden(true)
                             Text(warning)
                                 .font(.subheadline)
                         }
                         .foregroundColor(Color(red: 0.85, green: 0.1, blue: 0.1))
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color(red: 0.85, green: 0.1, blue: 0.1).opacity(0.1))
-                        .cornerRadius(8)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusMedium)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("documents.upload.warning_announcement".localized(with: warning))
                     }
 
                     // Category Selection (natural part of flow)
                     if needsCategorySelection && !uploadSuccess {
-                        VStack(spacing: 12) {
-                            HStack {
+                        VStack(spacing: .paddingStandard) {
+                            HStack(spacing: .paddingTight) {
                                 Image(systemName: "folder.badge.plus")
                                     .foregroundColor(.blue)
+                                    .accessibilityHidden(true)
                                 Text("document_upload.select_category".localized)
                                     .font(.headline)
                             }
 
                             if let category = manualCategory {
                                 // Show selected category
-                                HStack(spacing: 12) {
+                                HStack(spacing: .paddingStandard) {
                                     ZStack {
                                         Circle()
                                             .fill(category.color.opacity(0.15))
@@ -336,8 +376,9 @@ struct DocumentUploadView: View {
                                             .foregroundColor(category.color)
                                             .font(.system(size: 20))
                                     }
+                                    .accessibilityHidden(true)
 
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: .paddingExtraTight) {
                                         Text(category.displayName)
                                             .font(.subheadline)
                                             .fontWeight(.medium)
@@ -354,33 +395,40 @@ struct DocumentUploadView: View {
                                         Text("document_upload.change".localized)
                                             .font(.subheadline)
                                             .foregroundColor(.blue)
+                                            .frame(minHeight: 44)
                                     }
+                                    .accessibilityLabel("document_upload.change_category".localized)
                                 }
-                                .padding()
+                                .padding(.paddingStandard)
                                 .background(Color(UIColor.secondarySystemGroupedBackground))
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel("document_upload.category_selected".localized(with: category.displayName))
                             } else {
                                 // Show select button
                                 Button(action: {
                                     showCategoryPicker = true
                                 }) {
-                                    HStack {
+                                    HStack(spacing: .paddingStandard) {
                                         Image(systemName: "folder.badge.plus")
+                                            .accessibilityHidden(true)
                                         Text("document_upload.choose_category".localized)
                                             .fontWeight(.semibold)
                                     }
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
+                                    .frame(maxWidth: .infinity, minHeight: 44)
+                                    .padding(.vertical, .paddingStandard)
                                     .background(Color.blue)
                                     .foregroundColor(.white)
-                                    .cornerRadius(12)
+                                    .cornerRadius(.cornerRadiusLarge)
                                 }
+                                .accessibilityLabel("document_upload.choose_category".localized)
+                                .accessibilityHint("document_upload.choose_category_hint".localized)
                             }
                         }
-                        .padding()
+                        .padding(.paddingRelaxed)
                         .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+                        .cornerRadius(.cornerRadiusLarge)
+                        .padding(.horizontal, .paddingRelaxed)
                     }
 
                     // Upload Button
@@ -390,20 +438,23 @@ struct DocumentUploadView: View {
                                 await uploadDocument()
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: .paddingStandard) {
                                 Image(systemName: "arrow.up.circle.fill")
                                     .font(.title3)
+                                    .accessibilityHidden(true)
                                 Text("documents.upload.button".localized)
                                     .font(.headline)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(needsCategorySelection && manualCategory == nil ? Color.gray : Color.green)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .padding(.vertical, .paddingStandard)
+                            .background(needsCategorySelection && manualCategory == nil ? Color(.systemGray3) : Color.green)
                             .foregroundColor(.white)
-                            .cornerRadius(12)
+                            .cornerRadius(.cornerRadiusLarge)
                         }
                         .disabled(needsCategorySelection && manualCategory == nil)
-                        .padding(.horizontal)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityLabel("documents.upload.button".localized)
+                        .accessibilityHint("documents.upload.button_hint".localized)
                     }
 
                     // Done Button
@@ -413,18 +464,20 @@ struct DocumentUploadView: View {
                         }) {
                             Text("documents.upload.done".localized)
                                 .font(.headline)
-                                .frame(maxWidth: .infinity)
-                                .padding()
+                                .frame(maxWidth: .infinity, minHeight: 44)
+                                .padding(.vertical, .paddingStandard)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(12)
+                                .cornerRadius(.cornerRadiusLarge)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, .paddingRelaxed)
+                        .accessibilityLabel("documents.upload.done".localized)
+                        .accessibilityHint("documents.upload.done_hint".localized)
                     }
 
                     Spacer()
                 }
-                .padding()
+                .padding(.paddingRelaxed)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -432,13 +485,15 @@ struct DocumentUploadView: View {
                     Button("documents.upload.cancel".localized) {
                         dismiss()
                     }
+                    .accessibilityLabel("documents.upload.cancel".localized)
+                    .accessibilityHint("documents.upload.cancel_hint".localized)
                 }
             }
             .sheet(isPresented: $showImagePicker) {
                 ImagePicker(image: $selectedImage)
             }
             .sheet(isPresented: $showCamera) {
-                CameraPicker(image: $selectedImage)
+                DocumentScannerPicker(image: $selectedImage)
             }
             .sheet(isPresented: $showDocumentPicker) {
                 DocumentPicker(documentURL: $selectedDocumentURL)
@@ -970,98 +1025,3 @@ struct DocumentUploadView: View {
         }
     }
 }
-
-// MARK: - Simple Category Picker (Single Selection)
-struct SimpleCategoryPickerView: View {
-    @Binding var selectedCategory: TaxCategoryType?
-    @Environment(\.dismiss) private var dismiss
-    @State private var searchText = ""
-
-    // Get all available categories
-    private var allCategories: [TaxCategoryType] {
-        TaxCategoryType.allCases.filter { $0 != .other }
-    }
-
-    private var filteredCategoriesByGroup: [CategoryGroup: [TaxCategoryType]] {
-        var grouped: [CategoryGroup: [TaxCategoryType]] = [:]
-
-        let categoriesToShow = searchText.isEmpty ? allCategories :
-            allCategories.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
-
-        for category in categoriesToShow {
-            grouped[category.categoryGroup, default: []].append(category)
-        }
-
-        return grouped
-    }
-
-    var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Search bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                        TextField("Search categories", text: $searchText)
-                            .textFieldStyle(PlainTextFieldStyle())
-                    }
-                    .padding(12)
-                    .background(Color(UIColor.systemGray6))
-                    .cornerRadius(10)
-                    .padding(.horizontal)
-
-                    // Categories by group
-                    ForEach(CategoryGroup.allCases, id: \.self) { group in
-                        if let categories = filteredCategoriesByGroup[group], !categories.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
-                                // Group header
-                                HStack {
-                                    Image(systemName: group.icon)
-                                        .font(.system(size: 18))
-                                        .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
-                                    Text(group.displayName)
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                }
-                                .padding(.horizontal)
-
-                                // Category grid
-                                LazyVGrid(columns: [GridItem(), GridItem()], spacing: 8) {
-                                    ForEach(categories.sorted { $0.displayName < $1.displayName }, id: \.self) { category in
-                                        CategoryOptionButton(
-                                            category: category,
-                                            isSelected: selectedCategory == category
-                                        ) {
-                                            selectedCategory = category
-                                            // Haptic feedback
-                                            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                                            impactFeedback.impactOccurred()
-                                            // Dismiss after selection
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                                dismiss()
-                                            }
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
-                    }
-                }
-                .padding(.vertical)
-            }
-            .navigationTitle("Select Document Category")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Category Option Button

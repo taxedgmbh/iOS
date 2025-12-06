@@ -46,6 +46,12 @@ class TaxIndexService {
         // Query Firestore
         // First, try to find by exact subcategory match
         let subcategory = category.formCategory.rawValue
+        print("🔍 Query details:")
+        print("   - Collection: \(collectionName)")
+        print("   - Canton: \(canton)")
+        print("   - Sub_Category: \(subcategory)")
+        print("   - Category type: \(category.rawValue)")
+
         var query = db.collection(collectionName)
             .whereField("Canton", isEqualTo: canton)
             .whereField("Sub_Category", isEqualTo: subcategory)
@@ -53,10 +59,23 @@ class TaxIndexService {
         // Add person filter if specified
         if let personNum = person {
             let personString = "Person \(personNum)"
+            print("   - Person filter: \(personString)")
             query = query.whereField("Person", isEqualTo: personString)
         }
 
         let snapshot = try await query.getDocuments()
+        print("📊 Query returned \(snapshot.documents.count) documents")
+
+        // Debug: Print all documents found
+        for (index, doc) in snapshot.documents.enumerated() {
+            print("   Document \(index + 1):")
+            print("   - ID: \(doc.documentID)")
+            let data = doc.data()
+            print("   - Canton: \(data["Canton"] ?? "nil")")
+            print("   - Index: \(data["Index"] ?? "nil")")
+            print("   - Sub_Category: \(data["Sub_Category"] ?? "nil")")
+            print("   - Main_Category: \(data["Main_Category"] ?? "nil")")
+        }
 
         if let document = snapshot.documents.first {
             let mapping = try document.data(as: TaxIndexMapping.self)

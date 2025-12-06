@@ -10,7 +10,10 @@ import SwiftUI
 struct CategoryPickerView: View {
     @ObservedObject var categoryConfig: CategoryConfigurationModel
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authService: AuthenticationService
     @State private var searchText = ""
+    @State private var taxIndexes: [TaxCategoryType: String?] = [:]
+    @State private var isLoadingIndexes = true
 
     var filteredCategories: [CategoryGroup: [TaxCategoryType]] {
         let available = categoryConfig.availableCategoriesByGroup
@@ -95,7 +98,8 @@ struct CategoryPickerView: View {
                                     ForEach(categories.sorted { $0.displayName < $1.displayName }, id: \.self) { category in
                                         CategorySelectionCard(
                                             category: category,
-                                            isSelected: categoryConfig.selectedCategories.contains(category)
+                                            isSelected: categoryConfig.selectedCategories.contains(category),
+                                            taxIndex: taxIndexes[category] ?? nil
                                         ) {
                                             categoryConfig.toggleCategory(category)
                                             // Haptic feedback
@@ -159,7 +163,57 @@ struct CategoryPickerView: View {
                     .fontWeight(.semibold)
                 }
             }
+            .onAppear {
+                Task {
+                    await loadTaxIndexes()
+                }
+            }
         }
+    }
+
+    // MARK: - Tax Index Loading
+    private func loadTaxIndexes() async {
+        guard let canton = authService.user?.canton else {
+            print("⚠️ CategoryPickerView: No canton selected - cannot load tax indexes")
+            isLoadingIndexes = false
+            return
+        }
+
+        print("📊 CategoryPickerView: Loading tax indexes for canton: \(canton)")
+
+        // Get all available categories
+        let allCategories = categoryConfig.availableCategoriesByGroup.values.flatMap { $0 }
+
+        // Load index for each category
+        for category in allCategories {
+            do {
+                if let mapping = try await TaxIndexService.shared.getIndexMapping(
+                    canton: canton,
+                    category: category,
+                    person: nil
+                ) {
+                    await MainActor.run {
+                        taxIndexes[category] = mapping.index
+                    }
+                    print("✅ CategoryPickerView: Loaded index for \(category.rawValue): \(mapping.index)")
+                } else {
+                    await MainActor.run {
+                        taxIndexes[category] = nil
+                    }
+                    print("⚠️ CategoryPickerView: No index found for \(category.rawValue)")
+                }
+            } catch {
+                print("❌ CategoryPickerView: Error loading index for \(category.rawValue): \(error)")
+                await MainActor.run {
+                    taxIndexes[category] = nil
+                }
+            }
+        }
+
+        await MainActor.run {
+            isLoadingIndexes = false
+        }
+        print("✅ CategoryPickerView: Tax index loading complete")
     }
 }
 
@@ -167,28 +221,45 @@ struct CategoryPickerView: View {
 struct CategorySelectionCard: View {
     let category: TaxCategoryType
     let isSelected: Bool
+    let taxIndex: String?
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 8) {
-                Image(systemName: category.icon)
-                    .font(.system(size: 16))
-                    .foregroundColor(category.color)
-                    .frame(width: 24, height: 24)
-
-                Text(category.displayName)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: category.icon)
                         .font(.system(size: 16))
-                        .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                        .foregroundColor(category.color)
+                        .frame(width: 24, height: 24)
+
+                    Text(category.displayName)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundColor(Color(red: 227/255, green: 30/255, blue: 36/255))
+                    }
+                }
+
+                // Tax index badge (bottom-aligned)
+                if let index = taxIndex {
+                    HStack {
+                        Spacer()
+                        Text("Ziffer \(index)")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(category.color.opacity(0.8))
+                            .cornerRadius(4)
+                    }
                 }
             }
             .padding(10)
