@@ -114,7 +114,7 @@ class CrashReportingService {
 
         // Add custom keys for filtering in Crashlytics dashboard
         if let parameters = parameters {
-            for (key, value) in parameters {
+            for (_, _) in parameters {
                 // Crashlytics.crashlytics().setCustomValue(value, forKey: key)
             }
         }
@@ -125,7 +125,7 @@ class CrashReportingService {
     func setUserIdentifier(_ identifier: String) {
         #if !DEBUG
         // Hash the user ID for privacy
-        let hashedId = identifier.data(using: .utf8)?.base64EncodedString() ?? "unknown"
+        _ = identifier.data(using: .utf8)?.base64EncodedString() ?? "unknown"
         // Crashlytics.crashlytics().setUserID(hashedId)
         #endif
     }

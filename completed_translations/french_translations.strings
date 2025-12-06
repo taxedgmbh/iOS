@@ -1,0 +1,371 @@
+// French (Swiss) translations for TaxedGmbH iOS
+// Total: 352 strings
+
+// About section
+"about.contact" = "Contact";
+"about.data_security.footer" = "Vos documents et données sont stockés dans des centres de données suisses sécurisés, protégés par les lois strictes suisses sur la protection des données et chiffrés avec le cryptage AES-256 standard de l'industrie.";
+"about.data_security.header" = "Sécurité et stockage des données";
+"about.data_storage.subtitle" = "Toutes les données stockées dans des centres de données suisses";
+"about.data_storage.title" = "Stockage de données suisse";
+"about.encryption.subtitle" = "Cryptage AES-256 de niveau bancaire";
+"about.encryption.title" = "Chiffrement de bout en bout";
+"about.footer.linkedin" = "LinkedIn";
+"about.footer.visit_linkedin" = "Visiter le profil LinkedIn";
+"about.footer.visit_website" = "Visiter le site web";
+"about.iso_certified.subtitle" = "Conformité aux normes de sécurité internationales";
+"about.iso_certified.title" = "Certifié ISO 27001";
+"about.mission" = "Notre mission";
+"about.mission.content" = "Nous croyons que la déclaration d'impôts devrait être simple, transparente et sans stress. Notre mission est d'aider tout le monde en Suisse - des locaux aux expatriés - à naviguer dans le système fiscal en toute confiance.";
+"about.swiss_protection.subtitle" = "Protégé par la loi fédérale suisse sur la protection des données";
+"about.swiss_protection.title" = "Protection des données suisse";
+
+// Accessibility
+"accessibility.increase_contrast" = "Augmenter le contraste";
+"accessibility.larger_text" = "Texte plus grand";
+"accessibility.motion.footer" = "Réduire les animations et les transitions";
+"accessibility.motion.header" = "MOUVEMENT";
+"accessibility.reduce_motion" = "Réduire le mouvement";
+"accessibility.system_settings" = "Ouvrir les paramètres d'accessibilité du système";
+"accessibility.vision.footer" = "Ajuster la taille du texte et le contraste pour une meilleure lisibilité";
+"accessibility.vision.header" = "VISION";
+"accessibility.voiceover" = "VoiceOver";
+"accessibility.voiceover.footer" = "Activer le lecteur d'écran VoiceOver";
+"accessibility.voiceover.header" = "VOICEOVER";
+
+// Calculator
+"calc.calculate" = "Calculer l'impôt";
+"calc.canton" = "Canton";
+"calc.canton_specific" = "Basé sur les taux d'imposition pour";
+"calc.children" = "Avoir des enfants";
+"calc.disclaimer_text" = "Ceci est une estimation seulement. Les impôts réels peuvent varier en fonction des déductions et d'autres facteurs.";
+"calc.disclaimer_title" = "Avertissement";
+"calc.effective_rate" = "Taux d'imposition effectif";
+"calc.estimated_tax" = "Impôt estimé";
+"calc.gross_income" = "Revenu brut";
+"calc.income" = "Revenu annuel";
+"calc.income_placeholder" = "Entrez votre revenu brut";
+"calc.marital" = "État civil";
+"calc.married" = "Marié(e)";
+"calc.net_income" = "Revenu net";
+"calc.number_children" = "Nombre d'enfants";
+"calc.pro_description" = "Obtenez des estimations fiscales précises basées sur votre canton";
+"calc.pro_feature" = "Fonctionnalité Pro";
+"calc.results" = "Estimation fiscale";
+"calc.single" = "Célibataire";
+"calc.title" = "Calculateur d'impôts";
+
+// Checklist
+"checklist.button.reset" = "Réinitialiser";
+
+// Common
+"common.of" = "de";
+"common.search" = "Rechercher";
+
+// Contact
+"contact.company" = "Entreprise";
+"contact.email" = "Courriel";
+"contact.hours" = "Heures d'ouverture";
+"contact.hours.content" = "Lundi - Vendredi : 9h00 - 18h00";
+"contact.methods" = "Méthodes de contact";
+"contact.phone" = "Téléphone";
+"contact.support_email" = "Courriel de support";
+"contact.website" = "Site web";
+
+// Documents
+"documents.empty.category.message" = "Téléchargez des documents pour les voir organisés par catégorie";
+"documents.empty.category.title" = "Aucune catégorie";
+"documents.empty.message" = "Téléchargez votre premier document fiscal pour commencer";
+"documents.empty.no_results.message" = "Essayez d'ajuster votre recherche ou vos filtres";
+"documents.empty.no_results.title" = "Aucun résultat trouvé";
+"documents.empty.pending.message" = "Aucun document en attente de révision";
+"documents.empty.pending.title" = "Tout est à jour !";
+"documents.empty.recent.message" = "Les documents téléchargés au cours des 7 derniers jours apparaissent ici";
+"documents.empty.recent.title" = "Aucun document récent";
+"documents.filter.by_category" = "Par catégorie";
+"documents.filter.pending" = "Révision en attente";
+"documents.swipe.accuracy" = "Précision";
+"documents.swipe.description" = "Description";
+
+// Expat
+"expat.date.extension" = "Délai de prolongation";
+"expat.date.filing" = "Date limite de déclaration";
+"expat.date.year_end" = "Fin de l'année fiscale";
+"expat.hub.calculator" = "Calculateur";
+"expat.hub.calculator_subtitle" = "Estimer l'impôt";
+"expat.hub.checklist" = "Liste de contrôle";
+"expat.hub.checklist_subtitle" = "Suivre les progrès";
+"expat.hub.description" = "Tout ce dont vous avez besoin en tant qu'expatrié pour les impôts suisses";
+"expat.hub.important_dates" = "Dates importantes";
+"expat.hub.items_completed" = "%d sur %d éléments complétés";
+"expat.hub.keep_going" = "Continuez ! Vous faites de grands progrès";
+"expat.hub.learn" = "Apprendre";
+"expat.hub.learn_subtitle" = "Guide fiscal";
+"expat.hub.prepare" = "Préparer";
+"expat.hub.prepare_subtitle" = "Documents";
+"expat.hub.quick_access" = "Accès rapide";
+"expat.hub.ready_to_file" = "Prêt à déposer vos impôts !";
+"expat.hub.resources" = "Ressources";
+"expat.hub.title" = "Centre fiscal pour expatriés";
+"expat.hub.welcome" = "Votre parcours fiscal suisse";
+"expat.hub.your_progress" = "Vos progrès";
+"expat.resource.guide" = "Guide fiscal complet";
+"expat.resource.guide_subtitle" = "Instructions étape par étape";
+"expat.resource.official" = "Ressources officielles";
+"expat.resource.official_subtitle" = "Autorités fiscales suisses";
+"expat.resource.treaties" = "Conventions fiscales";
+"expat.resource.treaties_subtitle" = "Informations sur la double imposition";
+
+// Expert Chat
+"expert_chat.attach_photo" = "Joindre une photo";
+"expert_chat.document_hint" = "Double-tapez pour télécharger";
+"expert_chat.document_message" = "Pièce jointe";
+"expert_chat.expert_avatar" = "Avatar de l'expert";
+"expert_chat.image_message" = "Message image";
+"expert_chat.message_field" = "Champ de message";
+"expert_chat.online_status" = "En ligne";
+"expert_chat.photo_hint" = "Double-tapez pour sélectionner une photo";
+"expert_chat.read" = "Lu";
+"expert_chat.send_disabled" = "Le champ de message est vide";
+"expert_chat.send_enabled" = "Double-tapez pour envoyer le message";
+"expert_chat.send_message" = "Envoyer le message";
+"expert_chat.sent" = "Envoyé";
+"expert_chat.system_message" = "Notification système";
+"expert_chat.voice_hint" = "Double-tapez pour enregistrer un message vocal";
+"expert_chat.voice_input" = "Entrée vocale";
+
+// More Menu
+"more.accessibility" = "Accessibilité";
+"more.accessibility.header" = "ACCESSIBILITÉ";
+"more.accessibility.subtitle" = "Paramètres de vision, mouvement et VoiceOver";
+"more.account_security" = "Compte et sécurité";
+"more.account_security.subtitle" = "Mot de passe, courriel et 2FA";
+"more.app_settings.header" = "PARAMÈTRES DE L'APPLICATION";
+"more.appearance" = "Apparence";
+"more.appearance.subtitle" = "Thème et paramètres d'affichage";
+"more.canton_settings" = "Paramètres du canton";
+"more.canton_settings.subtitle" = "Canton et commune suisses";
+"more.data_management" = "Gestion des données";
+"more.data_management.subtitle" = "Exporter et supprimer vos données";
+"more.data_privacy.header" = "Données et confidentialité";
+"more.expert_connection" = "Consultation d'expert";
+"more.expert_connection.subtitle" = "Réserver une consultation avec un expert fiscal";
+"more.help_support.header" = "AIDE ET SUPPORT";
+"more.privacy_security.header" = "CONFIDENTIALITÉ ET SÉCURITÉ";
+"more.rate_app" = "Évaluer l'application";
+"more.rate_app.subtitle" = "Vous appréciez l'application ? Merci de nous évaluer !";
+"more.report_issue" = "Signaler un problème";
+"more.report_issue.subtitle" = "Aidez-nous en signalant des bugs";
+"more.security" = "Sécurité";
+"more.security.header" = "SÉCURITÉ";
+"more.security.subtitle" = "Authentification biométrique, code d'accès et chiffrement";
+"more.tax_deadlines" = "Échéances fiscales";
+"more.tax_deadlines.subtitle" = "Délais et rappels";
+"more.tax_expert.header" = "FISCALITÉ ET EXPERT";
+"more.tax_settings" = "Paramètres fiscaux";
+"more.tax_settings.comprehensive_subtitle" = "Configurer le canton, l'année fiscale et les déductions";
+"more.tax_settings.header" = "PARAMÈTRES FISCAUX";
+"more.tax_settings.subtitle" = "Gérer l'année fiscale et l'espace de travail";
+
+// Preparation
+"prep.category.deductions" = "Déductions";
+"prep.category.income" = "Revenu";
+"prep.category.personal" = "Personnel";
+"prep.category.wealth" = "Fortune";
+"prep.doc.bank_statements" = "Relevés bancaires";
+"prep.doc.crypto" = "Avoirs crypto";
+"prep.doc.foreign_assets" = "Actifs étrangers";
+"prep.doc.foreign_income" = "Preuve de revenus étrangers";
+"prep.doc.health_insurance" = "Assurance maladie";
+"prep.doc.investment_income" = "Revenus de placement";
+"prep.doc.marriage" = "Certificat de mariage";
+"prep.doc.moving_expenses" = "Frais de déménagement";
+"prep.doc.passport" = "Copie du passeport";
+"prep.doc.permit" = "Permis de séjour";
+"prep.doc.pillar_3a" = "Attestations du pilier 3a";
+"prep.doc.professional_expenses" = "Frais professionnels";
+"prep.doc.property" = "Documents immobiliers";
+"prep.doc.registration" = "Attestation d'enregistrement";
+"prep.doc.salary_cert" = "Certificat de salaire";
+"prep.doc.stocks" = "Portefeuille d'actions";
+"prep.optional" = "Optionnel";
+"prep.required" = "Requis";
+"prep.tips.copies" = "Faites des copies de tous les documents importants";
+"prep.tips.organize" = "Gardez les documents organisés par catégorie";
+"prep.tips.title" = "Conseils pro";
+"prep.tips.translate" = "Traduisez les documents étrangers si nécessaire";
+"prep.title" = "Préparation des documents";
+
+// Privacy
+"privacy.data_retention.content" = "Les documents fiscaux sont conservés pendant 10 ans conformément à l'article 958f CO. Les données personnelles du compte sont conservées tant que votre compte est actif. Vous pouvez demander la suppression de données non essentielles à tout moment, sous réserve des exigences légales de conservation.";
+"privacy.data_retention.title" = "Conservation des données";
+"privacy.rights.content" = "Vous avez le droit d'accéder à vos données (Art. 15 RGPD / Art. 25 LPD), de rectifier les données inexactes (Art. 16 RGPD / Art. 32 LPD), de demander la suppression (Art. 17 RGPD / Art. 32 LPD), la portabilité des données (Art. 20 RGPD), de vous opposer au traitement (Art. 21 RGPD / Art. 30 LPD) et de déposer des plaintes auprès du PFPDT. Contactez privacy@taxed.ch pour exercer ces droits.";
+"privacy.rights.title" = "Vos droits (RGPD et LPD suisse)";
+"privacy.security.content" = "Mesures techniques : cryptage AES-256 au repos, TLS 1.3 en transit, authentification multi-facteurs, contrôle d'accès basé sur les rôles, surveillance automatisée de la sécurité. Mesures organisationnelles : audits de sécurité réguliers, formation du personnel, procédures de réponse aux incidents, protocoles de sauvegarde et de récupération. Infrastructure : centres de données Google Cloud Platform Tier 4 avec sécurité physique 24/7.";
+"privacy.security.title" = "Mesures de sécurité";
+
+// Process
+"process.action.make_payment" = "Effectuer le paiement";
+"process.stage.payment.description" = "Effectuez le paiement pour votre service de préparation fiscale.";
+"process.stage.payment.title" = "Paiement";
+
+// Profile
+"profile.completeness" = "Complétude du profil";
+"profile.completeness.complete" = "Votre profil est complet !";
+"profile.completeness.high" = "Votre profil est presque complet";
+"profile.completeness.low" = "Ajoutez plus d'informations pour compléter votre profil";
+"profile.completeness.medium" = "Presque là ! Quelques détails supplémentaires sont nécessaires";
+"profile.delete_account.alert.message" = "Cette action ne peut pas être annulée. Toutes vos données seront supprimées définitivement.";
+"profile.delete_account.alert.title" = "Supprimer le compte ?";
+"profile.delete_account.confirm" = "Supprimer";
+"profile.delete_account.warning" = "Avertissement : Cette action est permanente et ne peut pas être annulée.";
+"profile.error.no_workspace" = "Aucun espace de travail trouvé";
+"profile.error.no_workspace_found" = "Aucun espace de travail trouvé pour cet utilisateur";
+"profile.select_tax_year" = "Sélectionner l'année fiscale";
+"profile.tax_year" = "Année fiscale";
+"profile.tax_year.changed" = "Année fiscale changée à %@";
+"profile.tax_year_workspace" = "Année fiscale et espace de travail";
+"profile.tax_year_workspace.footer" = "Afficher et gérer les paramètres de l'année fiscale et de l'espace de travail";
+"profile.workspace.not_found" = "Aucun espace de travail trouvé";
+"profile.workspace_name" = "Nom de l'espace de travail";
+"profile.workspace_type" = "Type d'espace de travail";
+
+// Security
+"security.authentication.footer" = "Protégez votre compte avec l'authentification biométrique";
+"security.authentication.header" = "AUTHENTIFICATION";
+"security.auto_lock.footer" = "Verrouiller automatiquement l'application après inactivité";
+"security.auto_lock.header" = "VERROUILLAGE AUTOMATIQUE";
+"security.auto_lock_enabled" = "Activer le verrouillage automatique";
+"security.auto_lock_time" = "Temps de verrouillage automatique";
+"security.biometric_auth" = "Activer l'authentification biométrique";
+"security.data.header" = "PROTECTION DES DONNÉES";
+"security.encryption.description" = "Toutes vos données sont cryptées avec le cryptage AES-256";
+"security.encryption.title" = "Chiffrement de bout en bout";
+"security.require_password" = "Mot de passe requis";
+
+// Settings
+"settings.appearance.dark" = "Sombre";
+"settings.appearance.footer" = "Choisissez votre apparence préférée. Le système utilise les paramètres de votre appareil.";
+"settings.appearance.header" = "Apparence";
+"settings.appearance.light" = "Clair";
+"settings.appearance.mode" = "Mode d'apparence";
+"settings.appearance.system" = "Système";
+"settings.appearance.title" = "Apparence";
+"settings.canton.cancel" = "Annuler";
+"settings.canton.changed" = "Canton changé en %@";
+"settings.canton.current_canton" = "Canton actuel";
+"settings.canton.error.no_user" = "Utilisateur non trouvé";
+"settings.canton.info_section" = "Informations du canton";
+"settings.canton.info_section.footer" = "Informations fiscales et délais spécifiques au canton";
+"settings.canton.municipality" = "Commune";
+"settings.canton.municipality.not_set" = "Commune non définie dans le profil";
+"settings.canton.municipality_id" = "ID de la commune (OFS)";
+"settings.canton.municipality_section" = "Commune";
+"settings.canton.municipality_section.footer" = "Votre commune pour les impôts locaux";
+"settings.canton.not_set" = "Non défini";
+"settings.canton.online_portal" = "Portail fiscal cantonal";
+"settings.canton.select_canton" = "Sélectionner le canton";
+"settings.canton.selection" = "Sélection du canton";
+"settings.canton.selection.footer" = "Sélectionnez votre canton suisse pour des calculs fiscaux précis";
+"settings.canton.tax_deadline" = "Délai fiscal";
+"settings.canton.title" = "Paramètres du canton";
+"settings.deadlines.canton" = "Canton";
+"settings.deadlines.canton_portal" = "Ouvrir le portail fiscal cantonal";
+"settings.deadlines.days_remaining" = "jours restants";
+"settings.deadlines.deadline_date" = "Date limite de dépôt";
+"settings.deadlines.enable_reminders" = "Activer les rappels";
+"settings.deadlines.enable_reminders.subtitle" = "Notifications push pour les délais";
+"settings.deadlines.filing_deadline" = "Date limite de dépôt";
+"settings.deadlines.important_dates" = "Dates importantes";
+"settings.deadlines.no_canton" = "Veuillez définir votre canton dans le profil";
+"settings.deadlines.one_day_before" = "1 jour avant l'échéance";
+"settings.deadlines.one_month_before" = "1 mois avant l'échéance";
+"settings.deadlines.one_week_before" = "1 semaine avant l'échéance";
+"settings.deadlines.overdue" = "En retard";
+"settings.deadlines.overview" = "Aperçu des délais";
+"settings.deadlines.reminder_schedule" = "Calendrier des rappels";
+"settings.deadlines.reminder_schedule.footer" = "Choisissez quand vous voulez être rappelé";
+"settings.deadlines.reminders" = "Paramètres de rappel";
+"settings.deadlines.reminders.footer" = "Recevez des notifications sur les échéances fiscales à venir";
+"settings.deadlines.tax_year_start" = "Début de l'année fiscale";
+"settings.deadlines.title" = "Échéances fiscales";
+"settings.deadlines.two_weeks_before" = "2 semaines avant l'échéance";
+"settings.deadlines.weekly_reminders" = "Rappels hebdomadaires de progression";
+"settings.deadlines.weekly_reminders.subtitle" = "Chaque lundi jusqu'à l'échéance";
+"settings.documents.auto_upload" = "Téléchargement automatique";
+"settings.documents.header" = "Documents";
+"settings.documents.high_quality" = "Images haute qualité";
+"settings.expert.assigned_expert" = "Expert assigné";
+"settings.expert.book_consultation" = "Réserver une consultation";
+"settings.expert.book_consultation.subtitle" = "Appel vidéo ou téléphonique de 30 min";
+"settings.expert.booking.date" = "Date et heure préférées";
+"settings.expert.booking.details" = "Détails de la consultation";
+"settings.expert.booking.notes" = "Notes supplémentaires";
+"settings.expert.booking.notes.footer" = "Optionnel : Faites-nous savoir ce que vous aimeriez discuter";
+"settings.expert.booking.submit" = "Soumettre la demande";
+"settings.expert.booking.success" = "Demande de consultation soumise avec succès !";
+"settings.expert.booking.title" = "Réserver une consultation";
+"settings.expert.booking.type" = "Type de consultation";
+"settings.expert.cancel" = "Annuler";
+"settings.expert.chat" = "Chat expert";
+"settings.expert.chat_feature" = "Chat expert";
+"settings.expert.chat_feature.subtitle" = "Messagerie en temps réel avec votre expert";
+"settings.expert.consultation.document" = "Assistance documentaire";
+"settings.expert.consultation.filing" = "Aide à la déclaration fiscale";
+"settings.expert.consultation.general" = "Conseils fiscaux généraux";
+"settings.expert.consultation.optimization" = "Optimisation fiscale";
+"settings.expert.consultations" = "Consultations";
+"settings.expert.consultations.footer" = "Réservez des consultations vidéo ou téléphoniques avec des experts fiscaux";
+"settings.expert.document_review" = "Révision de documents";
+"settings.expert.document_review.subtitle" = "Faites réviser vos documents par un expert";
+"settings.expert.expert_name" = "Expert fiscal";
+"settings.expert.features" = "Fonctionnalités expert";
+"settings.expert.no_expert" = "Aucun expert assigné";
+"settings.expert.no_expert.subtitle" = "Réservez une consultation pour qu'un expert vous soit assigné";
+"settings.expert.status" = "Statut de l'expert";
+"settings.expert.tax_optimization" = "Optimisation fiscale";
+"settings.expert.tax_optimization.subtitle" = "Recommandations personnalisées d'économie d'impôts";
+"settings.expert.title" = "Consultation d'expert";
+"settings.storage.clear_cache" = "Vider le cache";
+"settings.storage.header" = "Stockage";
+"settings.storage.used" = "Stockage utilisé";
+"settings.tax.status_section" = "Statut de déclaration";
+"settings.tax.workspace_section" = "Informations sur l'espace de travail";
+"settings.tax.workspace_section.footer" = "Informations sur votre espace de travail fiscal actuel.";
+"settings.tax.year_section" = "Année fiscale";
+"settings.tax.year_section.footer" = "Sélectionnez l'année fiscale pour votre déclaration d'impôts.";
+
+// Tax Package
+"tax_package.docs" = "documents";
+"tax_package.documents_count" = "documents";
+"tax_package.page_of" = "Page";
+"tax_package.pages_count" = "pages";
+"tax_package.preview" = "Aperçu";
+"tax_package.status.tap_to_generate" = "Appuyez pour générer";
+"tax_package.status.updating" = "Mise à jour";
+"tax_package.submission_title" = "Dossier de soumission fiscale";
+"tax_package.title_year" = "Dossier fiscal";
+
+// Terms
+"terms.acceptance.content" = "En utilisant les services TaxedGmbH, vous acceptez ces conditions d'utilisation. Si vous n'êtes pas d'accord, veuillez ne pas utiliser nos services.";
+"terms.acceptance.title" = "1. Acceptation des conditions";
+"terms.contact.content" = "Pour des questions sur ces conditions : legal@taxed.ch\nPour les demandes de protection des données : privacy@taxed.ch\nAdresse postale : TaxedGmbH, Aegertenstrasse 10, 2503 Biel/Bienne, Suisse\nTéléphone : +41 79 910 77 87";
+"terms.contact.title" = "11. Informations de contact";
+"terms.data_protection.content" = "Nous respectons la loi fédérale révisée sur la protection des données (revLPD, en vigueur depuis septembre 2023) et le RGPD de l'UE. Vos droits comprennent l'accès, la rectification, la suppression, la portabilité des données et l'opposition au traitement. Contactez notre délégué à la protection des données à privacy@taxed.ch ou le PFPDT pour les plaintes.";
+"terms.data_protection.title" = "8. Conformité à la protection des données";
+"terms.data_security.content" = "Vos données sont stockées sur des serveurs Google Cloud Firestore situés exclusivement à Zurich, Suisse (région : europe-west6). Toutes les données sont cryptées avec le cryptage AES-256 au repos et TLS 1.3 en transit. Nous respectons la loi fédérale suisse sur la protection des données (LPD) et le RGPD. Vos données restent toujours dans la juridiction suisse/UE. Consultez notre politique de confidentialité pour des informations détaillées.";
+"terms.data_security.title" = "5. Stockage et sécurité des données";
+"terms.fees.content" = "Notre structure tarifaire est transparente et affichée avant tout achat. Tous les frais sont en francs suisses (CHF) et incluent les taxes applicables.";
+"terms.fees.title" = "4. Frais et paiement";
+"terms.governing_law.content" = "Ces conditions sont régies exclusivement par le droit suisse (Code des obligations suisse). Tout litige sera résolu devant les tribunaux compétents de Biel/Bienne, Suisse, avec recours au canton de Berne et au Tribunal fédéral suisse.";
+"terms.governing_law.title" = "10. Droit applicable et juridiction";
+"terms.intellectual_property.content" = "Tout le contenu, les fonctionnalités et la fonctionnalité sont la propriété de TaxedGmbH et protégés par les lois suisses et internationales sur le droit d'auteur et les marques (LDA - Loi fédérale sur le droit d'auteur et les droits voisins).";
+"terms.intellectual_property.title" = "7. Propriété intellectuelle";
+"terms.last_updated" = "Date d'entrée en vigueur : janvier 2025";
+"terms.liability.content" = "TaxedGmbH n'est pas responsable des pénalités fiscales ou des problèmes découlant d'informations inexactes fournies par les utilisateurs ou d'une utilisation abusive du service. La responsabilité maximale est limitée au montant payé pour les services au cours des 12 mois précédents, comme permis par le droit suisse (Art. 100 CO).";
+"terms.liability.title" = "6. Limitation de responsabilité";
+"terms.services.content" = "TaxedGmbH fournit une assistance à la préparation et au dépôt des déclarations fiscales pour les résidents suisses et les expatriés. Nous ne remplaçons pas les conseils fiscaux professionnels.";
+"terms.services.title" = "2. Description du service";
+"terms.termination.content" = "Nous nous réservons le droit de résilier ou de suspendre l'accès à notre service en cas de violation de ces conditions ou d'activité frauduleuse. À la résiliation, vos données seront conservées pendant la période légalement requise (10 ans pour les documents fiscaux selon l'Art. 958f CO) puis supprimées en toute sécurité.";
+"terms.termination.title" = "9. Résiliation";
+"terms.user_obligations.content" = "Vous êtes responsable de fournir des informations exactes et de maintenir la confidentialité de votre compte. Vous devez vous conformer à toutes les lois fiscales suisses applicables.";
+"terms.user_obligations.title" = "3. Responsabilités de l'utilisateur";
