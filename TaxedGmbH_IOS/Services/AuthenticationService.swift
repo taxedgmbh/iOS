@@ -1,11 +1,11 @@
 import Foundation
 import Combine
+import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 import AuthenticationServices
 import CryptoKit
-// TODO: Uncomment after adding GoogleSignIn Swift Package via Xcode
-// import GoogleSignIn
+import GoogleSignIn
 
 // MARK: - Auth Errors
 
@@ -234,8 +234,6 @@ class AuthenticationService: ObservableObject {
 
     // MARK: - Google Sign-In
 
-    // TODO: Uncomment after adding GoogleSignIn Swift Package and OAuth Client ID
-    /*
     /// Start Google Sign-In flow
     func handleSignInWithGoogle() async {
         isLoading = true
@@ -337,7 +335,6 @@ class AuthenticationService: ObservableObject {
             print("❌ Google Sign-In error: \(error)")
         }
     }
-    */
 
     // MARK: - Email/Password Authentication
 

@@ -132,9 +132,8 @@ struct AuthenticationView: View {
                 biometricLoginButton
             }
 
-            // TODO: Uncomment after adding GoogleSignIn Swift Package
             // Google Sign-In with Accessibility
-            // googleSignInButton
+            googleSignInButton
 
             // Apple Sign-In with Accessibility
             appleSignInButton
@@ -175,8 +174,6 @@ struct AuthenticationView: View {
         .accessibilityIdentifier("biometric_login_button")
     }
 
-    // TODO: Uncomment after adding GoogleSignIn Swift Package
-    /*
     private var googleSignInButton: some View {
         Button(action: performGoogleSignIn) {
             HStack(spacing: dynamicSpacing(12)) {
@@ -211,7 +208,6 @@ struct AuthenticationView: View {
         )
         .accessibilityIdentifier("google_signin_button")
     }
-    */
 
     private var appleSignInButton: some View {
         SignInWithAppleButton(
@@ -659,8 +655,6 @@ struct AuthenticationView: View {
         }
     }
 
-    // TODO: Uncomment after adding GoogleSignIn Swift Package
-    /*
     private func performGoogleSignIn() {
         Task {
             await authService.handleSignInWithGoogle()
@@ -672,7 +666,6 @@ struct AuthenticationView: View {
             }
         }
     }
-    */
 
     private func resetForm() {
         email = ""
