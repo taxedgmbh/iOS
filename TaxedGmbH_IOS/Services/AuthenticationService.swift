@@ -254,8 +254,8 @@ class AuthenticationService: ObservableObject {
             GIDSignIn.sharedInstance.configuration = config
 
             // Get the presenting view controller
-            guard let windowScene = await UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootViewController = await windowScene.windows.first?.rootViewController else {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootViewController = windowScene.windows.first?.rootViewController else {
                 throw AuthError.unknown("Could not find root view controller")
             }
 

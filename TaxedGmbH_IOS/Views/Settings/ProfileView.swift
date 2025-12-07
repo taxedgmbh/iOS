@@ -8,6 +8,21 @@
 import SwiftUI
 import FirebaseFirestore
 
+// MARK: - Custom TextField Style for Consistent Height
+struct ProfileTextFieldStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .frame(minHeight: 44) // Apple HIG minimum touch target
+    }
+}
+
+extension View {
+    func profileTextField() -> some View {
+        modifier(ProfileTextFieldStyle())
+    }
+}
+
 struct ProfileView: View {
     @EnvironmentObject var authService: AuthenticationService
     @ObservedObject private var firestoreService = FirestoreService.shared
@@ -105,15 +120,15 @@ struct ProfileView: View {
             // Personal Information
             Section {
                 // Name Field
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "person.fill")
                         .foregroundColor(.blue)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
                         TextField("profile.name".localized, text: $name)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(maxWidth: .infinity)
+                            .profileTextField()
                     } else {
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.name".localized)
@@ -122,14 +137,17 @@ struct ProfileView: View {
                             Text(authService.user?.name ?? "")
                                 .font(.body)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
 
                 // Email Field (read-only)
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "envelope.fill")
                         .foregroundColor(.orange)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                         Text("profile.email".localized)
@@ -143,19 +161,21 @@ struct ProfileView: View {
                                 .foregroundColor(.green)
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(minHeight: 44)
 
                 // Phone Field
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "phone.fill")
                         .foregroundColor(.green)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
                         TextField("profile.phone".localized, text: $phone)
                             .keyboardType(.phonePad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(maxWidth: .infinity)
+                            .profileTextField()
                     } else {
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.phone".localized)
@@ -165,8 +185,10 @@ struct ProfileView: View {
                                 .font(.body)
                                 .foregroundColor(authService.user?.phone?.isEmpty == false ? .primary : .secondary)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
             } header: {
                 HStack {
                     Text("profile.personal_info".localized)
@@ -185,10 +207,11 @@ struct ProfileView: View {
                 Button(action: {
                     showCantonPicker = true
                 }) {
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "map.fill")
                             .foregroundColor(.red)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.canton".localized)
@@ -216,26 +239,27 @@ struct ProfileView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityHint("profile.canton.accessibility_hint".localized)
                     }
+                    .frame(minHeight: 44)
                 }
 
                 // Municipality Field
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "building.2.fill")
                         .foregroundColor(.purple)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
-                        VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
+                        VStack(alignment: .leading, spacing: .paddingStandard) {
                             TextField("profile.municipality".localized, text: $municipality)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(maxWidth: .infinity)
+                                .profileTextField()
 
                             TextField("profile.municipality_id".localized, text: $municipalityId)
                                 .keyboardType(.numberPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(maxWidth: .infinity)
+                                .profileTextField()
                         }
                     } else {
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
@@ -257,18 +281,21 @@ struct ProfileView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
 
                 // Canton-specific information
                 if let cantonId = authService.user?.canton,
                    let canton = cantonHelper.getCanton(byId: cantonId) {
 
                     // Tax Deadline Info
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "calendar.badge.clock")
                             .foregroundColor(.orange)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.canton.tax_deadline".localized)
@@ -277,7 +304,9 @@ struct ProfileView: View {
                             Text(canton.taxDeadline)
                                 .font(.body)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(minHeight: 44)
 
                     // Online Portal Link
                     if canton.hasOnlinePortal {
@@ -286,10 +315,11 @@ struct ProfileView: View {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            HStack {
+                            HStack(alignment: .center, spacing: .paddingStandard) {
                                 Image(systemName: "globe")
                                     .foregroundColor(.blue)
-                                    .frame(width: 32)
+                                    .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                                    .font(.system(size: 18))
 
                                 Text("profile.canton.online_portal".localized)
                                     .foregroundColor(.primary)
@@ -300,6 +330,7 @@ struct ProfileView: View {
                                     .font(.caption)
                                     .foregroundColor(.blue)
                             }
+                            .frame(minHeight: 44)
                         }
                     }
                 }
@@ -312,15 +343,15 @@ struct ProfileView: View {
             // Address Information
             Section {
                 // Street
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "map.fill")
                         .foregroundColor(.blue)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
                         TextField("profile.street".localized, text: $street)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(maxWidth: .infinity)
+                            .profileTextField()
                     } else {
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.street".localized)
@@ -330,25 +361,26 @@ struct ProfileView: View {
                                 .font(.body)
                                 .foregroundColor(authService.user?.street?.isEmpty == false ? .primary : .secondary)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
 
                 // Postal Code & City
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "house.fill")
                         .foregroundColor(.purple)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
-                        VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
+                        VStack(alignment: .leading, spacing: .paddingStandard) {
                             TextField("profile.postal_code".localized, text: $postalCode)
                                 .keyboardType(.numberPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(maxWidth: .infinity)
+                                .profileTextField()
 
                             TextField("profile.city".localized, text: $city)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(maxWidth: .infinity)
+                                .profileTextField()
                         }
                     } else {
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
@@ -364,8 +396,10 @@ struct ProfileView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
             } header: {
                 Text("profile.address".localized)
             }
@@ -378,10 +412,11 @@ struct ProfileView: View {
                         showMaritalStatusPicker = true
                     }
                 }) {
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "heart.circle.fill")
                             .foregroundColor(.red)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.marital_status".localized)
@@ -395,25 +430,28 @@ struct ProfileView: View {
                                 Text("profile.marital_status.not_set".localized)
                                     .foregroundColor(.orange)
                             }
-
-                            Spacer()
-
-                            if isEditing {
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .accessibilityHint("profile.marital_status.accessibility_hint".localized)
+
+                        Spacer()
+
+                        if isEditing {
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    .frame(minHeight: 44)
                 }
                 .disabled(!isEditing)
 
                 // Number of Children
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "figure.and.child.holdinghands")
                         .foregroundColor(.green)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     if isEditing {
                         Stepper(value: $numberOfChildren, in: 0...20) {
@@ -432,8 +470,10 @@ struct ProfileView: View {
                             Text("\(authService.user?.numberOfChildren ?? 0)")
                                 .font(.body)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minHeight: 44)
             } header: {
                 Text("profile.tax_info".localized)
             }
@@ -445,10 +485,11 @@ struct ProfileView: View {
                     Button(action: {
                         showYearPicker = true
                     }) {
-                        HStack {
+                        HStack(alignment: .center, spacing: .paddingStandard) {
                             Image(systemName: "calendar")
                                 .foregroundColor(.blue)
-                                .frame(width: 32)
+                                .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                                .font(.system(size: 18))
 
                             VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                                 Text("profile.tax_year".localized)
@@ -458,6 +499,7 @@ struct ProfileView: View {
                                     .font(.body)
                                     .foregroundColor(.primary)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityHint("profile.tax_year.accessibility_hint".localized)
 
                             Spacer()
@@ -466,22 +508,28 @@ struct ProfileView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
+                        .frame(minHeight: 44)
                     }
                 } else {
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.orange)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
                         Text("profile.workspace.not_found".localized)
                             .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(minHeight: 44)
                 }
 
                 // Workspace Information
                 if let workspace = workspaceManager.currentWorkspace {
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "folder")
                             .foregroundColor(.purple)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.workspace_name".localized)
@@ -490,12 +538,15 @@ struct ProfileView: View {
                             Text(workspace.name)
                                 .font(.body)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(minHeight: 44)
 
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "person.2")
                             .foregroundColor(.green)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         VStack(alignment: .leading, spacing: .verticalSpacingTight) {
                             Text("profile.workspace_type".localized)
@@ -504,7 +555,9 @@ struct ProfileView: View {
                             Text(workspace.type.rawValue.capitalized)
                                 .font(.body)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(minHeight: 44)
                 }
             } header: {
                 Text("profile.tax_year_workspace".localized)
@@ -518,21 +571,20 @@ struct ProfileView: View {
             if isJointFiling {
                 Section {
                     // Person 1
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "person.fill")
                             .foregroundColor(.blue)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         if isEditing {
-                            VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
+                            VStack(alignment: .leading, spacing: .paddingStandard) {
                                 TextField("profile.person1_name".localized, text: $person1Name)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .frame(maxWidth: .infinity)
+                                    .profileTextField()
 
                                 TextField("profile.person1_ahv".localized, text: $person1AhvNumber)
                                     .keyboardType(.numberPad)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .frame(maxWidth: .infinity)
+                                    .profileTextField()
                             }
                         } else {
                             VStack(alignment: .leading, spacing: .verticalSpacingTight) {
@@ -554,25 +606,26 @@ struct ProfileView: View {
                                         .foregroundColor(.secondary)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
+                    .frame(minHeight: 44)
 
                     // Person 2
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "person.fill")
                             .foregroundColor(.purple)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         if isEditing {
-                            VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
+                            VStack(alignment: .leading, spacing: .paddingStandard) {
                                 TextField("profile.person2_name".localized, text: $person2Name)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .frame(maxWidth: .infinity)
+                                    .profileTextField()
 
                                 TextField("profile.person2_ahv".localized, text: $person2AhvNumber)
                                     .keyboardType(.numberPad)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .frame(maxWidth: .infinity)
+                                    .profileTextField()
                             }
                         } else {
                             VStack(alignment: .leading, spacing: .verticalSpacingTight) {
@@ -594,8 +647,10 @@ struct ProfileView: View {
                                         .foregroundColor(.orange)
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
+                    .frame(minHeight: 44)
                 } header: {
                     Text("profile.joint_filing".localized)
                 } footer: {
@@ -605,12 +660,14 @@ struct ProfileView: View {
 
             // Account Status with Glass Background
             Section {
-                HStack {
+                HStack(alignment: .center, spacing: .paddingStandard) {
                     Image(systemName: "person.crop.circle.badge.checkmark")
                         .foregroundColor(.green)
-                        .frame(width: 32)
+                        .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                        .font(.system(size: 18))
 
                     Text("profile.account_status".localized)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     Spacer()
                     Text("profile.status.active".localized)
                         .foregroundColor(.green)
@@ -619,18 +676,22 @@ struct ProfileView: View {
                         .padding(.vertical, 4)
                         .glassBackground(thickness: .thin, cornerRadius: 8, tintColor: .green)
                 }
+                .frame(minHeight: 44)
 
                 if let createdAt = authService.user?.createdAt {
-                    HStack {
+                    HStack(alignment: .center, spacing: .paddingStandard) {
                         Image(systemName: "calendar.badge.plus")
                             .foregroundColor(.blue)
-                            .frame(width: 32)
+                            .frame(width: .iconSizeExtraLarge, height: .iconSizeExtraLarge)
+                            .font(.system(size: 18))
 
                         Text("profile.member_since".localized)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         Spacer()
                         Text(createdAt, style: .date)
                             .foregroundColor(.secondary)
                     }
+                    .frame(minHeight: 44)
                 }
             } header: {
                 Text("profile.account_info".localized)

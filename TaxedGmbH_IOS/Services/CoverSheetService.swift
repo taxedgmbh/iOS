@@ -162,14 +162,48 @@ class CoverSheetService {
         let pdfData = renderer.pdfData { context in
             context.beginPage()
 
-            // Draw original page content first
+            // Define margins and layout
+            let margin: CGFloat = 30
+            let topMargin: CGFloat = 80  // Space for header
+            let documentInset: CGFloat = 40  // Additional inset for document content
+
+            // Calculate safe area for document (inset from borders)
+            let documentRect = CGRect(
+                x: margin + documentInset,
+                y: topMargin + documentInset,
+                width: pageRect.width - 2 * (margin + documentInset),
+                height: pageRect.height - 2 * (margin + documentInset) - topMargin
+            )
+
+            // Draw original page content with proper transformation and scaling
             context.cgContext.saveGState()
+
+            // Transform coordinate system: PDF (bottom-left origin) → UIKit (top-left origin)
+            context.cgContext.translateBy(x: 0, y: pageRect.height)  // Move origin to bottom-left
+            context.cgContext.scaleBy(x: 1.0, y: -1.0)  // Flip Y-axis to fix upside-down rendering
+
+            // Calculate scaling to fit document in safe area
+            let originalBounds = originalPage.bounds(for: .mediaBox)
+            let scaleX = documentRect.width / originalBounds.width
+            let scaleY = documentRect.height / originalBounds.height
+            let scale = min(scaleX, scaleY)  // Maintain aspect ratio
+
+            // Center the scaled document in the safe area
+            let scaledWidth = originalBounds.width * scale
+            let scaledHeight = originalBounds.height * scale
+            let offsetX = documentRect.minX + (documentRect.width - scaledWidth) / 2
+            let offsetY = pageRect.height - (documentRect.minY + (documentRect.height - scaledHeight) / 2 + scaledHeight)  // Flip Y for PDF coords
+
+            // Apply positioning and scaling
+            context.cgContext.translateBy(x: offsetX, y: offsetY)
+            context.cgContext.scaleBy(x: scale, y: scale)
+
+            // Draw the page (now correctly oriented and sized)
             originalPage.draw(with: .mediaBox, to: context.cgContext)
+
             context.cgContext.restoreGState()
 
             // Add category-colored decorations on top
-            let margin: CGFloat = 30
-            let topMargin: CGFloat = 50
 
             // Draw thick colored border around the page
             context.cgContext.setStrokeColor(categoryColor.cgColor)
@@ -505,6 +539,18 @@ class CoverSheetService {
                 )
             }
 
+            // User Comments Section
+            if let userNotes = document.userNotes, !userNotes.isEmpty {
+                yPosition += 30
+                yPosition = drawNotesSection(
+                    title: "Benutzer-Kommentare",
+                    notes: userNotes,
+                    startY: yPosition,
+                    pageRect: pageRect,
+                    context: context.cgContext
+                )
+            }
+
             // AI Classification Section
             if let aiConfidence = document.aiConfidence {
                 yPosition += 30
@@ -522,7 +568,7 @@ class CoverSheetService {
             }
 
             // Bottom Section: QR Code (Left) | Customer ID (Center) | Barcode (Right)
-            let bottomY = pageRect.height - 180
+            let bottomY = pageRect.height - 200  // Increased spacing to prevent barcode overlap
             drawBottomSection(
                 document: document,
                 user: user,
@@ -637,11 +683,12 @@ class CoverSheetService {
 
         // Line 1: "Ziffer [index] · Person [1/2] · [person name]"
         let line1Text: String
+        let personName = user.person1Name ?? user.name
         if let index = taxIndex, let _ = user.canton {
-            let personName = user.person1Name ?? user.name
             line1Text = "\(localized("cover_sheet.index_number")) \(index.index) · \(String(format: localized("cover_sheet.person"), 1)) · \(personName)"
         } else {
-            line1Text = "\(String(format: localized("cover_sheet.person"), 1)) · \(user.person1Name ?? user.name)"
+            // Fallback: Show "N/A" when index is not available
+            line1Text = "\(localized("cover_sheet.index_number")) N/A · \(String(format: localized("cover_sheet.person"), 1)) · \(personName)"
         }
 
         let line1Attributes: [NSAttributedString.Key: Any] = [
@@ -878,7 +925,7 @@ class CoverSheetService {
 
         // Professional German legal disclaimer text
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 2
+        paragraphStyle.lineSpacing = 1.5  // Reduced to save vertical space
         paragraphStyle.alignment = .justified
 
         let footerAttributes: [NSAttributedString.Key: Any] = [
@@ -889,7 +936,7 @@ class CoverSheetService {
         let footerText = """
         Dieses Zwischenblatt dient ausschliesslich der organisatorischen Strukturierung der eingereichten Steuerunterlagen und begründet keinerlei steuerrechtliche Ansprüche. Es stellt weder eine verbindliche steuerliche Beurteilung noch eine rechtsverbindliche Auskunft dar. Für die materiellrechtliche Richtigkeit, die Vollständigkeit der Angaben sowie die korrekte steuerliche Qualifikation bleibt der Steuerpflichtige allein verantwortlich.
         """
-        let footerRect = CGRect(x: 60, y: footerY + 24, width: rect.width - 120, height: 80)
+        let footerRect = CGRect(x: 60, y: footerY + 24, width: rect.width - 120, height: 65)  // Reduced height
         footerText.draw(in: footerRect, withAttributes: footerAttributes)
     }
 
