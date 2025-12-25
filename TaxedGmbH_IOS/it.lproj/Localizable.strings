@@ -1187,6 +1187,28 @@
 "settings.account.verification_sent" = "Email di verifica inviata!";
 "settings.account.email_changed" = "Indirizzo email modificato con successo";
 "settings.account.password_changed" = "Password modificata con successo";
+
+// Autenticazione biometrica (Face ID / Touch ID)
+"settings.account.biometric_section" = "Accesso rapido";
+"settings.account.faceid" = "Face ID";
+"settings.account.touchid" = "Touch ID";
+"settings.account.faceid.subtitle" = "Accedi rapidamente con Face ID";
+"settings.account.touchid.subtitle" = "Accedi rapidamente con Touch ID";
+"settings.account.faceid.footer" = "Usa Face ID per un accesso rapido e sicuro al tuo account.";
+"settings.account.touchid.footer" = "Usa Touch ID per un accesso rapido e sicuro al tuo account.";
+"settings.account.faceid.setup.title" = "Attiva Face ID";
+"settings.account.touchid.setup.title" = "Attiva Touch ID";
+"settings.account.faceid.setup.description" = "Inserisci la tua password per attivare l'accesso con Face ID. Le tue credenziali saranno memorizzate in modo sicuro su questo dispositivo.";
+"settings.account.touchid.setup.description" = "Inserisci la tua password per attivare l'accesso con Touch ID. Le tue credenziali saranno memorizzate in modo sicuro su questo dispositivo.";
+"settings.account.faceid.enable" = "Attiva Face ID";
+"settings.account.touchid.enable" = "Attiva Touch ID";
+"settings.account.faceid.enabled" = "Face ID è stato attivato";
+"settings.account.touchid.enabled" = "Touch ID è stato attivato";
+"settings.account.faceid.disabled" = "Face ID è stato disattivato";
+"settings.account.touchid.disabled" = "Touch ID è stato disattivato";
+"settings.account.biometric.password_hint" = "La tua password è necessaria per configurare l'accesso biometrico.";
+"settings.account.biometric.error.no_email" = "Impossibile recuperare il tuo indirizzo email.";
+
 "profile.marital_status.not_specified" = "Non specificato";
 "profile.marital_status.single" = "Celibe/Nubile";
 "profile.marital_status.married" = "Sposato/a";
@@ -1698,3 +1720,12 @@
 "auth.google.signin" = "Accedi con Google";
 "auth.google.signin.label" = "Accedi con account Google";
 "auth.google.signin.hint" = "Autenticazione con il tuo account Google";
+
+// Richiesta di accesso biometrico
+"auth.biometric.prompt.faceid.title" = "Attivare Face ID?";
+"auth.biometric.prompt.touchid.title" = "Attivare Touch ID?";
+"auth.biometric.prompt.faceid.description" = "Usa Face ID per un accesso rapido e sicuro la prossima volta.";
+"auth.biometric.prompt.touchid.description" = "Usa Touch ID per un accesso rapido e sicuro la prossima volta.";
+"auth.biometric.prompt.enable.faceid" = "Attiva Face ID";
+"auth.biometric.prompt.enable.touchid" = "Attiva Touch ID";
+"auth.biometric.prompt.skip" = "Non ora";

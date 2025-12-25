@@ -1286,6 +1286,27 @@
 "settings.account.close" = "Close";
 "settings.account.done" = "Done";
 
+// Biometric Authentication (Face ID / Touch ID)
+"settings.account.biometric_section" = "Quick Login";
+"settings.account.faceid" = "Face ID";
+"settings.account.touchid" = "Touch ID";
+"settings.account.faceid.subtitle" = "Sign in quickly with Face ID";
+"settings.account.touchid.subtitle" = "Sign in quickly with Touch ID";
+"settings.account.faceid.footer" = "Use Face ID for quick and secure sign-in to your account.";
+"settings.account.touchid.footer" = "Use Touch ID for quick and secure sign-in to your account.";
+"settings.account.faceid.setup.title" = "Enable Face ID";
+"settings.account.touchid.setup.title" = "Enable Touch ID";
+"settings.account.faceid.setup.description" = "Enter your password to enable Face ID login. Your credentials will be securely stored on this device.";
+"settings.account.touchid.setup.description" = "Enter your password to enable Touch ID login. Your credentials will be securely stored on this device.";
+"settings.account.faceid.enable" = "Enable Face ID";
+"settings.account.touchid.enable" = "Enable Touch ID";
+"settings.account.faceid.enabled" = "Face ID has been enabled";
+"settings.account.touchid.enabled" = "Touch ID has been enabled";
+"settings.account.faceid.disabled" = "Face ID has been disabled";
+"settings.account.touchid.disabled" = "Touch ID has been disabled";
+"settings.account.biometric.password_hint" = "Your password is required to set up biometric login.";
+"settings.account.biometric.error.no_email" = "Unable to retrieve your email address.";
+
 // MARK: - Privacy Policy (Data Storage)
 "privacy.data_storage_auth.title" = "Authentication Data Storage";
 "privacy.data_storage_auth.content" = "User authentication information (email addresses, encrypted passwords, user IDs) is processed by Firebase Authentication (Google Cloud Platform) and stored in the United States. For transatlantic data transfers, Google maintains Standard Contractual Clauses (SCCs) and adheres to the EU-US Data Privacy Framework and Swiss-US Data Privacy Framework, ensuring compliance with GDPR and Swiss FADP requirements.";
@@ -1642,3 +1663,12 @@
 "auth.google.signin" = "Sign in with Google";
 "auth.google.signin.label" = "Sign in with Google Account";
 "auth.google.signin.hint" = "Authenticate using your Google account";
+
+// Biometric Login Prompt
+"auth.biometric.prompt.faceid.title" = "Enable Face ID?";
+"auth.biometric.prompt.touchid.title" = "Enable Touch ID?";
+"auth.biometric.prompt.faceid.description" = "Use Face ID for quick and secure sign-in next time.";
+"auth.biometric.prompt.touchid.description" = "Use Touch ID for quick and secure sign-in next time.";
+"auth.biometric.prompt.enable.faceid" = "Enable Face ID";
+"auth.biometric.prompt.enable.touchid" = "Enable Touch ID";
+"auth.biometric.prompt.skip" = "Not Now";

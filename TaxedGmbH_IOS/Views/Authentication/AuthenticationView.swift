@@ -27,6 +27,7 @@ struct AuthenticationView: View {
     @State private var enableBiometric = false
     @State private var showBiometricPrompt = false
     @State private var showPasswordReset = false
+    @State private var pendingBiometricPassword = ""
 
     // Accessibility Focus States
     @AccessibilityFocusState private var emailFieldFocused: Bool
@@ -87,6 +88,28 @@ struct AuthenticationView: View {
             announceScreenContext()
         }
         .accessibilityOptimized()
+        .sheet(isPresented: $showBiometricPrompt) {
+            BiometricPromptSheet(
+                biometricType: biometricAuth.biometricType,
+                onEnable: {
+                    enableBiometricLogin()
+                },
+                onSkip: {
+                    pendingBiometricPassword = ""
+                }
+            )
+        }
+    }
+
+    // MARK: - Biometric Setup
+
+    private func enableBiometricLogin() {
+        guard let userEmail = authService.user?.email, !pendingBiometricPassword.isEmpty else {
+            pendingBiometricPassword = ""
+            return
+        }
+        biometricAuth.saveBiometricCredentials(email: userEmail, password: pendingBiometricPassword)
+        pendingBiometricPassword = ""
     }
 
     // MARK: - Logo Section
@@ -619,6 +642,9 @@ struct AuthenticationView: View {
 
     private func performAuthentication() {
         Task {
+            // Save password for potential biometric setup
+            let enteredPassword = password
+
             if isSignUp {
                 await authService.signUp(
                     email: email,
@@ -635,6 +661,14 @@ struct AuthenticationView: View {
 
             if authService.isAuthenticated {
                 announceAuthenticationSuccess()
+
+                // Offer biometric setup if available and not already enabled
+                if biometricAuth.canEvaluatePolicy && !biometricAuth.isBiometricEnabled() {
+                    pendingBiometricPassword = enteredPassword
+                    // Small delay to ensure the main UI has updated
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    showBiometricPrompt = true
+                }
             } else if let error = authService.errorMessage {
                 announceError(error)
             }
@@ -868,5 +902,82 @@ struct CustomSecureField: View {
                 )
         )
         .animation(.easeInOut(duration: 0.2), value: isFocused)
+    }
+}
+
+// MARK: - Biometric Prompt Sheet
+
+struct BiometricPromptSheet: View {
+    @Environment(\.dismiss) var dismiss
+    let biometricType: BiometricType
+    let onEnable: () -> Void
+    let onSkip: () -> Void
+
+    private var biometricName: String {
+        biometricType == .faceID ? "Face ID" : "Touch ID"
+    }
+
+    private var biometricIcon: String {
+        biometricType == .faceID ? "faceid" : "touchid"
+    }
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            // Icon
+            Image(systemName: biometricIcon)
+                .font(.system(size: 80))
+                .foregroundColor(.blue)
+
+            // Title
+            Text(biometricType == .faceID ?
+                 "auth.biometric.prompt.faceid.title".localized :
+                 "auth.biometric.prompt.touchid.title".localized)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .multilineTextAlignment(.center)
+
+            // Description
+            Text(biometricType == .faceID ?
+                 "auth.biometric.prompt.faceid.description".localized :
+                 "auth.biometric.prompt.touchid.description".localized)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            Spacer()
+
+            // Buttons
+            VStack(spacing: 12) {
+                Button(action: {
+                    onEnable()
+                    dismiss()
+                }) {
+                    Text(biometricType == .faceID ?
+                         "auth.biometric.prompt.enable.faceid".localized :
+                         "auth.biometric.prompt.enable.touchid".localized)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.taxedPrimary)
+                        .cornerRadius(10)
+                }
+
+                Button(action: {
+                    onSkip()
+                    dismiss()
+                }) {
+                    Text("auth.biometric.prompt.skip".localized)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 40)
+        }
+        .interactiveDismissDisabled()
     }
 }

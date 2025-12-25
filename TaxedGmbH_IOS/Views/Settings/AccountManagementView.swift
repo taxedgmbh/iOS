@@ -481,6 +481,152 @@ struct SessionManagementSheet: View {
     }
 }
 
+// MARK: - Biometric Setup Sheet
+
+struct BiometricSetupSheet: View {
+    @Environment(\.dismiss) var dismiss
+    let biometricType: BiometricType
+    let email: String
+    let onComplete: (String) -> Void
+    let onCancel: () -> Void
+
+    @State private var password = ""
+    @State private var showPassword = false
+    @State private var isVerifying = false
+    @State private var errorMessage = ""
+
+    private var biometricName: String {
+        biometricType == .faceID ? "Face ID" : "Touch ID"
+    }
+
+    private var biometricIcon: String {
+        biometricType == .faceID ? "faceid" : "touchid"
+    }
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                // Icon
+                Image(systemName: biometricIcon)
+                    .font(.system(size: 72))
+                    .foregroundColor(.blue)
+                    .padding(.top, 40)
+
+                // Title
+                Text(biometricType == .faceID ?
+                     "settings.account.faceid.setup.title".localized :
+                     "settings.account.touchid.setup.title".localized)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+
+                // Description
+                Text(biometricType == .faceID ?
+                     "settings.account.faceid.setup.description".localized :
+                     "settings.account.touchid.setup.description".localized)
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                // Email display
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("settings.account.email".localized)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(email)
+                        .font(.body)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+
+                // Password field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("settings.account.password_confirm".localized)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
+                    HStack {
+                        if showPassword {
+                            TextField("settings.account.password_confirm".localized, text: $password)
+                                .textContentType(.password)
+                        } else {
+                            SecureField("settings.account.password_confirm".localized, text: $password)
+                                .textContentType(.password)
+                        }
+
+                        Button(action: { showPassword.toggle() }) {
+                            Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
+
+                    Text("settings.account.biometric.password_hint".localized)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal)
+
+                if !errorMessage.isEmpty {
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .padding(.horizontal)
+                }
+
+                Spacer()
+
+                // Enable button
+                Button(action: enableBiometric) {
+                    if isVerifying {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    } else {
+                        Text(biometricType == .faceID ?
+                             "settings.account.faceid.enable".localized :
+                             "settings.account.touchid.enable".localized)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(password.isEmpty ? Color.gray : Color.taxedPrimary)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .disabled(password.isEmpty || isVerifying)
+                .padding(.horizontal)
+                .padding(.bottom, 20)
+            }
+            .navigationTitle(biometricType == .faceID ?
+                           "settings.account.faceid".localized :
+                           "settings.account.touchid".localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("settings.account.cancel".localized) {
+                        onCancel()
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private func enableBiometric() {
+        isVerifying = true
+        errorMessage = ""
+
+        // Pass the password back to the parent view
+        onComplete(password)
+        dismiss()
+    }
+}
+
 #Preview {
     NavigationView {
         AccountManagementView()
