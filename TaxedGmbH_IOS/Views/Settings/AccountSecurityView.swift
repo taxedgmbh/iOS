@@ -7,13 +7,17 @@
 
 import SwiftUI
 import FirebaseAuth
+import LocalAuthentication
 
 struct AccountSecurityView: View {
     @EnvironmentObject var authService: AuthenticationService
+    @StateObject private var biometricAuth = BiometricAuthService()
     @State private var showChangeEmail = false
     @State private var showChangePassword = false
     @State private var show2FASetup = false
     @State private var showSessionManagement = false
+    @State private var showBiometricSetup = false
+    @State private var biometricEnabled = false
     @State private var newEmail = ""
     @State private var currentPassword = ""
     @State private var newPassword = ""
@@ -86,6 +90,45 @@ struct AccountSecurityView: View {
                 Text("settings.account.security".localized)
             } footer: {
                 Text("settings.account.security.footer".localized)
+            }
+
+            // Biometric Authentication (Face ID / Touch ID)
+            if biometricAuth.canEvaluatePolicy {
+                Section {
+                    Toggle(isOn: $biometricEnabled) {
+                        HStack {
+                            Image(systemName: biometricAuth.biometricIcon)
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                                .frame(width: 32)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(biometricAuth.biometricType == .faceID ?
+                                     "settings.account.faceid".localized :
+                                     "settings.account.touchid".localized)
+                                    .foregroundColor(.primary)
+                                Text(biometricAuth.biometricType == .faceID ?
+                                     "settings.account.faceid.subtitle".localized :
+                                     "settings.account.touchid.subtitle".localized)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .onChange(of: biometricEnabled) { _, newValue in
+                        if newValue {
+                            showBiometricSetup = true
+                        } else {
+                            disableBiometricLogin()
+                        }
+                    }
+                } header: {
+                    Text("settings.account.biometric_section".localized)
+                } footer: {
+                    Text(biometricAuth.biometricType == .faceID ?
+                         "settings.account.faceid.footer".localized :
+                         "settings.account.touchid.footer".localized)
+                }
             }
 
             // Two-Factor Authentication
@@ -223,6 +266,51 @@ struct AccountSecurityView: View {
         }
         .sheet(isPresented: $showSessionManagement) {
             SessionManagementSheet()
+        }
+        .sheet(isPresented: $showBiometricSetup) {
+            BiometricSetupSheet(
+                biometricType: biometricAuth.biometricType,
+                email: authService.user?.email ?? "",
+                onComplete: { password in
+                    enableBiometricLogin(password: password)
+                },
+                onCancel: {
+                    biometricEnabled = false
+                }
+            )
+        }
+        .onAppear {
+            biometricEnabled = biometricAuth.isBiometricEnabled()
+        }
+    }
+
+    // MARK: - Biometric Functions
+
+    private func enableBiometricLogin(password: String) {
+        guard let email = authService.user?.email else {
+            errorMessage = "settings.account.biometric.error.no_email".localized
+            biometricEnabled = false
+            return
+        }
+
+        biometricAuth.saveBiometricCredentials(email: email, password: password)
+        successMessage = biometricAuth.biometricType == .faceID ?
+            "settings.account.faceid.enabled".localized :
+            "settings.account.touchid.enabled".localized
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            successMessage = ""
+        }
+    }
+
+    private func disableBiometricLogin() {
+        biometricAuth.clearBiometricCredentials()
+        successMessage = biometricAuth.biometricType == .faceID ?
+            "settings.account.faceid.disabled".localized :
+            "settings.account.touchid.disabled".localized
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            successMessage = ""
         }
     }
 

@@ -1187,6 +1187,28 @@
 "settings.account.verification_sent" = "E-mail de vérification envoyé!";
 "settings.account.email_changed" = "Adresse e-mail modifiée avec succès";
 "settings.account.password_changed" = "Mot de passe modifié avec succès";
+
+// Authentification biométrique (Face ID / Touch ID)
+"settings.account.biometric_section" = "Connexion rapide";
+"settings.account.faceid" = "Face ID";
+"settings.account.touchid" = "Touch ID";
+"settings.account.faceid.subtitle" = "Connectez-vous rapidement avec Face ID";
+"settings.account.touchid.subtitle" = "Connectez-vous rapidement avec Touch ID";
+"settings.account.faceid.footer" = "Utilisez Face ID pour une connexion rapide et sécurisée à votre compte.";
+"settings.account.touchid.footer" = "Utilisez Touch ID pour une connexion rapide et sécurisée à votre compte.";
+"settings.account.faceid.setup.title" = "Activer Face ID";
+"settings.account.touchid.setup.title" = "Activer Touch ID";
+"settings.account.faceid.setup.description" = "Entrez votre mot de passe pour activer la connexion Face ID. Vos identifiants seront stockés en toute sécurité sur cet appareil.";
+"settings.account.touchid.setup.description" = "Entrez votre mot de passe pour activer la connexion Touch ID. Vos identifiants seront stockés en toute sécurité sur cet appareil.";
+"settings.account.faceid.enable" = "Activer Face ID";
+"settings.account.touchid.enable" = "Activer Touch ID";
+"settings.account.faceid.enabled" = "Face ID a été activé";
+"settings.account.touchid.enabled" = "Touch ID a été activé";
+"settings.account.faceid.disabled" = "Face ID a été désactivé";
+"settings.account.touchid.disabled" = "Touch ID a été désactivé";
+"settings.account.biometric.password_hint" = "Votre mot de passe est requis pour configurer la connexion biométrique.";
+"settings.account.biometric.error.no_email" = "Impossible de récupérer votre adresse e-mail.";
+
 "profile.marital_status.not_specified" = "Non spécifié";
 "profile.marital_status.single" = "Célibataire";
 "profile.marital_status.married" = "Marié(e)";
@@ -1698,3 +1720,12 @@
 "auth.google.signin" = "Se connecter avec Google";
 "auth.google.signin.label" = "Se connecter avec un compte Google";
 "auth.google.signin.hint" = "Authentification avec votre compte Google";
+
+// Invite de connexion biométrique
+"auth.biometric.prompt.faceid.title" = "Activer Face ID?";
+"auth.biometric.prompt.touchid.title" = "Activer Touch ID?";
+"auth.biometric.prompt.faceid.description" = "Utilisez Face ID pour une connexion rapide et sécurisée la prochaine fois.";
+"auth.biometric.prompt.touchid.description" = "Utilisez Touch ID pour une connexion rapide et sécurisée la prochaine fois.";
+"auth.biometric.prompt.enable.faceid" = "Activer Face ID";
+"auth.biometric.prompt.enable.touchid" = "Activer Touch ID";
+"auth.biometric.prompt.skip" = "Pas maintenant";

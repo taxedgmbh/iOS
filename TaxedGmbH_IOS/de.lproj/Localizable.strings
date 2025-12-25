@@ -1176,6 +1176,26 @@
 "settings.account.email_changed" = "E-Mail-Adresse erfolgreich geändert";
 "settings.account.password_changed" = "Passwort erfolgreich geändert";
 
+// Biometrische Authentifizierung (Face ID / Touch ID)
+"settings.account.biometric_section" = "Schnelle Anmeldung";
+"settings.account.faceid" = "Face ID";
+"settings.account.touchid" = "Touch ID";
+"settings.account.faceid.subtitle" = "Schnell mit Face ID anmelden";
+"settings.account.touchid.subtitle" = "Schnell mit Touch ID anmelden";
+"settings.account.faceid.footer" = "Verwenden Sie Face ID für eine schnelle und sichere Anmeldung bei Ihrem Konto.";
+"settings.account.touchid.footer" = "Verwenden Sie Touch ID für eine schnelle und sichere Anmeldung bei Ihrem Konto.";
+"settings.account.faceid.setup.title" = "Face ID aktivieren";
+"settings.account.touchid.setup.title" = "Touch ID aktivieren";
+"settings.account.faceid.setup.description" = "Geben Sie Ihr Passwort ein, um die Face ID-Anmeldung zu aktivieren. Ihre Anmeldedaten werden sicher auf diesem Gerät gespeichert.";
+"settings.account.touchid.setup.description" = "Geben Sie Ihr Passwort ein, um die Touch ID-Anmeldung zu aktivieren. Ihre Anmeldedaten werden sicher auf diesem Gerät gespeichert.";
+"settings.account.faceid.enable" = "Face ID aktivieren";
+"settings.account.touchid.enable" = "Touch ID aktivieren";
+"settings.account.faceid.enabled" = "Face ID wurde aktiviert";
+"settings.account.touchid.enabled" = "Touch ID wurde aktiviert";
+"settings.account.faceid.disabled" = "Face ID wurde deaktiviert";
+"settings.account.touchid.disabled" = "Touch ID wurde deaktiviert";
+"settings.account.biometric.password_hint" = "Ihr Passwort wird benötigt, um die biometrische Anmeldung einzurichten.";
+"settings.account.biometric.error.no_email" = "Ihre E-Mail-Adresse konnte nicht abgerufen werden.";
 
 // MARK: - Authentifizierung (Zusätzlich)
 "auth.name.label" = "Vollständiger Name";
@@ -1678,3 +1698,12 @@
 "auth.google.signin" = "Mit Google anmelden";
 "auth.google.signin.label" = "Mit Google-Konto anmelden";
 "auth.google.signin.hint" = "Authentifizierung mit Ihrem Google-Konto";
+
+// Biometrische Anmeldung Aufforderung
+"auth.biometric.prompt.faceid.title" = "Face ID aktivieren?";
+"auth.biometric.prompt.touchid.title" = "Touch ID aktivieren?";
+"auth.biometric.prompt.faceid.description" = "Verwenden Sie Face ID für eine schnelle und sichere Anmeldung beim nächsten Mal.";
+"auth.biometric.prompt.touchid.description" = "Verwenden Sie Touch ID für eine schnelle und sichere Anmeldung beim nächsten Mal.";
+"auth.biometric.prompt.enable.faceid" = "Face ID aktivieren";
+"auth.biometric.prompt.enable.touchid" = "Touch ID aktivieren";
+"auth.biometric.prompt.skip" = "Jetzt nicht";
