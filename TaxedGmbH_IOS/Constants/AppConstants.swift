@@ -11,7 +11,8 @@
 
 import Foundation
 
-enum AppConstants {
+/// `nonisolated` because the API actor reads it. See PortalModels.swift.
+nonisolated enum AppConstants {
 
     // MARK: - App
 

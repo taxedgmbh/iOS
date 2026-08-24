@@ -12,7 +12,8 @@
 
 import Foundation
 
-enum PortalError: LocalizedError, Equatable {
+/// `nonisolated`: these are thrown from inside the `PortalAPI` actor.
+nonisolated enum PortalError: LocalizedError, Equatable {
 
     // MARK: Authentication (401)
 

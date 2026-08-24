@@ -14,7 +14,7 @@ import Combine
 /// The four languages taxed.ch serves. German, French and Italian are the
 /// Swiss national languages the firm works in; English is what most of its
 /// expatriate clients read.
-enum AppLanguage: String, CaseIterable, Codable, Sendable {
+nonisolated enum AppLanguage: String, CaseIterable, Codable, Sendable {
     case english = "en"
     case german = "de"
     case french = "fr"
@@ -48,7 +48,7 @@ enum AppLanguage: String, CaseIterable, Codable, Sendable {
 /// property from there is a data race that the compiler will eventually refuse
 /// outright. This holder is written only when the language changes, which
 /// happens on the main actor from a settings screen, and read everywhere else.
-enum LocalizedBundle {
+nonisolated enum LocalizedBundle {
     nonisolated(unsafe) private(set) static var current: Bundle = .main
 
     static func use(_ language: AppLanguage) {
@@ -104,7 +104,11 @@ final class LocalizationService: ObservableObject {
 
 // MARK: - Lookup
 
-extension String {
+// `nonisolated`, and it has to be: the module defaults to MainActor isolation,
+// so without this every `.localized` in `PortalError` and `DriveCategory` —
+// both of which run inside the API actor — is a main-actor hop that the
+// compiler will refuse outright in the Swift 6 language mode.
+nonisolated extension String {
     /// The localized value for this key, in the language the client chose.
     ///
     /// Returns the key itself when there is no entry — which is what makes

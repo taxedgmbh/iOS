@@ -3,6 +3,12 @@
 //  TaxedGmbH_IOS
 //
 //  Wire types for the portal API, and the two Firestore rows this app reads.
+//
+//  Every type here is `nonisolated`. The target sets
+//  SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor, which would otherwise give each
+//  of them a main-actor-isolated `Decodable` conformance — and a conformance
+//  pinned to the main actor cannot satisfy a `Sendable` requirement inside the
+//  `PortalAPI` actor, which is where all of this is decoded.
 //  Field names and optionality mirror docs/SCHEMA.md; where the server says a
 //  value may be null, it is optional here rather than defaulted, so a missing
 //  value shows as missing instead of as a plausible wrong answer.
@@ -15,7 +21,7 @@ import Foundation
 /// One indexed document. The `fileId` **is** the Drive file id, which is what
 /// makes re-indexing idempotent on the server side and what every other
 /// endpoint keys on.
-struct PortalDocument: Identifiable, Decodable, Equatable, Sendable {
+nonisolated struct PortalDocument: Identifiable, Decodable, Equatable, Sendable {
     let fileId: String
     let name: String
     let mimeType: String?
@@ -37,16 +43,16 @@ struct PortalDocument: Identifiable, Decodable, Equatable, Sendable {
 
     var isFromDrive: Bool { source == "drive" }
 
+    private enum CodingKeys: String, CodingKey {
+        case fileId, name, mimeType, size, category, taxYear, source, indexedAt, modifiedTime
+    }
+
     /// Decoded field by field rather than by the synthesised initialiser.
     ///
     /// Synthesised decoding is all-or-nothing: one row missing `name` throws,
     /// `documents` comes back empty, and a client sees "nothing here yet" while
     /// holding a folder full of tax records. Every field here has a fallback,
     /// so a surprising row degrades to a slightly worse row.
-    private enum CodingKeys: String, CodingKey {
-        case fileId, name, mimeType, size, category, taxYear, source, indexedAt, modifiedTime
-    }
-
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         // The one field with no sensible fallback: without an id the row cannot
@@ -66,20 +72,20 @@ struct PortalDocument: Identifiable, Decodable, Equatable, Sendable {
 /// A category a client may upload into. The list is **served**, not hard-coded:
 /// the taxonomy is data now, so a client that embedded it would drift the first
 /// time it changed.
-struct PortalCategory: Decodable, Equatable, Hashable, Sendable {
+nonisolated struct PortalCategory: Decodable, Equatable, Hashable, Sendable {
     let key: String
     /// `00_Permanent` — not year-bound. Permit, AHV certificate, deeds.
     let permanent: Bool
 }
 
-struct DocumentsResponse: Decodable, Sendable {
+nonisolated struct DocumentsResponse: Decodable, Sendable {
     let documents: [PortalDocument]
     let categories: [PortalCategory]
 }
 
 // MARK: - Uploads
 
-struct UploadSession: Decodable, Sendable {
+nonisolated struct UploadSession: Decodable, Sendable {
     let uploadId: String
     /// The Drive resumable session URI. Bytes go here directly — they never
     /// pass through the API.
@@ -88,7 +94,7 @@ struct UploadSession: Decodable, Sendable {
     let taxYear: String?
 }
 
-struct UploadComplete: Decodable, Sendable {
+nonisolated struct UploadComplete: Decodable, Sendable {
     let fileId: String
     let name: String
     let category: String?
@@ -97,14 +103,14 @@ struct UploadComplete: Decodable, Sendable {
 
 // MARK: - Account
 
-struct AccountResponse: Decodable, Sendable {
+nonisolated struct AccountResponse: Decodable, Sendable {
     let ok: Bool
     /// Whether the account already reaches a household. Signing up creates an
     /// account, never an environment, so this is `false` for every new signup.
     let hasAccess: Bool
 }
 
-struct AccessRequestResponse: Decodable, Sendable {
+nonisolated struct AccessRequestResponse: Decodable, Sendable {
     let ok: Bool
     let status: String
 }
@@ -115,7 +121,7 @@ struct AccessRequestResponse: Decodable, Sendable {
 ///
 /// The id is a readable slug with a random tail — `mueller-meier-a7f3`.
 /// **Nothing parses it.** It is not a name, not a client, and not a year.
-struct Household: Identifiable, Sendable {
+nonisolated struct Household: Identifiable, Sendable {
     let id: String
     let displayName: String
     let language: String?
@@ -150,7 +156,7 @@ struct Household: Identifiable, Sendable {
 /// unrecognised key falls back to its own prettified folder name rather than
 /// being dropped. That way a category added on the server shows up in this app
 /// without a release — just without a translation.
-enum DriveCategory {
+nonisolated enum DriveCategory {
     static let otherKey = "99_Other_Documents"
 
     /// Read-only to clients: these are the firm's statements about what it did,

@@ -123,9 +123,7 @@ actor PortalAPI {
         throw PortalError.from(status: http.statusCode, code: code)
     }
 
-    // JSONDecoder is not Sendable, but this one is configured once and
-    // only ever read.
-    nonisolated(unsafe) static let decoder: JSONDecoder = {
+    nonisolated static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             let text = try decoder.singleValueContainer().decode(String.self)

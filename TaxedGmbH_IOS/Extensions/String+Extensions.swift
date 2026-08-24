@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension String {
+nonisolated extension String {
     var trimmed: String {
         trimmingCharacters(in: .whitespacesAndNewlines)
     }
