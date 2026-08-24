@@ -2,19 +2,21 @@
 //  LocalizationService.swift
 //  TaxedGmbH_IOS
 //
-//  Localization service following Apple best practices
-//  Uses SwiftUI environment and proper Bundle localization
+//  Language selection, and the `.localized` lookup every screen uses.
 //
 
 import Foundation
 import SwiftUI
 import Combine
 
-// MARK: - Supported Languages
+// MARK: - Languages
 
-enum AppLanguage: String, CaseIterable, Codable {
-    case german = "de"
+/// The four languages taxed.ch serves. German, French and Italian are the
+/// Swiss national languages the firm works in; English is what most of its
+/// expatriate clients read.
+enum AppLanguage: String, CaseIterable, Codable, Sendable {
     case english = "en"
+    case german = "de"
     case french = "fr"
     case italian = "it"
 
@@ -35,134 +37,84 @@ enum AppLanguage: String, CaseIterable, Codable {
         case .italian: return "🇮🇹"
         }
     }
+}
 
-    var locale: Locale {
-        return Locale(identifier: rawValue)
+// MARK: - The bundle `.localized` reads
+
+/// Deliberately separate from `LocalizationService`.
+///
+/// `.localized` is called from everywhere — including `PortalError`, which is
+/// constructed inside an actor, off the main thread. Reading a main-actor
+/// property from there is a data race that the compiler will eventually refuse
+/// outright. This holder is written only when the language changes, which
+/// happens on the main actor from a settings screen, and read everywhere else.
+enum LocalizedBundle {
+    nonisolated(unsafe) private(set) static var current: Bundle = .main
+
+    static func use(_ language: AppLanguage) {
+        guard
+            let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
+            let bundle = Bundle(path: path)
+        else {
+            // A missing .lproj is a packaging mistake, not a reason to show
+            // nothing: the main bundle still resolves the development language.
+            current = .main
+            return
+        }
+        current = bundle
     }
 }
 
-// MARK: - Localization Service (Apple Best Practice)
+// MARK: - Service
 
 @MainActor
-class LocalizationService: ObservableObject {
+final class LocalizationService: ObservableObject {
     static let shared = LocalizationService()
 
-    @Published var currentLanguage: AppLanguage {
-        didSet {
-            // Update UserDefaults to persist language preference
-            saveLanguagePreference()
+    @Published private(set) var currentLanguage: AppLanguage
 
-            // Trigger view refresh by posting notification
-            NotificationCenter.default.post(name: .languageChanged, object: nil)
-        }
-    }
-
-    private let languageKey = "app_language_preference"
-
-    // Bundle for localized strings
-    var bundle: Bundle {
-        guard let path = Bundle.main.path(forResource: currentLanguage.rawValue, ofType: "lproj"),
-              let bundle = Bundle(path: path) else {
-            return Bundle.main
-        }
-        return bundle
-    }
+    private static let storageKey = "app_language_preference"
 
     private init() {
-        // Load saved language or detect from system with priority order
-        if let savedLang = UserDefaults.standard.string(forKey: languageKey),
-           let language = AppLanguage(rawValue: savedLang) {
-            self.currentLanguage = language
-        } else {
-            // Priority order: English → German → French → Italian → English (fallback)
-            // Check system preferred languages against our priority list
-            let systemLanguages = Locale.preferredLanguages.map {
-                Locale(identifier: $0).language.languageCode?.identifier ?? ""
-            }
+        let stored = UserDefaults.standard.string(forKey: Self.storageKey)
+        let language = stored.flatMap(AppLanguage.init(rawValue:)) ?? Self.systemPreference()
+        currentLanguage = language
+        LocalizedBundle.use(language)
+    }
 
-            // Define priority order
-            let priorityOrder: [AppLanguage] = [.english, .german, .french, .italian]
-
-            // Find first matching language from priority list
-            var selectedLanguage: AppLanguage = .english // Default fallback
-            for priorityLang in priorityOrder {
-                if systemLanguages.contains(priorityLang.rawValue) {
-                    selectedLanguage = priorityLang
-                    break
-                }
-            }
-
-            self.currentLanguage = selectedLanguage
-            print("✅ Language initialized: \(selectedLanguage.displayName) (Priority: \(priorityOrder.map { $0.displayName }.joined(separator: " → ")))")
+    /// The first of our languages the device asks for, English otherwise.
+    ///
+    /// Not `Locale.current.language` alone: a phone set to Spanish with German
+    /// second should get German, not the fallback.
+    private static func systemPreference() -> AppLanguage {
+        for identifier in Locale.preferredLanguages {
+            let code = Locale(identifier: identifier).language.languageCode?.identifier ?? ""
+            if let match = AppLanguage(rawValue: code) { return match }
         }
+        return .english
     }
 
     func setLanguage(_ language: AppLanguage) {
+        guard language != currentLanguage else { return }
         currentLanguage = language
-        print("✅ Language changed to: \(language.displayName)")
-    }
-
-    private func saveLanguagePreference() {
-        UserDefaults.standard.set(currentLanguage.rawValue, forKey: languageKey)
-        UserDefaults.standard.synchronize()
-    }
-
-    // Localize a string key
-    func localize(_ key: String, comment: String = "") -> String {
-        return NSLocalizedString(key, bundle: bundle, comment: comment)
-    }
-
-    // Localize with format arguments
-    func localize(_ key: String, arguments: CVarArg..., comment: String = "") -> String {
-        let format = localize(key, comment: comment)
-        return String(format: format, arguments: arguments)
+        LocalizedBundle.use(language)
+        UserDefaults.standard.set(language.rawValue, forKey: Self.storageKey)
     }
 }
 
-// MARK: - Notification Extension
-
-extension Notification.Name {
-    static let languageChanged = Notification.Name("languageChanged")
-}
-
-// MARK: - String Extension (Apple Best Practice)
+// MARK: - Lookup
 
 extension String {
-    /// Localizes the string using the current app language
+    /// The localized value for this key, in the language the client chose.
+    ///
+    /// Returns the key itself when there is no entry — which is what makes
+    /// `tools/check-localization.py` worth running, because that is what a
+    /// client would see on screen.
     var localized: String {
-        let service = LocalizationService.shared
-        return NSLocalizedString(self, bundle: service.bundle, comment: "")
+        NSLocalizedString(self, bundle: LocalizedBundle.current, comment: "")
     }
 
-    /// Localizes with format arguments
     func localized(with arguments: CVarArg...) -> String {
-        let format = self.localized
-        return String(format: format, arguments: arguments)
-    }
-
-    /// Localizes with a specific comment for translators
-    func localized(comment: String) -> String {
-        let service = LocalizationService.shared
-        return NSLocalizedString(self, bundle: service.bundle, comment: comment)
-    }
-}
-
-// MARK: - SwiftUI Text Extension (Best Practice)
-
-extension Text {
-    /// Creates a Text view with localized string
-    init(localized key: String) {
-        let service = LocalizationService.shared
-        let localizedString = NSLocalizedString(key, bundle: service.bundle, comment: "")
-        self.init(localizedString)
-    }
-}
-
-// MARK: - SwiftUI LocalizedStringKey Support
-
-extension LocalizedStringKey {
-    /// Converts a string to LocalizedStringKey using current language
-    init(_ key: String, bundle: Bundle) {
-        self.init(key)
+        String(format: localized, arguments: arguments)
     }
 }

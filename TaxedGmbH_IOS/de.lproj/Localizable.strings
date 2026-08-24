@@ -1,6 +1,6 @@
 /* Localizable.strings (Deutsch)
    Every key here is used by the app; the app uses no key that is not here.
-   Verified by tools/check-localization.py, which the build should run. */
+   Verified by tools/check-localization.py. */
 
 /* MARK: Common */
 "common.cancel" = "Abbrechen";
@@ -62,6 +62,8 @@
 "documents.upload" = "Dokument senden";
 "documents.empty.title" = "Noch nichts vorhanden";
 "documents.empty.message" = "Senden Sie uns Ihr erstes Dokument — der Lohnausweis ist meist der Anfang. Was wir für Sie vorbereiten, erscheint ebenfalls hier.";
+"documents.setup.title" = "Ihr Dokumentenbereich wird eingerichtet";
+"documents.setup.message" = "Es fehlt nichts — die Ordner für Ihre Dokumente bestehen noch nicht. Wir melden uns, sobald Sie uns etwas senden können.";
 "documents.open_hint" = "Lädt das Dokument herunter und öffnet es";
 "documents.added_in_drive" = "in Drive hinzugefügt";
 

@@ -40,7 +40,9 @@ struct UploadSheet: View {
 
     private var years: [Int] {
         let latest = AppConstants.Uploads.defaultTaxYear
-        return Array((latest - 5)...(latest + 1)).reversed()
+        // Most recent first, and one year ahead of the default for the client
+        // who is early — the server creates the year folder on demand.
+        return Array(((latest - 5)...(latest + 1)).reversed())
     }
 
     var body: some View {

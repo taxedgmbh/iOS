@@ -50,6 +50,11 @@ final class PortalSession: ObservableObject {
     /// complete list — never merged with anything remembered from last time.
     @Published private(set) var householdIds: [String] = []
     @Published private(set) var isStaff = false
+    /// The household record, for display. Its `hasDocumentStore` is what tells
+    /// an empty document list apart from a household whose Drive folders do not
+    /// exist yet — and an empty list where documents are expected reads as data
+    /// loss to someone whose tax records we hold.
+    @Published private(set) var household: Household?
 
     // Touched from `deinit`, which is not main-actor isolated.
     private nonisolated(unsafe) var authHandle: AuthStateDidChangeListenerHandle?
@@ -59,7 +64,7 @@ final class PortalSession: ObservableObject {
     func start() {
         guard authHandle == nil else { return }
         authHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            Task { @MainActor [weak self] in
+            Task { @MainActor in
                 await self?.adopt(user)
             }
         }
@@ -82,6 +87,7 @@ final class PortalSession: ObservableObject {
             // account is the beginning of showing one client another's files.
             email = nil
             displayName = nil
+            household = nil
             householdIds = []
             isStaff = false
             state = .signedOut
@@ -115,7 +121,21 @@ final class PortalSession: ObservableObject {
         }
 
         // Display only, and deliberately after the state is already decided.
+        // Neither of these may gate access: a profile read that fails must not
+        // be able to lock someone out of their own documents.
         await loadDisplayName(uid: user.uid, fallback: user.displayName)
+        await loadHousehold(householdIds.first)
+    }
+
+    private func loadHousehold(_ id: String?) async {
+        guard let id else { household = nil; return }
+        let snapshot = try? await Firestore.firestore()
+            .collection(AppConstants.Backend.Collections.households)
+            .document(id)
+            .getDocument()
+        if let data = snapshot?.data() {
+            household = Household(id: id, data: data)
+        }
     }
 
     /// Re-reads the claims, forcing a token refresh. This is what the "check

@@ -21,7 +21,7 @@ struct AccountView: View {
 
     var body: some View {
         List {
-            Section("account.signed_in_as".localized) {
+            Section {
                 VStack(alignment: .leading, spacing: 2) {
                     if let name = session.displayName, !name.isEmpty {
                         Text(name).font(.body)
@@ -32,6 +32,8 @@ struct AccountView: View {
                 }
                 .frame(minHeight: 44)
                 .accessibilityElement(children: .combine)
+            } header: {
+                Text("account.signed_in_as".localized)
             } footer: {
                 Text("account.changes_footer".localized)
             }

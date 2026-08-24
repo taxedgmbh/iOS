@@ -47,6 +47,11 @@ enum PortalError: LocalizedError, Equatable {
     case notProvisioned
     case missingFileId
     case driveUnavailable
+    /// Not in the published error table, but the live routes answer it: a 400
+    /// when the request names no household. Always a bug on this side — every
+    /// call here carries one — so it is reported as a generic failure rather
+    /// than as something the client did wrong.
+    case missingHousehold
 
     // MARK: Other
 
@@ -76,6 +81,7 @@ enum PortalError: LocalizedError, Equatable {
         case "category-read-only": return .categoryReadOnly
         case "not-provisioned": return .notProvisioned
         case "missing-file-id": return .missingFileId
+        case "missing-household": return .missingHousehold
         case "drive-unavailable": return .driveUnavailable
         case "internal": return .server
         default: break
@@ -121,7 +127,7 @@ enum PortalError: LocalizedError, Equatable {
             return "error.upload_read_only".localized
         case .notProvisioned:
             return "error.not_provisioned".localized
-        case .missingFileId:
+        case .missingFileId, .missingHousehold:
             return "error.generic".localized
         case .driveUnavailable:
             return "error.drive_unavailable".localized

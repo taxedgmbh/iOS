@@ -100,10 +100,16 @@ final class PortalDocumentsService: ObservableObject {
         )
 
         // Best effort by design — see the note above.
-        let _: UploadComplete? = try? await PortalAPI.shared.post(
-            "/api/portal/uploads/complete",
-            body: ["householdId": householdId, "fileId": fileId, "uploadId": session.uploadId]
-        )
+        do {
+            let _: UploadComplete = try await PortalAPI.shared.post(
+                "/api/portal/uploads/complete",
+                body: ["householdId": householdId, "fileId": fileId, "uploadId": session.uploadId]
+            )
+        } catch {
+            // Swallowed on purpose, and only here. The bytes are in Drive; the
+            // sweep will index them. Reporting this would tell the client to
+            // send the document a second time.
+        }
 
         return fileId
     }

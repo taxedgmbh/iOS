@@ -14,6 +14,7 @@ import QuickLook
 struct DocumentsView: View {
     let householdId: String
 
+    @EnvironmentObject private var session: PortalSession
     @StateObject private var service = PortalDocumentsService()
     @State private var showUpload = false
     @State private var previewURL: URL?
@@ -46,7 +47,15 @@ struct DocumentsView: View {
             if service.isLoading && service.documents.isEmpty {
                 ProgressView()
             } else if !service.isLoading && service.documents.isEmpty && errorMessage == nil {
-                emptyState
+                // A household whose Drive folders do not exist yet is NOT an
+                // empty document list. Saying "nothing here yet" to someone
+                // whose store has not been built reads as "my documents are
+                // gone".
+                if session.household?.hasDocumentStore == false {
+                    setupState
+                } else {
+                    emptyState
+                }
             }
         }
         .refreshable { await reload() }
@@ -83,6 +92,16 @@ struct DocumentsView: View {
             Button("documents.upload".localized) { showUpload = true }
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled(service.categories.isEmpty)
+        }
+    }
+
+    private var setupState: some View {
+        MessageScreen(
+            systemImage: "shippingbox",
+            title: "documents.setup.title".localized,
+            message: "documents.setup.message".localized
+        ) {
+            EmptyView()
         }
     }
 

@@ -53,12 +53,12 @@ actor PortalAPI {
 
     // MARK: - Requests
 
-    func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
+    func get<T: Decodable & Sendable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
         let request = try await authorized(path, method: "GET", query: query, body: nil)
         return try await send(request)
     }
 
-    func post<T: Decodable>(_ path: String, body: [String: Any]? = nil) async throws -> T {
+    func post<T: Decodable & Sendable>(_ path: String, body: [String: Any]? = nil) async throws -> T {
         let data = try body.map { try JSONSerialization.data(withJSONObject: $0) }
         let request = try await authorized(path, method: "POST", query: [], body: data)
         return try await send(request)
@@ -91,7 +91,7 @@ actor PortalAPI {
         return request
     }
 
-    private func send<T: Decodable>(_ request: URLRequest) async throws -> T {
+    private func send<T: Decodable & Sendable>(_ request: URLRequest) async throws -> T {
         let (data, response) = try await perform(request)
         try Self.check(response: response, data: data)
         do {
@@ -123,7 +123,9 @@ actor PortalAPI {
         throw PortalError.from(status: http.statusCode, code: code)
     }
 
-    nonisolated static let decoder: JSONDecoder = {
+    // JSONDecoder is not Sendable, but this one is configured once and
+    // only ever read.
+    nonisolated(unsafe) static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .custom { decoder in
             let text = try decoder.singleValueContainer().decode(String.self)
@@ -235,11 +237,11 @@ actor PortalAPI {
 }
 
 private extension ISO8601DateFormatter {
-    static let withFractionalSeconds: ISO8601DateFormatter = {
+    nonisolated(unsafe) static let withFractionalSeconds: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
-    static let plain = ISO8601DateFormatter()
+    nonisolated(unsafe) static let plain = ISO8601DateFormatter()
 }

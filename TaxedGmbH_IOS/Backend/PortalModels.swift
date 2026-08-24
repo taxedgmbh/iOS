@@ -36,6 +36,31 @@ struct PortalDocument: Identifiable, Decodable, Equatable, Sendable {
     var categoryKey: String { category ?? DriveCategory.otherKey }
 
     var isFromDrive: Bool { source == "drive" }
+
+    /// Decoded field by field rather than by the synthesised initialiser.
+    ///
+    /// Synthesised decoding is all-or-nothing: one row missing `name` throws,
+    /// `documents` comes back empty, and a client sees "nothing here yet" while
+    /// holding a folder full of tax records. Every field here has a fallback,
+    /// so a surprising row degrades to a slightly worse row.
+    private enum CodingKeys: String, CodingKey {
+        case fileId, name, mimeType, size, category, taxYear, source, indexedAt, modifiedTime
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        // The one field with no sensible fallback: without an id the row cannot
+        // be downloaded, so it is better dropped than shown.
+        fileId = try container.decode(String.self, forKey: .fileId)
+        name = (try? container.decode(String.self, forKey: .name)) ?? fileId
+        mimeType = try? container.decodeIfPresent(String.self, forKey: .mimeType)
+        size = (try? container.decodeIfPresent(Int64.self, forKey: .size)) ?? 0
+        category = try? container.decodeIfPresent(String.self, forKey: .category)
+        taxYear = try? container.decodeIfPresent(String.self, forKey: .taxYear)
+        source = try? container.decodeIfPresent(String.self, forKey: .source)
+        indexedAt = try? container.decodeIfPresent(Date.self, forKey: .indexedAt)
+        modifiedTime = try? container.decodeIfPresent(String.self, forKey: .modifiedTime)
+    }
 }
 
 /// A category a client may upload into. The list is **served**, not hard-coded:
