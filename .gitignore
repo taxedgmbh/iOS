@@ -1,46 +1,32 @@
-# Firebase credentials
-FireBaseAccessDataCredential.md
-
-# Xcode build directories
+# Xcode build output
 build/
 DerivedData/
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcuserdatad/
+xcuserdata/
+*.log
 
 # Swift Package Manager
+# Package.resolved IS tracked — Xcode Cloud resolves from it.
 .swiftpm/
-*.swiftpm/
 .build/
 Packages/
 Package.pins
-Package.resolved
-xcuserdata/
 
-# Temporary screenshots and images
+# Node — this repo has no JavaScript. Anything here is a mistake.
+node_modules/
+
+# Screenshots and scratch images, but never the asset catalog
 *.png
 *.jpg
 *.jpeg
-
-# But keep assets in the proper directories
 !TaxedGmbH_IOS/Resources/Assets/**/*.png
 !TaxedGmbH_IOS/Resources/Assets/**/*.jpg
-!TaxedGmbH_IOS/Assets.xcassets/**/*.png
-!TaxedGmbH_IOS/Assets.xcassets/**/*.jpg
 
-# User-specific files
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-*.pbxuser
-!default.pbxuser
-*.xcworkspace
-!default.xcworkspace
+# macOS
+.DS_Store
 
-# Documentation and markdown
-*.md
-!README.md
-!DEPLOYMENT_GUIDE.md
-!TESTING_GUIDE.md
-!PROJECT_STRUCTURE.md
-!APPLE_HIG_COMPLIANCE.md
+# Secrets. GoogleService-Info.plist is public-by-design (API keys in it are
+# identifiers, not credentials) and IS tracked; nothing else here should be.
+*.p8
+*.p12
+*.mobileprovision
