@@ -1,5 +1,2 @@
-/* Privacy Permissions */
-"NSCameraUsageDescription" = "Cette application a besoin d'accéder à votre caméra pour numériser des documents.";
-"NSMicrophoneUsageDescription" = "Cette application a besoin d'accéder à votre microphone pour les notes vocales et la communication avec votre conseiller fiscal.";
-"NSPhotoLibraryUsageDescription" = "Cette application a besoin d'accéder à vos photos pour télécharger des documents.";
-"NSSpeechRecognitionUsageDescription" = "Cette application a besoin d'accéder à la reconnaissance vocale pour convertir vos messages parlés en texte.";
+/* Privacy permission prompts. Only the ones the app actually uses. */
+"NSPhotoLibraryUsageDescription" = "Taxed utilise vos photos afin que vous puissiez envoyer un document photographié à votre conseiller.";
