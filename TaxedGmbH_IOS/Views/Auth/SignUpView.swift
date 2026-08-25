@@ -56,6 +56,7 @@ struct SignUpView: View {
                     text: $name,
                     focus: $focus,
                     field: .name,
+                    icon: "person",
                     contentType: .name,
                     submitLabel: .next,
                     onSubmit: { focus = .email }
@@ -66,6 +67,7 @@ struct SignUpView: View {
                     text: $email,
                     focus: $focus,
                     field: .email,
+                    icon: "envelope",
                     contentType: .username,
                     keyboard: .emailAddress,
                     submitLabel: .next,
@@ -81,6 +83,7 @@ struct SignUpView: View {
                     text: $password,
                     focus: $focus,
                     field: .password,
+                    icon: "lock",
                     isSecure: true,
                     contentType: .newPassword,
                     submitLabel: .next,

@@ -18,6 +18,10 @@
 "auth.password.hide" = "Passwort verbergen";
 "auth.sign_in" = "Anmelden";
 "auth.forgot_password" = "Passwort vergessen?";
+"auth.or_continue" = "Oder weiter mit";
+"auth.continue_apple" = "Weiter mit Apple";
+"auth.continue_google" = "Weiter mit Google";
+"auth.no_account" = "Noch kein Konto?";
 "auth.create_account" = "Konto erstellen";
 
 /* MARK: Sign up */

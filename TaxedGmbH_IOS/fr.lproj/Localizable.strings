@@ -18,6 +18,10 @@
 "auth.password.hide" = "Masquer le mot de passe";
 "auth.sign_in" = "Se connecter";
 "auth.forgot_password" = "Mot de passe oublié ?";
+"auth.or_continue" = "Ou continuer avec";
+"auth.continue_apple" = "Continuer avec Apple";
+"auth.continue_google" = "Continuer avec Google";
+"auth.no_account" = "Vous n’avez pas de compte ?";
 "auth.create_account" = "Créer un compte";
 
 /* MARK: Sign up */

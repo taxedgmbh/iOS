@@ -90,22 +90,34 @@ struct SignInView: View {
                         text: $email,
                         focus: $focus,
                         field: .email,
+                        icon: "envelope",
                         contentType: .username,
                         keyboard: .emailAddress,
                         submitLabel: .next,
                         onSubmit: { focus = .password }
                     )
 
-                    AuthField(
-                        title: "auth.password".localized,
-                        text: $password,
-                        focus: $focus,
-                        field: .password,
-                        isSecure: true,
-                        contentType: .password,
-                        submitLabel: .go,
-                        onSubmit: { if canSubmit { Task { await signIn() } } }
-                    )
+                    VStack(alignment: .trailing, spacing: .verticalSpacingComfortable) {
+                        AuthField(
+                            title: "auth.password".localized,
+                            text: $password,
+                            focus: $focus,
+                            field: .password,
+                            icon: "lock",
+                            isSecure: true,
+                            contentType: .password,
+                            submitLabel: .go,
+                            onSubmit: { if canSubmit { Task { await signIn() } } }
+                        )
+
+                        // Directly under the password, right-aligned. It used to
+                        // sit in a bottom row sharing weight with "Create an
+                        // account", where it read as absent — the first report
+                        // of this screen was that the app had no password
+                        // recovery at all. It always had; nobody could find it.
+                        Button("auth.forgot_password".localized) { showReset = true }
+                            .buttonStyle(QuietButtonStyle())
+                    }
 
                     Button {
                         Task { await signIn() }
@@ -116,17 +128,21 @@ struct SignInView: View {
                             Text("auth.sign_in".localized)
                         }
                     }
-                    .frame(maxWidth: .infinity)
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(!canSubmit)
 
-                    HStack {
-                        Button("auth.forgot_password".localized) { showReset = true }
-                            .buttonStyle(QuietButtonStyle())
-                        Spacer()
-                        Button("auth.create_account".localized) { showSignUp = true }
-                            .buttonStyle(QuietButtonStyle())
+                    LabelledDivider(title: "auth.or_continue".localized)
+                        .padding(.vertical, .paddingExtraTight)
+
+                    ProviderButton(provider: .apple) {
+                        Task { await signIn(with: session.signInWithApple) }
                     }
+                    ProviderButton(provider: .google) {
+                        Task { await signIn(with: session.signInWithGoogle) }
+                    }
+
+                    signUpPrompt
+                        .padding(.top, .paddingTight)
         }
         .padding(.paddingSpacious)
         // Runs the sheet down past the last control so it reaches the bottom of
@@ -156,6 +172,20 @@ struct SignInView: View {
         .padding(.bottom, .paddingTight)
     }
 
+    /// "Don't have an account? Sign up" — a sentence, not a bare link sharing a
+    /// row with recovery. The two were never equivalent actions and should never
+    /// have had equivalent weight.
+    private var signUpPrompt: some View {
+        HStack(spacing: 4) {
+            Text("auth.no_account".localized)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            Button("auth.create_account".localized) { showSignUp = true }
+                .buttonStyle(QuietButtonStyle())
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private func signIn() async {
         focus = nil
         isWorking = true
@@ -168,6 +198,22 @@ struct SignInView: View {
             // Back to the password, with it selected-for-replacement in effect:
             // the email is rarely the half that was wrong.
             focus = .password
+        }
+    }
+
+    /// Runs a provider flow with the same working/error handling as the email
+    /// one — and stays silent when somebody simply dismisses the sheet.
+    private func signIn(with flow: @escaping () async throws -> Void) async {
+        focus = nil
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            try await flow()
+        } catch is PortalCancelled {
+            // Changing your mind is not an error and must not raise a banner.
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 }

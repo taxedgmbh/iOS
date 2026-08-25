@@ -80,6 +80,7 @@ struct AuthField<Field: Hashable>: View {
     let focus: FocusState<Field?>.Binding
     let field: Field
 
+    var icon: String?
     var isSecure = false
     var contentType: UITextContentType?
     var keyboard: UIKeyboardType = .default
@@ -98,6 +99,17 @@ struct AuthField<Field: Hashable>: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: .paddingTight) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 17))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 20)
+                        // Decorative: the label above already names the field,
+                        // and VoiceOver reading "envelope" before "Email" is
+                        // noise, not information.
+                        .accessibilityHidden(true)
+                }
+
                 Group {
                     if isSecure && !revealed {
                         SecureField(title, text: $text)
@@ -159,6 +171,92 @@ struct AuthField<Field: Hashable>: View {
         .accessibilityLabel(
             revealed ? "auth.password.hide".localized : "auth.password.show".localized
         )
+    }
+}
+
+// MARK: - Third-party sign-in
+
+/// A provider button — Apple or Google.
+///
+/// Both are the same height and radius as the fields and the primary button, so
+/// the column reads as one rhythm rather than four borrowed components. Apple's
+/// is black-on-white per its brand guidelines; Google's carries its wordmark
+/// colours, which is why the mark is drawn rather than tinted.
+struct ProviderButton: View {
+    enum Provider {
+        case apple, google
+
+        var title: String {
+            switch self {
+            case .apple: return "auth.continue_apple".localized
+            case .google: return "auth.continue_google".localized
+            }
+        }
+    }
+
+    let provider: Provider
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: .paddingStandard) {
+                mark
+                Text(provider.title)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+            }
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(Color.secondaryBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(Color.fieldBorder, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var mark: some View {
+        switch provider {
+        case .apple:
+            Image(systemName: "apple.logo")
+                .font(.system(size: 18))
+                .foregroundStyle(.primary)
+                .accessibilityHidden(true)
+        case .google:
+            // SF Symbols has no Google mark and shipping their logo as an asset
+            // brings brand-guideline obligations with it. A neutral glyph is
+            // honest about being a stand-in rather than a bad trace of the real
+            // one.
+            Image(systemName: "g.circle.fill")
+                .font(.system(size: 18))
+                .foregroundStyle(Color.taxedPrimary)
+                .accessibilityHidden(true)
+        }
+    }
+}
+
+/// A labelled rule: "Or continue with".
+struct LabelledDivider: View {
+    let title: String
+
+    var body: some View {
+        HStack(spacing: .paddingStandard) {
+            line
+            Text(title)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize()
+            line
+        }
+        .accessibilityHidden(true)
+    }
+
+    private var line: some View {
+        Rectangle()
+            .fill(Color.fieldBorder)
+            .frame(height: 1)
     }
 }
 

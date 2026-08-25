@@ -199,6 +199,54 @@ final class PortalSession: ObservableObject {
         await adopt(Auth.auth().currentUser)
     }
 
+    // MARK: - Apple and Google
+
+    /// Signs in with Apple, then makes sure the portal knows about the account.
+    ///
+    /// Apple hands over a name only on the first authorisation ever, so it is
+    /// written to the Firebase profile immediately. Come back later and there is
+    /// nothing to write.
+    func signInWithApple() async throws {
+        let coordinator = AppleSignInCoordinator()
+        let credential = try await coordinator.credential()
+        try await completeProviderSignIn(with: credential, name: coordinator.fullName)
+    }
+
+    func signInWithGoogle() async throws {
+        let credential = try await GoogleSignInFlow.credential()
+        try await completeProviderSignIn(with: credential, name: nil)
+    }
+
+    /// The shared tail of both provider flows.
+    ///
+    /// `POST /api/portal/account` runs on **every** sign-in, not only the first.
+    /// It is idempotent, and making it conditional on "is this a new user"
+    /// depends on `additionalUserInfo.isNewUser`, which is false for anyone who
+    /// signed in before this app knew to create the record — leaving accounts
+    /// the portal cannot see.
+    private func completeProviderSignIn(with credential: AuthCredential, name: String?) async throws {
+        let result: AuthDataResult
+        do {
+            result = try await Auth.auth().signIn(with: credential)
+        } catch {
+            throw AuthFailure(error)
+        }
+
+        if let name, !name.isEmpty, result.user.displayName?.isEmpty != false {
+            let change = result.user.createProfileChangeRequest()
+            change.displayName = name
+            try? await change.commitChanges()
+        }
+
+        let displayName = name ?? result.user.displayName ?? ""
+        let _: AccountResponse = try await PortalAPI.shared.post(
+            "/api/portal/account",
+            body: ["displayName": displayName]
+        )
+
+        await adopt(Auth.auth().currentUser)
+    }
+
     /// Asks for a client area from an account that already exists — the path
     /// for someone who signed up, never finished, and came back.
     func requestAccess(note: String) async throws {

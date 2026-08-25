@@ -16,13 +16,27 @@
 	  application/json, over HTTPS, with no redirect. That file is served by a
 	  route handler in the taxed.ch repository.
 
-	  The Apple Sign-In entitlement that used to be here went with Apple
-	  sign-in itself: taxed.ch offers email and password only, and a second
-	  front door to the same accounts is a support problem, not a convenience.
 	-->
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>webcredentials:taxed.ch</string>
+	</array>
+
+	<!--
+	  Sign in with Apple.
+
+	  Not optional once Google sign-in is offered: App Store Review Guideline 4.8
+	  requires an equivalent privacy-preserving option alongside any other
+	  third-party login. The two ship together or neither does.
+
+	  taxed.ch offers the same two providers, so an account created here signs in
+	  on the website as well. That parity is the whole reason these are back —
+	  added to the app alone, a Google account would carry no password and could
+	  never be used on the site.
+	-->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
 	</array>
 </dict>
 </plist>

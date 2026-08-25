@@ -49,6 +49,7 @@ struct PasswordResetView: View {
                         text: $email,
                         focus: $focus,
                         field: .email,
+                        icon: "envelope",
                         contentType: .username,
                         keyboard: .emailAddress,
                         submitLabel: .send,
