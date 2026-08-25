@@ -159,6 +159,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Taxed;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Taxed uses your photos so you can send a photographed document to your advisor.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -199,6 +200,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Taxed;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Taxed uses your photos so you can send a photographed document to your advisor.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -65,24 +65,21 @@ xcodebuild archive \
   -archivePath "$ARCHIVE" \
   "${AUTH[@]}"
 
-echo "==> Exporting for the App Store"
+# ExportOptions.plist sets `destination = upload`, so THIS STEP UPLOADS.
+# It analyses the package, submits it, and reports "Upload succeeded" — there
+# is no .ipa left on disk afterwards and no separate altool call to make. An
+# earlier version of this script looked for the .ipa and failed after the
+# upload had already succeeded, which reads alarmingly like the opposite.
+echo "==> Exporting and uploading to App Store Connect"
 xcodebuild -exportArchive \
   -archivePath "$ARCHIVE" \
   -exportPath "$EXPORT_DIR" \
   -exportOptionsPlist ExportOptions.plist \
   "${AUTH[@]}"
 
-IPA=$(find "$EXPORT_DIR" -name '*.ipa' | head -1)
-[ -n "$IPA" ] || { echo "No .ipa produced"; exit 1; }
-
-echo "==> Validating before upload"
-xcrun altool --validate-app -f "$IPA" -t ios \
-  --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
-
-echo "==> Uploading to TestFlight"
-xcrun altool --upload-app -f "$IPA" -t ios \
-  --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
-
 echo
-echo "Uploaded. Processing in App Store Connect usually takes 5–15 minutes"
-echo "before the build appears in TestFlight."
+echo "Uploaded. Processing usually completes within a few minutes."
+echo
+echo "Export compliance is answered by INFOPLIST_KEY_ITSAppUsesNonExemptEncryption"
+echo "in the project. Without it, App Store Connect holds the build back from"
+echo "testers without saying so anywhere obvious."
