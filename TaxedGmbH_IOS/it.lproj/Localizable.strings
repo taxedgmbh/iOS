@@ -14,6 +14,8 @@
 "auth.email" = "E-mail";
 "auth.password" = "Password";
 "auth.name" = "Nome";
+"auth.password.show" = "Mostra la password";
+"auth.password.hide" = "Nascondi la password";
 "auth.sign_in" = "Accedi";
 "auth.forgot_password" = "Password dimenticata?";
 "auth.create_account" = "Crea un account";

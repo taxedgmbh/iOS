@@ -43,7 +43,24 @@ struct SignInView: View {
                 // status bar.
                 VStack(spacing: 0) {
                     SignInMasthead()
+                    // The sheet rides UP over the masthead. That overlap is
+                    // the whole depth cue: the plate visibly continues behind
+                    // the form instead of stopping at a seam, and the screen
+                    // reads as two layers rather than two stacked blocks.
                     form
+                        .background(
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 28,
+                                topTrailingRadius: 28,
+                                style: .continuous
+                            )
+                            .fill(Color.primaryBackground)
+                            .shadow(color: .black.opacity(0.18), radius: 16, y: -4)
+                        )
+                        .offset(y: -28)
+                        // Reclaim the offset so the content below is not pulled
+                        // up with it and left with a gap at the bottom.
+                        .padding(.bottom, -28)
                 }
                 // Pinned to the container width. Without this the masthead's
                 // `maxWidth: .infinity` and the form's `maxWidth: 460` resolve
@@ -112,6 +129,10 @@ struct SignInView: View {
                     }
         }
         .padding(.paddingSpacious)
+        // Runs the sheet down past the last control so it reaches the bottom of
+        // the screen. Without it the card ends under the links and its shadow
+        // draws a seam across the middle of an otherwise empty page.
+        .padding(.bottom, 160)
         .frame(maxWidth: 460)
         .frame(maxWidth: .infinity)
         // No autofocus, deliberately. Both `onAppear` and `defaultFocus`
@@ -127,7 +148,7 @@ struct SignInView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
             Text("auth.sign_in.title".localized)
-                .font(.title2.weight(.bold))
+                .font(BrandFont.display(size: 30, weight: 700))
             Text("auth.sign_in.subtitle".localized)
                 .font(.body)
                 .foregroundStyle(.secondary)

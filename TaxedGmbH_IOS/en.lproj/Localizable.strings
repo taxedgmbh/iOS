@@ -14,6 +14,8 @@
 "auth.email" = "Email";
 "auth.password" = "Password";
 "auth.name" = "Name";
+"auth.password.show" = "Show password";
+"auth.password.hide" = "Hide password";
 "auth.sign_in" = "Sign in";
 "auth.forgot_password" = "Forgot password?";
 "auth.create_account" = "Create an account";

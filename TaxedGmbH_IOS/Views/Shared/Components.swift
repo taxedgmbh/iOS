@@ -18,11 +18,21 @@ struct PrimaryButtonStyle: ButtonStyle {
         configuration.label
             .font(.body.weight(.semibold))
             .foregroundStyle(.white)
-            .frame(minHeight: 48)
+            // Full width belongs HERE, not on the Button. A style sizes its
+            // background to the label, so `.frame(maxWidth: .infinity)` applied
+            // outside stretches the tap target and leaves the fill hugging the
+            // words — which is exactly how it looked.
+            .frame(maxWidth: .infinity, minHeight: 52)
             .padding(.horizontal, .paddingRelaxed)
-            .background(Color.taxedPrimary.opacity(isEnabled ? 1 : 0.4))
-            .clipShape(RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous))
-            .opacity(configuration.isPressed ? 0.85 : 1)
+            .background(Color.taxedPrimary.opacity(isEnabled ? 1 : 0.35))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            // Matched to the field radius, and the same height. The button is
+            // the third item in a vertical rhythm of three; a different corner
+            // on it is the kind of small inconsistency that reads as sloppy
+            // without anyone being able to say why.
+            .scaleEffect(configuration.isPressed ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.9 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 
@@ -76,7 +86,10 @@ struct AuthField<Field: Hashable>: View {
     var submitLabel: SubmitLabel = .return
     var onSubmit: () -> Void = {}
 
+    @State private var revealed = false
+
     private var isEmail: Bool { keyboard == .emailAddress }
+    private var isFocused: Bool { focus.wrappedValue == field }
 
     var body: some View {
         VStack(alignment: .leading, spacing: .verticalSpacingStandard) {
@@ -84,39 +97,68 @@ struct AuthField<Field: Hashable>: View {
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(.secondary)
 
-            Group {
+            HStack(spacing: .paddingTight) {
+                Group {
+                    if isSecure && !revealed {
+                        SecureField(title, text: $text)
+                    } else {
+                        TextField(title, text: $text)
+                    }
+                }
+                .textFieldStyle(.plain)
+                .textContentType(contentType)
+                .keyboardType(keyboard)
+                .textInputAutocapitalization(isEmail ? .never : .sentences)
+                .autocorrectionDisabled(isEmail)
+                .submitLabel(submitLabel)
+                .focused(focus, equals: field)
+                .onSubmit(onSubmit)
+                .accessibilityLabel(title)
+
                 if isSecure {
-                    SecureField(title, text: $text)
-                } else {
-                    TextField(title, text: $text)
+                    revealButton
                 }
             }
-            .textFieldStyle(.plain)
-            .textContentType(contentType)
-            .keyboardType(keyboard)
-            .textInputAutocapitalization(isEmail ? .never : .sentences)
-            .autocorrectionDisabled(isEmail)
-            .submitLabel(submitLabel)
-            .focused(focus, equals: field)
-            .onSubmit(onSubmit)
-            .frame(minHeight: 44)
-            .padding(.horizontal, .paddingStandard)
+            .frame(minHeight: 52)
+            .padding(.horizontal, .paddingRelaxed)
             .background(Color.secondaryBackground)
-            .clipShape(
-                RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous)
-            )
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .strokeBorder(
-                        focus.wrappedValue == field ? Color.taxedPrimary : .clear,
-                        lineWidth: 2
+                        isFocused ? Color.taxedPrimary : Color.fieldBorder,
+                        lineWidth: isFocused ? 2 : 1
                     )
             )
-            .accessibilityLabel(title)
         }
         // The focus ring is the only thing that moves, and animating it makes
         // the jump between fields legible rather than a flicker.
-        .animation(.easeOut(duration: 0.15), value: focus.wrappedValue == field)
+        .animation(.easeOut(duration: 0.15), value: isFocused)
+    }
+
+    /// Reveal the password.
+    ///
+    /// Its absence is one of the most common complaints about login forms, and
+    /// the reason is mechanical: on a phone keyboard a long generated password
+    /// is easy to mistype and impossible to check, so people give up and choose
+    /// something short instead.
+    private var revealButton: some View {
+        Button {
+            revealed.toggle()
+            // Swapping SecureField for TextField tears down the responder, so
+            // focus has to be re-asserted or the keyboard drops on every tap.
+            focus.wrappedValue = field
+        } label: {
+            Image(systemName: revealed ? "eye.slash" : "eye")
+                .font(.system(size: 17))
+                .foregroundStyle(.secondary)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(
+            revealed ? "auth.password.hide".localized : "auth.password.show".localized
+        )
     }
 }
 
@@ -189,12 +231,22 @@ struct MessageScreen<Actions: View>: View {
 // MARK: - Brand
 
 extension Color {
-    /// `brand-red` from the brand system — the logo plate, the primary action,
-    /// and errors. The one red.
+    /// `brand-red` from the brand system — the logo plate and errors.
     ///
     /// #DD1F2F. Not #C7242E, which the brand tokens list as retired and which
     /// this app was using because it was copied from an older note.
+    ///
+    /// The tokens also name red as the primary action colour, but the portal's
+    /// own sign-in button on taxed.ch is steel-blue, and this app matches the
+    /// screen it is a copy of rather than the general rule. Steel-blue also
+    /// carries white at 7.16:1 against red's 4.87:1.
     static let brandRed = Color(red: 0.867, green: 0.122, blue: 0.184)
+
+    /// `border` #D2D9E0 — hairlines and input borders.
+    ///
+    /// A field that is only a grey fill reads as a block; the hairline is what
+    /// makes it read as something you can type into.
+    static let fieldBorder = Color(red: 0.824, green: 0.851, blue: 0.878).opacity(0.9)
 }
 
 // MARK: - Formatting

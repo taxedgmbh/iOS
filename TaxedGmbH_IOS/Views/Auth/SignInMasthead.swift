@@ -30,7 +30,7 @@ struct SignInMasthead: View {
     /// Tall enough to hold the wordmark at a size that reads as a logo rather
     /// than a heading, short enough to leave both fields and the button above
     /// the keyboard on the smallest current iPhone.
-    private let height: CGFloat = 236
+    private let height: CGFloat = 258
 
     var body: some View {
         ZStack {
