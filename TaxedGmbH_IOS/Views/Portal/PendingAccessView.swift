@@ -9,6 +9,10 @@
 //  as "my tax documents are gone" — the worst possible first impression for a
 //  firm holding their records.
 //
+//  It wears the same masthead and sheet as sign-in. It is the second thing a new
+//  client ever sees, and the first version of it was a bare centred icon on
+//  white — which read as an error page rather than as part of the same product.
+//
 
 import SwiftUI
 
@@ -23,43 +27,43 @@ struct PendingAccessView: View {
 
     var body: some View {
         NavigationStack {
-            MessageScreen(
-                systemImage: "clock.badge.checkmark",
-                title: "pending.title".localized,
-                message: "pending.message".localized
-            ) {
-                if let notice {
-                    Text(notice)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                if let errorMessage {
-                    ErrorBanner(message: errorMessage)
-                }
+            MastheadScaffold {
+                VStack(alignment: .leading, spacing: .paddingRelaxed) {
+                    ScaffoldHeader(
+                        title: "pending.title".localized,
+                        message: "pending.message".localized
+                    )
 
-                Button {
-                    Task { await checkAgain() }
-                } label: {
-                    if isChecking {
-                        ProgressView()
-                    } else {
-                        Text("pending.check_again".localized).frame(maxWidth: .infinity)
+                    if let errorMessage {
+                        ErrorBanner(message: errorMessage)
                     }
+
+                    if let notice {
+                        NoticeBanner(message: notice)
+                    }
+
+                    Button {
+                        Task { await checkAgain() }
+                    } label: {
+                        if isChecking {
+                            ProgressView().tint(.white)
+                        } else {
+                            Text("pending.check_again".localized)
+                        }
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .disabled(isChecking)
+
+                    Button("pending.request_again".localized) { showRequest = true }
+                        .buttonStyle(SecondaryButtonStyle())
+                        .frame(maxWidth: .infinity)
+
+                    Button("account.sign_out".localized) { session.signOut() }
+                        .buttonStyle(QuietButtonStyle())
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, .paddingTight)
                 }
-                .frame(maxWidth: .infinity)
-                .buttonStyle(PrimaryButtonStyle())
-                .disabled(isChecking)
-
-                Button("pending.request_again".localized) { showRequest = true }
-                    .buttonStyle(SecondaryButtonStyle())
-                    .frame(maxWidth: .infinity)
-
-                Button("account.sign_out".localized) { session.signOut() }
-                    .buttonStyle(QuietButtonStyle())
             }
-            .navigationTitle(AppConstants.App.name)
-            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showRequest) {
                 AccessRequestSheet(note: $note) { await submitRequest() }
             }
@@ -103,6 +107,7 @@ private struct AccessRequestSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var isWorking = false
+    @FocusState private var focused: Bool
 
     var body: some View {
         NavigationStack {
@@ -110,12 +115,18 @@ private struct AccessRequestSheet: View {
                 Text("pending.request.hint".localized)
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 TextEditor(text: $note)
                     .frame(minHeight: 140)
                     .padding(.paddingTight)
                     .background(Color.secondaryBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .strokeBorder(Color.fieldBorder, lineWidth: 1)
+                    )
+                    .focused($focused)
                     .accessibilityLabel("auth.note".localized)
 
                 Button {
@@ -131,7 +142,6 @@ private struct AccessRequestSheet: View {
                         Text("pending.request.submit".localized)
                     }
                 }
-                .frame(maxWidth: .infinity)
                 .buttonStyle(PrimaryButtonStyle())
                 .disabled(isWorking)
 
@@ -144,6 +154,10 @@ private struct AccessRequestSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common.cancel".localized) { dismiss() }
+                }
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("common.done".localized) { focused = false }
                 }
             }
         }

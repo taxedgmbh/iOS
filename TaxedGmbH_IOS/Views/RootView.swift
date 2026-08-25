@@ -60,22 +60,28 @@ private struct StaffNoticeView: View {
 
     var body: some View {
         NavigationStack {
-            MessageScreen(
-                systemImage: "person.badge.key",
-                title: "staff.title".localized,
-                message: "staff.message".localized
-            ) {
-                Link(destination: AppConstants.Company.website) {
-                    Text("staff.open_web".localized)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PrimaryButtonStyle())
+            MastheadScaffold {
+                VStack(alignment: .leading, spacing: .paddingRelaxed) {
+                    ScaffoldHeader(
+                        title: "staff.title".localized,
+                        message: "staff.message".localized
+                    )
 
-                Button("account.sign_out".localized) { session.signOut() }
-                    .buttonStyle(QuietButtonStyle())
+                    Link(destination: AppConstants.Company.website) {
+                        Text("staff.open_web".localized)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity, minHeight: 52)
+                            .background(Color.taxedPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+
+                    Button("account.sign_out".localized) { session.signOut() }
+                        .buttonStyle(QuietButtonStyle())
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, .paddingTight)
+                }
             }
-            .navigationTitle(AppConstants.App.name)
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

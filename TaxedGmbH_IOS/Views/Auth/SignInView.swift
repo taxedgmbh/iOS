@@ -37,43 +37,9 @@ struct SignInView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                // Zero spacing: the masthead runs edge to edge and top to top,
-                // and any gap above it would show as a white band under the
-                // status bar.
-                VStack(spacing: 0) {
-                    SignInMasthead()
-                    // The sheet rides UP over the masthead. That overlap is
-                    // the whole depth cue: the plate visibly continues behind
-                    // the form instead of stopping at a seam, and the screen
-                    // reads as two layers rather than two stacked blocks.
-                    form
-                        .background(
-                            UnevenRoundedRectangle(
-                                topLeadingRadius: 28,
-                                topTrailingRadius: 28,
-                                style: .continuous
-                            )
-                            .fill(Color.primaryBackground)
-                            .shadow(color: .black.opacity(0.18), radius: 16, y: -4)
-                        )
-                        .offset(y: -28)
-                        // Reclaim the offset so the content below is not pulled
-                        // up with it and left with a gap at the bottom.
-                        .padding(.bottom, -28)
-                }
-                // Pinned to the container width. Without this the masthead's
-                // `maxWidth: .infinity` and the form's `maxWidth: 460` resolve
-                // against an unbounded proposal inside the scroll view, the
-                // content lays out at 460 on a 402pt screen, and both edges
-                // clip — which is exactly how it first shipped.
-                .containerRelativeFrame(.horizontal)
-            }
-            .background(Color.primaryBackground)
-            .scrollDismissesKeyboard(.interactively)
-            .ignoresSafeArea(edges: .top)
-            .navigationDestination(isPresented: $showSignUp) { SignUpView() }
-            .navigationDestination(isPresented: $showReset) { PasswordResetView(email: email) }
+            MastheadScaffold { form }
+                .navigationDestination(isPresented: $showSignUp) { SignUpView() }
+                .navigationDestination(isPresented: $showReset) { PasswordResetView(email: email) }
         }
     }
 
@@ -144,13 +110,6 @@ struct SignInView: View {
                     signUpPrompt
                         .padding(.top, .paddingTight)
         }
-        .padding(.paddingSpacious)
-        // Runs the sheet down past the last control so it reaches the bottom of
-        // the screen. Without it the card ends under the links and its shadow
-        // draws a seam across the middle of an otherwise empty page.
-        .padding(.bottom, 160)
-        .frame(maxWidth: 460)
-        .frame(maxWidth: .infinity)
         // No autofocus, deliberately. Both `onAppear` and `defaultFocus`
         // proved unreliable here — the assignment races the first layout — and
         // the only fix is a timed guess. It is also the weaker design: raising

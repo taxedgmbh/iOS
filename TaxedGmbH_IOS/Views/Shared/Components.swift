@@ -289,6 +289,30 @@ struct ErrorBanner: View {
     }
 }
 
+/// Neutral information — "not approved yet", "we have your note". Deliberately
+/// not the error banner: telling someone nothing has gone wrong in the colour
+/// reserved for things that have is its own small failure.
+struct NoticeBanner: View {
+    let message: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: .paddingStandard) {
+            Image(systemName: "info.circle.fill")
+                .foregroundStyle(Color.taxedPrimary)
+                .accessibilityHidden(true)
+            Text(message)
+                .font(.callout)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.paddingStandard)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.taxedPrimary.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+}
+
 /// A centred explanation with room for one or two actions. Used for every state
 /// that is not a list: pending approval, no documents yet, staff.
 struct MessageScreen<Actions: View>: View {
