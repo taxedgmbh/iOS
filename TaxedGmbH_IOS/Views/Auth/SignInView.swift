@@ -38,7 +38,30 @@ struct SignInView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: .paddingRelaxed) {
+                // Zero spacing: the masthead runs edge to edge and top to top,
+                // and any gap above it would show as a white band under the
+                // status bar.
+                VStack(spacing: 0) {
+                    SignInMasthead()
+                    form
+                }
+                // Pinned to the container width. Without this the masthead's
+                // `maxWidth: .infinity` and the form's `maxWidth: 460` resolve
+                // against an unbounded proposal inside the scroll view, the
+                // content lays out at 460 on a 402pt screen, and both edges
+                // clip — which is exactly how it first shipped.
+                .containerRelativeFrame(.horizontal)
+            }
+            .background(Color.primaryBackground)
+            .scrollDismissesKeyboard(.interactively)
+            .ignoresSafeArea(edges: .top)
+            .navigationDestination(isPresented: $showSignUp) { SignUpView() }
+            .navigationDestination(isPresented: $showReset) { PasswordResetView(email: email) }
+        }
+    }
+
+    private var form: some View {
+        VStack(alignment: .leading, spacing: .paddingRelaxed) {
                     header
 
                     if let errorMessage {
@@ -87,35 +110,24 @@ struct SignInView: View {
                         Button("auth.create_account".localized) { showSignUp = true }
                             .buttonStyle(QuietButtonStyle())
                     }
-                }
-                .padding(.paddingSpacious)
-                .frame(maxWidth: 460)
-                .frame(maxWidth: .infinity)
-            }
-            .background(Color.primaryBackground)
-            .scrollDismissesKeyboard(.interactively)
-            .navigationDestination(isPresented: $showSignUp) { SignUpView() }
-            .navigationDestination(isPresented: $showReset) { PasswordResetView(email: email) }
-            // No autofocus, deliberately. Both `onAppear` and `defaultFocus`
-            // proved unreliable here — the assignment races the first layout —
-            // and the only fix is a timed guess. It is also the weaker design:
-            // raising the keyboard on launch buries the heading that says what
-            // this account is for, to save one tap on a two-field form.
         }
+        .padding(.paddingSpacious)
+        .frame(maxWidth: 460)
+        .frame(maxWidth: .infinity)
+        // No autofocus, deliberately. Both `onAppear` and `defaultFocus`
+        // proved unreliable here — the assignment races the first layout — and
+        // the only fix is a timed guess. It is also the weaker design: raising
+        // the keyboard on launch buries the masthead, which is the thing that
+        // says whose app this is.
     }
 
+    /// No logo here any more — the masthead above IS the logo, and repeating it
+    /// twelve points below itself is the kind of thing that makes a screen feel
+    /// assembled rather than designed.
     private var header: some View {
         VStack(alignment: .leading, spacing: .verticalSpacingComfortable) {
-            Image("taxed-logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 72)
-                .clipShape(RoundedRectangle(cornerRadius: .cornerRadiusLarge, style: .continuous))
-                .accessibilityLabel(AppConstants.App.name)
-                .padding(.bottom, .paddingTight)
-
             Text("auth.sign_in.title".localized)
-                .font(.title.weight(.bold))
+                .font(.title2.weight(.bold))
             Text("auth.sign_in.subtitle".localized)
                 .font(.body)
                 .foregroundStyle(.secondary)

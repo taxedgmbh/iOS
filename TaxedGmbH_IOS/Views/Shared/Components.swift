@@ -189,9 +189,12 @@ struct MessageScreen<Actions: View>: View {
 // MARK: - Brand
 
 extension Color {
-    /// The Swiss accent from the brand system, used as a hairline signature and
-    /// for errors. Matches `brand-red` #C7242E on the web.
-    static let brandRed = Color(red: 0.780, green: 0.141, blue: 0.180)
+    /// `brand-red` from the brand system — the logo plate, the primary action,
+    /// and errors. The one red.
+    ///
+    /// #DD1F2F. Not #C7242E, which the brand tokens list as retired and which
+    /// this app was using because it was copied from an older note.
+    static let brandRed = Color(red: 0.867, green: 0.122, blue: 0.184)
 }
 
 // MARK: - Formatting
