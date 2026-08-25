@@ -18,12 +18,15 @@ struct SignUpView: View {
     @EnvironmentObject private var session: PortalSession
     @Environment(\.dismiss) private var dismiss
 
+    private enum Field { case name, email, password, note }
+
     @State private var name = ""
     @State private var email = ""
     @State private var password = ""
     @State private var note = ""
     @State private var errorMessage: String?
     @State private var isWorking = false
+    @FocusState private var focus: Field?
 
     private var passwordIsLongEnough: Bool {
         password.count >= AppConstants.Validation.minimumPasswordLength
@@ -48,18 +51,40 @@ struct SignUpView: View {
                     ErrorBanner(message: errorMessage)
                 }
 
-                AuthField(title: "auth.name".localized, text: $name, contentType: .name)
+                AuthField(
+                    title: "auth.name".localized,
+                    text: $name,
+                    focus: $focus,
+                    field: .name,
+                    contentType: .name,
+                    submitLabel: .next,
+                    onSubmit: { focus = .email }
+                )
+
                 AuthField(
                     title: "auth.email".localized,
                     text: $email,
+                    focus: $focus,
+                    field: .email,
                     contentType: .username,
-                    keyboard: .emailAddress
+                    keyboard: .emailAddress,
+                    submitLabel: .next,
+                    onSubmit: { focus = .password }
                 )
+
+                // `.newPassword`, not `.password`. With the associated domain in
+                // place this is what makes iOS offer a generated strong password
+                // and save it against taxed.ch — so the same credential works on
+                // the website, and nobody invents "Taxed2026!".
                 AuthField(
                     title: "auth.password".localized,
                     text: $password,
+                    focus: $focus,
+                    field: .password,
                     isSecure: true,
-                    contentType: .newPassword
+                    contentType: .newPassword,
+                    submitLabel: .next,
+                    onSubmit: { focus = .note }
                 )
 
                 Text("auth.password.requirement".localized(
@@ -77,6 +102,7 @@ struct SignUpView: View {
                         .padding(.paddingTight)
                         .background(Color.secondaryBackground)
                         .clipShape(RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous))
+                        .focused($focus, equals: .note)
                         .accessibilityLabel("auth.note".localized)
                     Text("auth.note.hint".localized)
                         .font(.footnote)
@@ -104,9 +130,18 @@ struct SignUpView: View {
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("auth.sign_up.nav".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // A free-text field has no Return to submit on, so it needs a way
+            // back out of the keyboard.
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("common.done".localized) { focus = nil }
+            }
+        }
     }
 
     private func signUp() async {
+        focus = nil
         isWorking = true
         errorMessage = nil
         defer { isWorking = false }

@@ -9,10 +9,13 @@ struct PasswordResetView: View {
     @EnvironmentObject private var session: PortalSession
     @Environment(\.dismiss) private var dismiss
 
+    private enum Field { case email }
+
     @State var email: String
     @State private var errorMessage: String?
     @State private var isWorking = false
     @State private var sent = false
+    @FocusState private var focus: Field?
 
     var body: some View {
         ScrollView {
@@ -44,8 +47,12 @@ struct PasswordResetView: View {
                     AuthField(
                         title: "auth.email".localized,
                         text: $email,
+                        focus: $focus,
+                        field: .email,
                         contentType: .username,
-                        keyboard: .emailAddress
+                        keyboard: .emailAddress,
+                        submitLabel: .send,
+                        onSubmit: { if !email.isBlank { Task { await send() } } }
                     )
 
                     Button {
@@ -67,11 +74,13 @@ struct PasswordResetView: View {
             .frame(maxWidth: .infinity)
         }
         .background(Color.primaryBackground)
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("auth.reset.nav".localized)
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private func send() async {
+        focus = nil
         isWorking = true
         errorMessage = nil
         defer { isWorking = false }

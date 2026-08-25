@@ -2,9 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.applesignin</key>
+	<!--
+	  Password AutoFill.
+
+	  This is what lets iOS offer the password already saved for taxed.ch when
+	  someone signs in here, and offer to save a strong generated one when they
+	  sign up. Without it, the `.username` and `.password` content types on the
+	  fields get generic keychain behaviour rather than this site's credential —
+	  the difference between "tap the suggestion" and "go and look it up".
+
+	  It only works if https://taxed.ch/.well-known/apple-app-site-association
+	  serves {"webcredentials":{"apps":["8784L7RY33.com.taxed.app"]}} as
+	  application/json, over HTTPS, with no redirect. That file is served by a
+	  route handler in the taxed.ch repository.
+
+	  The Apple Sign-In entitlement that used to be here went with Apple
+	  sign-in itself: taxed.ch offers email and password only, and a second
+	  front door to the same accounts is a support problem, not a convenience.
+	-->
+	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>Default</string>
+		<string>webcredentials:taxed.ch</string>
 	</array>
 </dict>
 </plist>

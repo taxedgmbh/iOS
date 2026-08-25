@@ -54,12 +54,29 @@ struct QuietButtonStyle: ButtonStyle {
 
 // MARK: - Fields
 
-struct AuthField: View {
+/// A labelled text field wired for Password AutoFill and keyboard flow.
+///
+/// The `contentType` is the load-bearing part. Together with the
+/// `webcredentials:taxed.ch` entitlement it is what makes iOS offer the
+/// password already saved for the website, rather than a generic keychain
+/// prompt — and on sign-up, offer to generate and save a strong one.
+///
+/// Focus is passed in rather than held here so the parent can move between
+/// fields on Return. A sign-in form where Return does nothing is the small
+/// friction people notice most.
+struct AuthField<Field: Hashable>: View {
     let title: String
     @Binding var text: String
+    let focus: FocusState<Field?>.Binding
+    let field: Field
+
     var isSecure = false
     var contentType: UITextContentType?
     var keyboard: UIKeyboardType = .default
+    var submitLabel: SubmitLabel = .return
+    var onSubmit: () -> Void = {}
+
+    private var isEmail: Bool { keyboard == .emailAddress }
 
     var body: some View {
         VStack(alignment: .leading, spacing: .verticalSpacingStandard) {
@@ -77,14 +94,29 @@ struct AuthField: View {
             .textFieldStyle(.plain)
             .textContentType(contentType)
             .keyboardType(keyboard)
-            .textInputAutocapitalization(keyboard == .emailAddress ? .never : .sentences)
-            .autocorrectionDisabled(keyboard == .emailAddress)
+            .textInputAutocapitalization(isEmail ? .never : .sentences)
+            .autocorrectionDisabled(isEmail)
+            .submitLabel(submitLabel)
+            .focused(focus, equals: field)
+            .onSubmit(onSubmit)
             .frame(minHeight: 44)
             .padding(.horizontal, .paddingStandard)
             .background(Color.secondaryBackground)
-            .clipShape(RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous))
+            .clipShape(
+                RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: .cornerRadiusMedium, style: .continuous)
+                    .strokeBorder(
+                        focus.wrappedValue == field ? Color.taxedPrimary : .clear,
+                        lineWidth: 2
+                    )
+            )
             .accessibilityLabel(title)
         }
+        // The focus ring is the only thing that moves, and animating it makes
+        // the jump between fields legible rather than a flicker.
+        .animation(.easeOut(duration: 0.15), value: focus.wrappedValue == field)
     }
 }
 

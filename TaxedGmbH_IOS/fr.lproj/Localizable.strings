@@ -4,6 +4,7 @@
 
 /* MARK: Common */
 "common.cancel" = "Annuler";
+"common.done" = "OK";
 "tab.documents" = "Documents";
 "tab.account" = "Compte";
 
