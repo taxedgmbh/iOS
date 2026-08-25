@@ -12,6 +12,12 @@
 #                          Integrations → App Store Connect API>
 #   ./upload_to_testflight.sh
 #
+# The same key and issuer are already installed for the tagalogue.tv project on
+# this machine, so the issuer can be read from there rather than looked up:
+#
+#   export ASC_ISSUER_ID=$(python3 -c "import json,os; print(json.load(open(
+#     os.path.expanduser('~/Documents/tagalogue.tv/credentials/asc.json')))['issuerId'])")
+#
 # The signing key is expected at ~/.appstoreconnect/private_keys/AuthKey_<ID>.p8
 # where <ID> is ASC_KEY_ID. altool finds it there by convention.
 
@@ -39,8 +45,17 @@ if [ ! -f "$KEY_PATH" ]; then
   exit 1
 fi
 
-echo "==> Archiving (this needs an Apple Distribution certificate; Xcode's"
-echo "    automatic signing creates one if the Apple ID has the team role)"
+# The same API key drives provisioning, not just the upload. That is why this
+# needs no Apple ID signed into Xcode: the key creates the distribution
+# certificate and profile itself. `-allowProvisioningUpdates` on its own would
+# require an interactive Xcode account, which this build machine does not have.
+AUTH=(-allowProvisioningUpdates
+      -authenticationKeyPath "$KEY_PATH"
+      -authenticationKeyID "$ASC_KEY_ID"
+      -authenticationKeyIssuerID "$ASC_ISSUER_ID")
+
+echo "==> Archiving (the API key mints the distribution certificate if the"
+echo "    team does not have one yet)"
 rm -rf "$ARCHIVE" "$EXPORT_DIR"
 xcodebuild archive \
   -project "$PROJECT" \
@@ -48,14 +63,14 @@ xcodebuild archive \
   -configuration Release \
   -destination 'generic/platform=iOS' \
   -archivePath "$ARCHIVE" \
-  -allowProvisioningUpdates
+  "${AUTH[@]}"
 
 echo "==> Exporting for the App Store"
 xcodebuild -exportArchive \
   -archivePath "$ARCHIVE" \
   -exportPath "$EXPORT_DIR" \
   -exportOptionsPlist ExportOptions.plist \
-  -allowProvisioningUpdates
+  "${AUTH[@]}"
 
 IPA=$(find "$EXPORT_DIR" -name '*.ipa' | head -1)
 [ -n "$IPA" ] || { echo "No .ipa produced"; exit 1; }
