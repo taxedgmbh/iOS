@@ -1,71 +1,73 @@
 #!/bin/bash
+#
+# Archive the app and upload it to TestFlight.
+#
+# The two scripts this replaces both carried literal YOUR_API_KEY /
+# YOUR_ISSUER_ID placeholders, so neither had ever run successfully. Credentials
+# come from the environment here, and the script refuses to start without them
+# rather than failing forty minutes later at the upload step.
+#
+# Usage:
+#   export ASC_ISSUER_ID=<uuid from App Store Connect → Users and Access →
+#                          Integrations → App Store Connect API>
+#   ./upload_to_testflight.sh
+#
+# The signing key is expected at ~/.appstoreconnect/private_keys/AuthKey_<ID>.p8
+# where <ID> is ASC_KEY_ID. altool finds it there by convention.
 
-# TestFlight Upload Script for TaxedGmbH_IOS
+set -euo pipefail
 
-echo "🚀 TaxedGmbH TestFlight Upload Script"
-echo "======================================"
-echo ""
+PROJECT="TaxedGmbH_IOS.xcodeproj"
+SCHEME="TaxedGmbH_IOS"
+ARCHIVE="build/TaxedGmbH_IOS.xcarchive"
+EXPORT_DIR="build/export"
 
-ARCHIVE_PATH="$HOME/Desktop/TaxedGmbH_IOS.xcarchive"
-EXPORT_PATH="$HOME/Desktop/TaxedGmbH_IOS_Export"
-EXPORT_OPTIONS="ExportOptions.plist"
+ASC_KEY_ID="${ASC_KEY_ID:-9RKNQAQ27H}"
 
-# Check if archive exists
-if [ ! -d "$ARCHIVE_PATH" ]; then
-    echo "❌ Archive not found at: $ARCHIVE_PATH"
-    echo "Please build the archive first with:"
-    echo "xcodebuild -project TaxedGmbH_IOS.xcodeproj -scheme TaxedGmbH_IOS -configuration Release -sdk iphoneos -archivePath ~/Desktop/TaxedGmbH_IOS.xcarchive clean archive"
-    exit 1
+if [ -z "${ASC_ISSUER_ID:-}" ]; then
+  echo "ASC_ISSUER_ID is not set."
+  echo
+  echo "  App Store Connect → Users and Access → Integrations → App Store Connect API"
+  echo "  Copy the Issuer ID (a UUID) shown above the key list, then:"
+  echo "    export ASC_ISSUER_ID=<uuid>"
+  exit 1
 fi
 
-echo "✅ Found archive at: $ARCHIVE_PATH"
+KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+if [ ! -f "$KEY_PATH" ]; then
+  echo "No signing key at $KEY_PATH"
+  exit 1
+fi
 
-# Export IPA from archive
-echo ""
-echo "📦 Exporting IPA for App Store..."
+echo "==> Archiving (this needs an Apple Distribution certificate; Xcode's"
+echo "    automatic signing creates one if the Apple ID has the team role)"
+rm -rf "$ARCHIVE" "$EXPORT_DIR"
+xcodebuild archive \
+  -project "$PROJECT" \
+  -scheme "$SCHEME" \
+  -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -archivePath "$ARCHIVE" \
+  -allowProvisioningUpdates
+
+echo "==> Exporting for the App Store"
 xcodebuild -exportArchive \
-    -archivePath "$ARCHIVE_PATH" \
-    -exportPath "$EXPORT_PATH" \
-    -exportOptionsPlist "$EXPORT_OPTIONS" \
-    -allowProvisioningUpdates
+  -archivePath "$ARCHIVE" \
+  -exportPath "$EXPORT_DIR" \
+  -exportOptionsPlist ExportOptions.plist \
+  -allowProvisioningUpdates
 
-if [ $? -ne 0 ]; then
-    echo "❌ Export failed!"
-    exit 1
-fi
+IPA=$(find "$EXPORT_DIR" -name '*.ipa' | head -1)
+[ -n "$IPA" ] || { echo "No .ipa produced"; exit 1; }
 
-echo ""
-echo "✅ IPA exported successfully to: $EXPORT_PATH"
+echo "==> Validating before upload"
+xcrun altool --validate-app -f "$IPA" -t ios \
+  --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
-# Upload to App Store Connect
-echo ""
-echo "📤 Uploading to TestFlight..."
-echo "This will validate and upload your app to App Store Connect."
-echo ""
+echo "==> Uploading to TestFlight"
+xcrun altool --upload-app -f "$IPA" -t ios \
+  --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
 
-xcrun altool --upload-app \
-    -f "$EXPORT_PATH/TaxedGmbH_IOS.ipa" \
-    -t ios \
-    --apiKey "YOUR_API_KEY" \
-    --apiIssuer "YOUR_ISSUER_ID" \
-    --verbose
-
-# Alternative: Use Transporter or Xcode Organizer
-echo ""
-echo "======================================"
-echo "Alternative upload methods:"
-echo ""
-echo "1. Open Xcode Organizer:"
-echo "   xcodebuild -exportArchive -archivePath $ARCHIVE_PATH -exportPath $EXPORT_PATH -exportOptionsPlist $EXPORT_OPTIONS"
-echo "   Then: Xcode > Window > Organizer > Upload to App Store"
-echo ""
-echo "2. Use Transporter app:"
-echo "   - Download from Mac App Store"
-echo "   - Sign in with Apple ID"
-echo "   - Drag the IPA file: $EXPORT_PATH/TaxedGmbH_IOS.ipa"
-echo ""
-echo "3. Use Xcode directly:"
-echo "   open $ARCHIVE_PATH"
-echo "   This will open in Xcode Organizer for direct upload"
-echo ""
-echo "======================================"
+echo
+echo "Uploaded. Processing in App Store Connect usually takes 5–15 minutes"
+echo "before the build appears in TestFlight."
