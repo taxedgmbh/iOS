@@ -108,6 +108,7 @@ struct DocumentsView: View {
     private func reload() async {
         await service.load(householdId: householdId)
         errorMessage = service.error?.localizedDescription
+        if let error = service.error { session.noteAPIError(error) }
     }
 
     /// Downloads, then previews. Documents proxy through the API — Drive has no
@@ -120,6 +121,7 @@ struct DocumentsView: View {
             previewURL = try await service.download(document, householdId: householdId)
         } catch {
             errorMessage = error.localizedDescription
+            session.noteAPIError(error)
         }
     }
 }

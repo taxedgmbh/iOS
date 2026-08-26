@@ -24,6 +24,7 @@
 //
 
 import Foundation
+import os
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
@@ -267,6 +268,16 @@ final class PortalSession: ObservableObject {
     func signOut() {
         try? Auth.auth().signOut()
     }
+
+    /// The one place an API error may end a session. Only `tokenRevoked`
+    /// qualifies (see `PortalError.requiresReauthentication`); everything else
+    /// stays on screen as a banner. Signing out here lets the auth listener
+    /// route back to `SignInView`, which is what a revoked session deserves —
+    /// retrying forever with a token the server refuses would not.
+    func noteAPIError(_ error: Error) {
+        guard let portalError = error as? PortalError, portalError.requiresReauthentication else { return }
+        signOut()
+    }
 }
 
 // MARK: - Auth errors
@@ -297,6 +308,12 @@ struct AuthFailure: LocalizedError {
         case .wrongPassword, .userNotFound, .invalidCredential:
             errorDescription = "auth.error.invalid_credentials".localized
         default:
+            // The user sees the generic line; the code goes to the unified log
+            // so a failure on a device can be diagnosed from Console.app. No
+            // identity in the message — the code and domain are enough.
+            let nsError = error as NSError
+            Logger(subsystem: AppConstants.App.bundleIdentifier, category: "auth")
+                .error("Unmapped auth failure: \(nsError.domain, privacy: .public) \(nsError.code, privacy: .public)")
             errorDescription = "auth.error.generic".localized
         }
     }

@@ -2,12 +2,12 @@
 //  SignInView.swift
 //  TaxedGmbH_IOS
 //
-//  Email and password, the same as the web portal.
+//  Email and password, Apple and Google — the same three as the web portal.
 //
-//  Apple and Google sign-in were removed with the rest of what the backend does
-//  not have: taxed.ch offers one way in, and two front doors to the same
-//  accounts is a support problem ("I signed up with Google and now it says no
-//  account") rather than a convenience.
+//  The parity is the point: a Google account carries no password, so an
+//  app-only provider would strand people on the website ("I signed up with
+//  Google and now it says no account"). Apple is required alongside Google by
+//  App Store Guideline 4.8.
 //
 //  Passkeys would be the modern answer and are deliberately not here: Firebase
 //  Authentication has no passkey provider, so supporting them would mean a

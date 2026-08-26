@@ -22,6 +22,7 @@ struct UploadSheet: View {
     let onFinished: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var session: PortalSession
 
     @State private var pickedFile: PickedFile?
     @State private var category: String = ""
@@ -202,6 +203,7 @@ struct UploadSheet: View {
             dismiss()
         } catch {
             errorMessage = error.localizedDescription
+            session.noteAPIError(error)
         }
     }
 }

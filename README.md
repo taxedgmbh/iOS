@@ -5,7 +5,7 @@ The Taxed GmbH client portal for iPhone and iPad. It is the same portal as
 backend, and it does the same things: sign in, send a document, read what we
 have prepared for you.
 
-**Native SwiftUI, iOS 18+, Firebase Auth + Firestore.** No server lives in this
+**Native SwiftUI, iOS 17+, Firebase Auth + Firestore.** No server lives in this
 repository — see [Backend](#backend).
 
 ## Build
