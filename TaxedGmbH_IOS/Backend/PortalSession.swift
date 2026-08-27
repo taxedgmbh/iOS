@@ -139,10 +139,10 @@ final class PortalSession: ObservableObject {
         }
     }
 
-    /// Re-reads the claims, forcing a token refresh. This is what the "check
-    /// again" button on the pending screen actually does.
+    /// Creates or finishes the household, then re-reads the claims. This is
+    /// what the "check again" button on the pending screen actually does.
     func refreshAccess() async {
-        await adopt(Auth.auth().currentUser, forceRefresh: true)
+        await ensureEnvironment(displayName: displayName ?? Auth.auth().currentUser?.displayName ?? "")
     }
 
     private func loadDisplayName(uid: String, fallback: String?) async {
@@ -164,14 +164,30 @@ final class PortalSession: ObservableObject {
         } catch {
             throw AuthFailure(error)
         }
-        await adopt(Auth.auth().currentUser)
+        await ensureEnvironment(displayName: Auth.auth().currentUser?.displayName ?? "")
     }
 
-    /// Creates the account, then the `users/{uid}` record, then asks for access.
+    /// `POST /api/portal/account` creates the record, the household and its
+    /// Drive folders, and is idempotent — so every sign-in calls it. That is
+    /// what gives an account from before self-serve provisioning its household
+    /// on its next sign-in, and what retries a Drive step that failed.
     ///
-    /// The order matters: the account record must exist before the access
-    /// request references it. Both server calls are idempotent, so a retried
-    /// signup is harmless.
+    /// Failure here is not a sign-in failure: `adopt` still routes on whatever
+    /// the claims say, and the pending screen's "check again" calls this again.
+    /// The refresh is forced because the claim is minted server-side and the
+    /// token in hand predates it.
+    private func ensureEnvironment(displayName: String) async {
+        let _: AccountResponse? = try? await PortalAPI.shared.post(
+            "/api/portal/account",
+            body: ["displayName": displayName, "language": LocalizationService.shared.currentLanguage.rawValue]
+        )
+        await adopt(Auth.auth().currentUser, forceRefresh: true)
+    }
+
+    /// Creates the account, then — in one server call — the `users/{uid}`
+    /// record, the household and its Drive folders. The person lands in their
+    /// documents, not a waiting room. Every server call is idempotent, so a
+    /// retried signup is harmless.
     func signUp(email: String, password: String, name: String, note: String) async throws {
         let address = email.trimmed.lowercased()
         let name = name.trimmed
@@ -188,16 +204,15 @@ final class PortalSession: ObservableObject {
             try? await change.commitChanges()
         }
 
-        let _: AccountResponse = try await PortalAPI.shared.post(
-            "/api/portal/account",
-            body: ["displayName": name]
-        )
-        let _: AccessRequestResponse = try await PortalAPI.shared.post(
-            "/api/portal/access-request",
-            body: ["displayName": name, "note": note.trimmed]
-        )
+        // A note is a message to the advisor, not a gate. Send it only if written.
+        if !note.isBlank {
+            let _: AccessRequestResponse? = try? await PortalAPI.shared.post(
+                "/api/portal/access-request",
+                body: ["displayName": name, "note": note.trimmed]
+            )
+        }
 
-        await adopt(Auth.auth().currentUser)
+        await ensureEnvironment(displayName: name)
     }
 
     // MARK: - Apple and Google
@@ -239,13 +254,7 @@ final class PortalSession: ObservableObject {
             try? await change.commitChanges()
         }
 
-        let displayName = name ?? result.user.displayName ?? ""
-        let _: AccountResponse = try await PortalAPI.shared.post(
-            "/api/portal/account",
-            body: ["displayName": displayName]
-        )
-
-        await adopt(Auth.auth().currentUser)
+        await ensureEnvironment(displayName: name ?? result.user.displayName ?? "")
     }
 
     /// Asks for a client area from an account that already exists — the path

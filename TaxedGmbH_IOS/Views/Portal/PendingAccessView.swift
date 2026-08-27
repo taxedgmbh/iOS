@@ -4,10 +4,10 @@
 //
 //  Where a signed-in account with no household lands.
 //
-//  This screen exists because signup deliberately provisions nothing. Without
-//  it, someone waiting for approval would see an empty document list and read it
-//  as "my tax documents are gone" — the worst possible first impression for a
-//  firm holding their records.
+//  Rare since signup provisions the household itself: it is reached only when
+//  that call failed (network, Drive, the server's hourly cap) or by an account
+//  from before it existed. "Check again" does the real work — it calls the
+//  account route again, which creates or finishes the household.
 //
 //  It wears the same masthead and sheet as sign-in. It is the second thing a new
 //  client ever sees, and the first version of it was a bare centred icon on

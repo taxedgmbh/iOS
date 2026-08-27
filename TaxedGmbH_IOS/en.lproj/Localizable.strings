@@ -51,9 +51,9 @@
 
 /* MARK: Waiting for access */
 "pending.title" = "We are setting up your documents";
-"pending.message" = "Your account exists. Someone at Taxed still has to open your document area — we will email you the moment it is ready.";
+"pending.message" = "Your account exists and your document area is being created. That normally takes a few seconds — if you are seeing this, tap Check again and we will finish it.";
 "pending.check_again" = "Check again";
-"pending.not_yet" = "Not yet. There is no need to keep checking — we will email you.";
+"pending.not_yet" = "Still setting up. Try again in a moment, or send us a note and we will finish it by hand.";
 "pending.request_again" = "Send us a note";
 "pending.request.hint" = "Tell us who you are and what you need help with. This goes to the person who opens your area.";
 "pending.request.submit" = "Send";

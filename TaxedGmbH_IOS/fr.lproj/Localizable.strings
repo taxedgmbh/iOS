@@ -51,9 +51,9 @@
 
 /* MARK: Waiting for access */
 "pending.title" = "Nous préparons votre espace";
-"pending.message" = "Votre compte existe. Une personne chez Taxed doit encore ouvrir votre espace documents — nous vous écrirons dès qu’il sera prêt.";
+"pending.message" = "Votre compte existe et votre espace documents est en cours de création. Cela prend normalement quelques secondes — si vous voyez ceci, touchez « Vérifier à nouveau » et nous terminerons.";
 "pending.check_again" = "Vérifier à nouveau";
-"pending.not_yet" = "Pas encore. Inutile de vérifier sans cesse — nous vous écrirons.";
+"pending.not_yet" = "Encore en cours. Réessayez dans un instant, ou envoyez-nous une note et nous terminerons à la main.";
 "pending.request_again" = "Nous écrire un mot";
 "pending.request.hint" = "Dites-nous qui vous êtes et ce dont vous avez besoin. La personne qui ouvre votre espace le lira.";
 "pending.request.submit" = "Envoyer";

@@ -51,9 +51,9 @@
 
 /* MARK: Waiting for access */
 "pending.title" = "Wir richten Ihren Bereich ein";
-"pending.message" = "Ihr Konto besteht. Jemand bei Taxed muss Ihren Dokumentenbereich noch freischalten — wir melden uns per E-Mail, sobald er bereit ist.";
+"pending.message" = "Ihr Konto besteht, und Ihr Dokumentenbereich wird gerade angelegt. Das dauert normalerweise wenige Sekunden — wenn Sie das hier sehen, tippen Sie auf „Erneut prüfen“, und wir schliessen es ab.";
 "pending.check_again" = "Erneut prüfen";
-"pending.not_yet" = "Noch nicht. Sie müssen nicht weiter nachsehen — wir schreiben Ihnen.";
+"pending.not_yet" = "Noch in Arbeit. Versuchen Sie es gleich noch einmal oder senden Sie uns eine Notiz — dann erledigen wir es von Hand.";
 "pending.request_again" = "Nachricht senden";
 "pending.request.hint" = "Sagen Sie uns, wer Sie sind und wobei wir helfen sollen. Das liest die Person, die Ihren Bereich freischaltet.";
 "pending.request.submit" = "Senden";

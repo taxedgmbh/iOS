@@ -51,9 +51,9 @@
 
 /* MARK: Waiting for access */
 "pending.title" = "Stiamo preparando il suo spazio";
-"pending.message" = "Il suo account esiste. Una persona di Taxed deve ancora aprire il suo spazio documenti: le scriveremo appena è pronto.";
+"pending.message" = "Il suo account esiste e il suo spazio documenti è in fase di creazione. Di solito richiede pochi secondi: se vede questa schermata, tocchi «Controlla di nuovo» e lo completeremo.";
 "pending.check_again" = "Controlla di nuovo";
-"pending.not_yet" = "Non ancora. Non serve continuare a controllare: le scriveremo.";
+"pending.not_yet" = "Ancora in corso. Riprovi tra un momento, oppure ci mandi una nota e lo completeremo a mano.";
 "pending.request_again" = "Inviaci un messaggio";
 "pending.request.hint" = "Ci dica chi è e di cosa ha bisogno. Lo legge la persona che apre il suo spazio.";
 "pending.request.submit" = "Invia";
