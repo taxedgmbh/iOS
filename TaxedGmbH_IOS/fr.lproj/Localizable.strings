@@ -27,11 +27,11 @@
 /* MARK: Sign up */
 "auth.sign_up.nav" = "Créer un compte";
 "auth.sign_up.title" = "Créez votre compte";
-"auth.sign_up.subtitle" = "Nous configurons votre espace documents à la main : une personne s’en occupe, cela prend un moment.";
-"auth.sign_up.submit" = "Créer le compte et demander l’accès";
+"auth.sign_up.subtitle" = "Votre espace documents est prêt dès que vous avez terminé — sans attendre personne.";
+"auth.sign_up.submit" = "Créer le compte";
 "auth.password.requirement" = "Au moins %d caractères.";
 "auth.note" = "Ce que nous devrions savoir";
-"auth.note.hint" = "Facultatif. La personne qui examine votre demande le lira.";
+"auth.note.hint" = "Facultatif. Transmis directement à votre conseiller.";
 
 /* MARK: Password reset */
 "auth.reset.nav" = "Réinitialiser";

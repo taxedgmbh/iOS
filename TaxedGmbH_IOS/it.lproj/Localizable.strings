@@ -27,11 +27,11 @@
 /* MARK: Sign up */
 "auth.sign_up.nav" = "Crea un account";
 "auth.sign_up.title" = "Crei il suo account";
-"auth.sign_up.subtitle" = "Prepariamo il suo spazio documenti manualmente: se ne occupa una persona e richiede un momento.";
-"auth.sign_up.submit" = "Crea l’account e richiedi l’accesso";
+"auth.sign_up.subtitle" = "Il suo spazio documenti è pronto appena termina: senza aspettare nessuno.";
+"auth.sign_up.submit" = "Crea l’account";
 "auth.password.requirement" = "Almeno %d caratteri.";
 "auth.note" = "Cosa dovremmo sapere";
-"auth.note.hint" = "Facoltativo. Chi esamina la sua richiesta legge questo.";
+"auth.note.hint" = "Facoltativo. Arriva direttamente al suo consulente.";
 
 /* MARK: Password reset */
 "auth.reset.nav" = "Reimposta password";
